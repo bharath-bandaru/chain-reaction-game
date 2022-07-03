@@ -14,19 +14,19 @@ function Player({ state, color, max, hints }) {
                     {(state >= 1) &&
                         <>
                             <div className="nucleus"></div>
-                            {(max === 1 && hints) && <div class="electron1"></div>}
+                            {(max === 1 && hints) && <div className="electron1"></div>}
                         </>
                     }
                     {(state >= 2) &&
                         <>
                             <div className="nucleus2"></div>
-                            {(max === 2 && hints) && <div class="electron2"></div>}
+                            {(max === 2 && hints) && <div className="electron2"></div>}
                         </>
                     }
                     {(state >= 3) &&
                         <>
                             <div className="nucleus3"></div>
-                            {(max === 3 && hints) && <div class="electron3"></div>}
+                            {(max === 3 && hints) && <div className="electron3"></div>}
                         </>
                     }
                 </div>
@@ -52,14 +52,14 @@ function Square({ id, value, max, hints, onClick }) {
 function Game() {
     var board_x = 8, board_y = 6;
     const [squares, setSquares] = useState(Array.from({ length: board_x }, _ => new Array(board_y).fill(null)));
-    const [player_n, setNoPlayer] = useState(3);
+    const [player_n, setNoPlayer] = useState(2);
     const [next_plyr, setPlayer] = useState(0);
     const [loser, setLoser] = useState(Array(player_n).fill(false));
     const player_color = [
-        '#CD0000',
-        '#B0CD00',
         '#00A8CD',
-        '#CD00C5'
+        '#CD00C5',
+        '#B0CD00',
+        '#CD0000'
     ];
     const [num_steps, setNumSteps] = useState(0);
     const [hints, setHints] = useState(true);
@@ -121,7 +121,8 @@ function Game() {
             tempLoser = Array(player_n).fill(false);
             if (gameOver(tempLoser)) {
                 setNumSteps(0);
-                alert("Game Over");
+                alert("🎮 Game Over 🎯");
+                restartGame();
                 return;
             }
         }
@@ -236,7 +237,7 @@ function Game() {
                             );
                         })
                     }
-                    <div className='header'>
+                    <div className='footer'>
                         <div className='buttons'> ❤️ </div>
                         <h3>chain reaction</h3>
                         <div className='buttons tooltip' onClick={shareGame}>🚀 </div>
