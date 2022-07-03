@@ -1,5 +1,7 @@
 body {
   margin: 0;
+  background-color: #191919;
+  color: #fff;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -10,4 +12,338 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.row {
+  color: inherit;
+}
+
+.square {
+  background: #191919;
+  color: inherit;
+  border: 1px solid;
+  float: left;
+  font-size: 15px;
+  font-weight: bold;
+  line-height: 24px;
+  height: 60px;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.dot {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  margin: 5px;
+  display: inline-block;
+}
+
+.buttons {
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.row:after {
+  clear: both;
+  content: "";
+  display: table;
+}
+
+@-webkit-keyframes particle_ {
+  from {
+    transform: rotateX(90deg) rotateY(0deg);
+  }
+
+  to {
+    transform: rotateX(90deg) rotateY(-360deg);
+  }
+}
+
+@keyframes particle_ {
+  from {
+    transform: rotateX(90deg) rotateY(0deg);
+  }
+
+  to {
+    transform: rotateX(90deg) rotateY(-360deg);
+  }
+}
+
+.atom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: translate(-50%, -50%) scale(0.3);
+}
+
+.nucleus {
+  height: 60px;
+  width: 60px;
+  position: absolute;
+  background-color: inherit;
+  border: solid #191919;
+  border-radius: 100%;
+}
+
+.nucleus2 {
+  height: 60px;
+  width: 60px;
+  margin-left: 45px;
+  margin-top: 60px;
+  border: solid #191919;
+  position: absolute;
+  background-color: inherit;
+  border-radius: 100%;
+}
+
+.nucleus3 {
+  height: 60px;
+  width: 60px;
+  margin-right: 45px;
+  margin-top: 60px;
+  border: solid #191919;
+  position: absolute;
+  background-color: inherit;
+  border-radius: 100%;
+}
+
+.temp {
+  background-color: inherit;
+}
+
+.electron1 {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  background-color: inherit;
+  border-radius: 100%;
+  -webkit-animation: movementLeft 2s ease-in-out infinite, size 2s linear;
+  animation: movementLeft 2s ease-in-out infinite, size 2s linear;
+}
+
+.electron2 {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  background-color: inherit;
+  border-radius: 100%;
+  -webkit-animation: movementRight 2s ease-in-out infinite, size 2s linear;
+  animation: movementRight 2s ease-in-out infinite, size 2s linear;
+}
+
+.electron3 {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  background-color: inherit;
+  border-radius: 100%;
+  -webkit-animation: movementTop 2s ease-in-out infinite, size 2s linear;
+  animation: movementTop 2s ease-in-out infinite, size 2s linear;
+}
+
+@-webkit-keyframes movementLeft {
+  0% {
+    left: -70px;
+    top: 35px;
+  }
+
+  50% {
+    left: 50px;
+    top: -25px;
+  }
+
+  100% {
+    left: -70px;
+    top: 35px;
+  }
+}
+
+@keyframes movementLeft {
+  0% {
+    left: -70px;
+    top: 35px;
+  }
+
+  50% {
+    left: 50px;
+    top: -25px;
+  }
+
+  100% {
+    left: -70px;
+    top: 35px;
+  }
+}
+
+@-webkit-keyframes movementTop {
+  0% {
+    top: -70px;
+  }
+
+  50% {
+    top: 50px;
+  }
+
+  100% {
+    top: -70px;
+  }
+}
+
+.header {
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
+
+.mui {
+  cursor: pointer;
+}
+
+.mui-people {
+  padding: 9px;
+  /* font-size: 30px !important; */
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 30px;
+  /* Preferred icon size */
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+
+  /* Support for all WebKit browsers. */
+  -webkit-font-smoothing: antialiased;
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility;
+
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Support for IE. */
+  font-feature-settings: 'liga';
+}
+
+@keyframes movementTop {
+  0% {
+    top: -70px;
+  }
+
+  50% {
+    top: 50px;
+  }
+
+  100% {
+    top: -70px;
+  }
+}
+
+@-webkit-keyframes movementRight {
+  0% {
+    right: -70px;
+    top: 35px;
+  }
+
+  50% {
+    right: 50px;
+    top: -35px;
+  }
+
+  100% {
+    right: -70px;
+    top: 35px;
+  }
+}
+
+@keyframes movementRight {
+  0% {
+    right: -70px;
+    top: 35px;
+  }
+
+  50% {
+    right: 50px;
+    top: -35px;
+  }
+
+  100% {
+    right: -70px;
+    top: 35px;
+  }
+}
+
+@-webkit-keyframes size {
+  0% {
+    transform: scale(1)
+  }
+
+  25% {
+    transform: scale(2)
+  }
+
+  75% {
+    transform: scale(1)
+  }
+}
+
+@keyframes size {
+  0% {
+    transform: scale(1)
+  }
+
+  25% {
+    transform: scale(2)
+  }
+
+  75% {
+    transform: scale(1)
+  }
+}
+
+@-webkit-keyframes nucleus_ {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 transparent;
+  }
+
+  50% {
+    box-shadow: 0 0 25px inherit;
+  }
+}
+
+@keyframes nucleus_ {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 transparent;
+  }
+
+  50% {
+    box-shadow: 0 0 25px inherit;
+  }
 }
