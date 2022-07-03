@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/bb/chain-reaction/static/css/main.acaa4c17.css",
+    "main.js": "/bb/chain-reaction/static/js/main.cb8b87c1.js",
+    "index.html": "/bb/chain-reaction/index.html",
+    "main.acaa4c17.css.map": "/bb/chain-reaction/static/css/main.acaa4c17.css.map",
+    "main.cb8b87c1.js.map": "/bb/chain-reaction/static/js/main.cb8b87c1.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.acaa4c17.css",
+    "static/js/main.cb8b87c1.js"
+  ]
+}
