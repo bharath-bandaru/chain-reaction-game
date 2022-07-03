@@ -182,6 +182,10 @@ function Game() {
         setLoser(Array(player_n).fill(false));
         setSquares(Array.from({ length: board_x }, _ => new Array(board_y).fill(null)));
     }
+    const shareGame = () => {
+        navigator.clipboard.writeText("Here is the link to play chain reaction 💣: 'https://bharath-bandaru.github.io/chain-reaction-game/'");
+    }
+
     return (
         <>
             <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link>
@@ -235,7 +239,7 @@ function Game() {
                     <div className='header'>
                         <div className='buttons'> ❤️ </div>
                         <h3>chain reaction</h3>
-                        <div className='buttons'> 😶 </div>
+                        <div className='buttons tooltip' onClick={shareGame}>🚀 </div>
                     </div>
                 </div>
             </div>
