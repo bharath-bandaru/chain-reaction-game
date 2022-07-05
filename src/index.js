@@ -185,46 +185,25 @@ function Game() {
     useEffect(() => {
         console.log("useEffect", squares)
     }, [squares]);
-    const handleClick = async (i, j, isInit) => {
+    const handleClick = async (i, j, isInit, tempLoser) => {
         if (isInit && squares[i][j] != null && squares[i][j].player !== next_plyr) return;
         setNumSteps(num_steps + 1);
-        var queue = [];
-        queue.push([i, j]);
-        var tempLoser = Array(player_n).fill(false);
-        while (queue.length > 0) {
-            var [k, l] = queue.shift();
-            if (chainReact(k, l, isInit)) {
-                //await playCSSAnimation(k, l, squares[k][l]);
-                original_squares[k][l] = null
-                setSquares(original_squares.slice());
-                isInit = false;
-                if (k - 1 >= 0) queue.push([k - 1, l]);
-                if (k + 1 < board_x) queue.push([k + 1, l]);
-                if (l - 1 >= 0) queue.push([k, l - 1]);
-                if (l + 1 < board_y) queue.push([k, l + 1]);
-            }
-            tempLoser = Array(player_n).fill(false);
-            if (gameOver(tempLoser)) {
-                setNumSteps(0);
-                alert("🎮 Game Over 🎯");
-                restartGame();
-                return;
-            }
+        if (chainReact(i, j, isInit)) {
+            await playCSSAnimation(i, j, squares[i][j]);
+            original_squares[i][j] = null
+            setSquares(original_squares.slice());
+            isInit = false;
+            if (i - 1 >= 0) handleClick(i - 1, j, false);
+            if (i + 1 < board_x) handleClick(i + 1, j, false);
+            if (j - 1 >= 0) handleClick(i, j - 1, false);
+            if (j + 1 < board_y) handleClick(i, j + 1, false);
         }
-        for (i = 0; i < player_n; i++) {
-            if (tempLoser[i] !== loser[i] && tempLoser[i] === false) {
-                alert("Player " + (i + 1) + " loses!");
-            }
-        }
-        setLoser(tempLoser);
-        if (num_steps < player_n) setPlayer(next_plyr < player_n - 1 ? next_plyr + 1 : 0)
-        var next = next_plyr < player_n - 1 ? next_plyr + 1 : 0;
-        while (num_steps >= player_n) {
-            if (tempLoser[next]) {
-                setPlayer(next);
-                break;
-            }
-            next = next < player_n - 1 ? next + 1 : 0;
+        tempLoser = Array(player_n).fill(false);
+        if (gameOver(tempLoser)) {
+            setNumSteps(0);
+            alert("🎮 Game Over 🎯");
+            restartGame();
+            return;
         }
     }
 
@@ -242,7 +221,23 @@ function Game() {
                     ) ? 1 : 2)
                     : 3}
                 onClick={() => {
-                    handleClick(i, j, true)
+                    var tempLoser = Array(player_n).fill(false);
+                    handleClick(i, j, true, tempLoser);
+                    for (i = 0; i < player_n; i++) {
+                        if (tempLoser[i] !== loser[i] && tempLoser[i] === false) {
+                            alert("Player " + (i + 1) + " loses!");
+                        }
+                    }
+                    setLoser(tempLoser);
+                    if (num_steps < player_n) setPlayer(next_plyr < player_n - 1 ? next_plyr + 1 : 0)
+                    var next = next_plyr < player_n - 1 ? next_plyr + 1 : 0;
+                    while (num_steps >= player_n) {
+                        if (tempLoser[next]) {
+                            setPlayer(next);
+                            break;
+                        }
+                        next = next < player_n - 1 ? next + 1 : 0;
+                    }
                 }}
                 hints={hints}
             />
