@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { useState } from "react";
 import "./index.css";
@@ -11,22 +11,47 @@ function Player({ state, color, max, hints }) {
             {(state !== 0) &&
                 <div className="atom" style={{ backgroundColor: color }}>
 
-                    {(state >= 1) &&
+                    {(state === 1) &&
                         <>
                             <div className="nucleus"></div>
-                            {(max === 1 && hints) && <div className="electron1"></div>}
+                            {
+                                (max === 1 && hints) &&
+                                <>
+                                    <div className="nucleus"></div>
+                                    {/* <div className="electron1"></div> */}
+                                </>
+                            }
                         </>
                     }
-                    {(state >= 2) &&
+                    {(state === 2) &&
                         <>
                             <div className="nucleus2"></div>
-                            {(max === 2 && hints) && <div className="electron2"></div>}
+                            <div className="nucleus"></div>
+                            {
+                                (max === 2 && hints) &&
+                                <>
+                                    <div className="nucleus"></div>
+                                    <div className="nucleus"></div>
+                                    {/* <div className="electron2"></div> */}
+                                </>
+                            }
                         </>
                     }
                     {(state >= 3) &&
                         <>
+                            <div className="nucleus2" ></div>
                             <div className="nucleus3"></div>
-                            {(max === 3 && hints) && <div className="electron3"></div>}
+                            <div className="nucleus"></div>
+                            {(max === 3 && hints) &&
+                                <>
+                                    <div className="nucleus"></div>
+                                    <div className="nucleus"></div>
+                                    <div className="nucleus"></div>
+                                    <div className="nucleus"></div>
+                                    {/* <div className="electron3"></div> */}
+                                </>
+                            }
+
                         </>
                     }
                 </div>
@@ -36,7 +61,7 @@ function Player({ state, color, max, hints }) {
 }
 
 function Square({ id, value, max, hints, onClick }) {
-    console.log("Square props: ", id);
+    // console.log("Square props: ", id);
     return (
         <button className="square" id={id} onClick={onClick}>
             <Player
@@ -55,6 +80,8 @@ function Game() {
     const [player_n, setNoPlayer] = useState(2);
     const [next_plyr, setPlayer] = useState(0);
     const [loser, setLoser] = useState(Array(player_n).fill(false));
+    const [chain, setChain] = useState([]);
+    var original_squares = squares.slice();
     const player_color = [
         '#00A8CD',
         '#CD00C5',
@@ -63,9 +90,65 @@ function Game() {
     ];
     const [num_steps, setNumSteps] = useState(0);
     const [hints, setHints] = useState(true);
-    // var index = 0
+    /*
+        00  01  02  03  04  05
+        10  11  12  13  14  15
+        20  21  22  23  24  25
+        30  31  32  33  34  35
+        40  41  42  43  44  45
+        50  51  52  53  54  55
+        60  61  62  63  64  65
+        70  71  72  73  74  75
+    */
+    const playCSSAnimation = async (i, j, prev) => {
+        console.log("play css", i, j, prev)
+        var elements = Array.from(document.getElementById(i + "_" + j).children[0].children)
+            .filter((ele) => ele.classList.value === "nucleus")
+        var colors = [];
+        switch (prev.state) {
+            case 1:
+                if (i === 0 && j === 0) colors = ["left", "top"];
+                else if (i === board_x - 1 && j === 0) colors = ["left", "bottom"];
+                else if (i === 0 && j === board_y - 1) colors = ["right", "top"];
+                else if (i === board_x - 1 && j === board_y - 1) colors = ["right", "bottom"];
+
+                //console.log("in play css", i, j, prev, elements)
+
+                elements[0].classList.add(colors[0]);
+                elements[1].classList.add(colors[1]);
+                await timer(400);
+                break;
+            case 2:
+                if (j === 0) colors = ["left", "bottom", "top"];
+                else if (i === 0) colors = ["right", "left", "top"];
+                else if (i === board_x - 1) colors = ["right", "bottom", "top"];
+                else colors = ["right", "bottom", "left", "top"];
+
+                //console.log("in play css", i, j, prev, elements)
+
+                elements[0].classList.add(colors[0]);
+                elements[1].classList.add(colors[1]);
+                elements[2].classList.add(colors[2]);
+                await timer(400);
+                break;
+            case 3:
+                //console.log("in play css", i, j, prev, elements)
+
+                elements[0].classList.add("right");
+                elements[1].classList.add("left");
+                elements[2].classList.add("bottom");
+                elements[3].classList.add("top");
+                await timer(400);
+                break;
+            default:
+                console.log("something went wrong");
+        }
+    }
+
+    const timer = ms => new Promise(res => setTimeout(res, ms))
+
     const chainReact = (i, j, isInit) => {
-        const nextSquares = squares.slice();
+        // const nextSquares = squares.slice();
         let max = (i === 0 || i === board_x - 1 || j === 0 || j === board_y - 1) ?
             (((i === 0 && j === 0)
                 || (i === 0 && j === board_y - 1)
@@ -73,21 +156,18 @@ function Game() {
                 || (i === board_x - 1 && j === board_y - 1)
             ) ? 1 : 2)
             : 3;
-        console.log("handleClick: ", i, j);
-        if (nextSquares[i][j] == null) {
-            nextSquares[i][j] = { player: next_plyr, color: player_color[next_plyr], state: 1 };
-        } else if (isInit && nextSquares[i][j].state < max && nextSquares[i][j].player === next_plyr) {
-            nextSquares[i][j].state += 1;
-        } else if (!isInit && nextSquares[i][j].state < max) {
-            nextSquares[i][j].state += 1;
-            nextSquares[i][j].player = next_plyr;
-            nextSquares[i][j].color = player_color[next_plyr];
+        if (original_squares[i][j] == null) {
+            original_squares[i][j] = { player: next_plyr, color: player_color[next_plyr], state: 1 };
+        } else if (isInit && original_squares[i][j].state < max && original_squares[i][j].player === next_plyr) {
+            original_squares[i][j].state += 1;
+        } else if (!isInit && original_squares[i][j].state < max) {
+            original_squares[i][j].state += 1;
+            original_squares[i][j].player = next_plyr;
+            original_squares[i][j].color = player_color[next_plyr];
         } else {
-            nextSquares[i][j] = null
-            setSquares(nextSquares);
             return true;
         }
-        setSquares(nextSquares);
+        setSquares(original_squares.slice());
         return false;
     }
 
@@ -102,8 +182,10 @@ function Game() {
         }
         return flag;
     }
-
-    const handleClick = (i, j, isInit) => {
+    useEffect(() => {
+        console.log("useEffect", squares)
+    }, [squares]);
+    const handleClick = async (i, j, isInit) => {
         if (isInit && squares[i][j] != null && squares[i][j].player !== next_plyr) return;
         setNumSteps(num_steps + 1);
         var queue = [];
@@ -112,6 +194,9 @@ function Game() {
         while (queue.length > 0) {
             var [k, l] = queue.shift();
             if (chainReact(k, l, isInit)) {
+                //await playCSSAnimation(k, l, squares[k][l]);
+                original_squares[k][l] = null
+                setSquares(original_squares.slice());
                 isInit = false;
                 if (k - 1 >= 0) queue.push([k - 1, l]);
                 if (k + 1 < board_x) queue.push([k + 1, l]);
@@ -182,6 +267,7 @@ function Game() {
         setNumSteps(0);
         setLoser(Array(player_n).fill(false));
         setSquares(Array.from({ length: board_x }, _ => new Array(board_y).fill(null)));
+        original_squares = squares.slice();
     }
     const shareGame = () => {
         navigator.clipboard.writeText("Here is the link to play chain reaction 💣: 'https://bharath-bandaru.github.io/chain-reaction-game/'");
