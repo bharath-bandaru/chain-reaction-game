@@ -1,66 +1,85 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { useState } from "react";
 import "./index.css";
 
-
-function Player({ state, color, max, hints }) {
+const Player = ({ state, color, max, hints }) => {
     return (
         <>
-            {/* <span className="dot" style={{ backgroundColor: color }}>{state}</span> */}
-            {(state !== 0) &&
-                <div className="atom" style={{ backgroundColor: color }}>
+            {
+                <div className='container'>
+                    <div className='anim hide atom'>
+                        <div className="nucleus"></div>
+                        <div className="nucleus"></div>
+                        <div className="nucleus"></div>
+                        <div className="nucleus"></div>
+                    </div>
+                    <div className="atom" style={{ backgroundColor: color }}>
+                        {
+                            (state === 0) &&
+                            <>
+                                <div className="nucleus"></div>
+                                {
+                                    (max === 1 && hints) &&
+                                    <>
+                                        {/* <div className="electron1"></div> */}
+                                    </>
+                                }
+                            </>
+                        }
+                        {(state === 1) &&
+                            <>
+                                <div className="nucleus"></div>
+                                <div className="nucleus"></div>
+                                <div className="nucleus"></div>
+                                <div className="nucleus"></div>
+                                {
+                                    (max === 1 && hints) &&
+                                    <>
+                                        {/* <div className="electron1"></div> */}
+                                    </>
+                                }
+                            </>
+                        }
+                        {(state === 2) &&
+                            <>
+                                <div className="nucleus2"></div>
+                                <div className="nucleus"></div>
+                                <div className="nucleus"></div>
+                                <div className="nucleus"></div>
+                                <div className="nucleus"></div>
+                                {
+                                    (max === 2 && hints) &&
+                                    <>
+                                        {/* <div className="electron2"></div> */}
+                                    </>
+                                }
+                            </>
+                        }
+                        {(state >= 3) &&
+                            <>
+                                <div className="nucleus2" ></div>
+                                <div className="nucleus3"></div>
+                                <div className="nucleus"></div>
+                                <div className="nucleus"></div>
+                                <div className="nucleus"></div>
+                                <div className="nucleus"></div>
+                                {(max === 3 && hints) &&
+                                    <>
+                                        {/* <div className="electron3"></div> */}
+                                    </>
+                                }
 
-                    {(state === 1) &&
-                        <>
-                            <div className="nucleus"></div>
-                            {
-                                (max === 1 && hints) &&
-                                <>
-                                    <div className="nucleus"></div>
-                                    {/* <div className="electron1"></div> */}
-                                </>
-                            }
-                        </>
-                    }
-                    {(state === 2) &&
-                        <>
-                            <div className="nucleus2"></div>
-                            <div className="nucleus"></div>
-                            {
-                                (max === 2 && hints) &&
-                                <>
-                                    <div className="nucleus"></div>
-                                    <div className="nucleus"></div>
-                                    {/* <div className="electron2"></div> */}
-                                </>
-                            }
-                        </>
-                    }
-                    {(state >= 3) &&
-                        <>
-                            <div className="nucleus2" ></div>
-                            <div className="nucleus3"></div>
-                            <div className="nucleus"></div>
-                            {(max === 3 && hints) &&
-                                <>
-                                    <div className="nucleus"></div>
-                                    <div className="nucleus"></div>
-                                    <div className="nucleus"></div>
-                                    <div className="nucleus"></div>
-                                    {/* <div className="electron3"></div> */}
-                                </>
-                            }
-
-                        </>
-                    }
+                            </>
+                        }
+                    </div>
                 </div>
             }
         </>
     );
 }
 
-function Square({ id, value, max, hints, onClick }) {
+const Square = ({ id, value, max, hints, onClick }) => {
     // console.log("Square props: ", id);
     return (
         <button className="square" id={id} onClick={onClick}>
@@ -74,22 +93,24 @@ function Square({ id, value, max, hints, onClick }) {
     );
 }
 
-function Game() {
-    var board_x = 8, board_y = 6;
-    const [squares, setSquares] = useState(Array.from({ length: board_x }, _ => new Array(board_y).fill(null)));
+const Game = () => {
+    var board_x = 9, board_y = 6;
+    var squaresArray = Array.from({ length: board_x }, _ => new Array(board_y).fill(null));
+    const [squares, setSquares] = useState(Object.assign({}, squaresArray.map(a => Object.assign({}, a))));
     const [player_n, setNoPlayer] = useState(2);
-    const [next_plyr, setPlayer] = useState(0);
+    var curr_player = 0;
+    const [next_player, setNextPlayer] = useState(curr_player);
     const [loser, setLoser] = useState(Array(player_n).fill(false));
-    const [chain, setChain] = useState([]);
-    var original_squares = squares.slice();
+    var gameOver = false;
     const player_color = [
         '#00A8CD',
         '#CD00C5',
         '#B0CD00',
         '#CD0000'
     ];
+    const player_color_names = ["Blue", "Pink", "Green", "Red"];
     const [num_steps, setNumSteps] = useState(0);
-    const [hints, setHints] = useState(true);
+    var hints = useState(true);
     /*
         00  01  02  03  04  05
         10  11  12  13  14  15
@@ -100,49 +121,74 @@ function Game() {
         60  61  62  63  64  65
         70  71  72  73  74  75
     */
-    const playCSSAnimation = async (i, j, prev) => {
-        console.log("play css", i, j, prev)
-        var elements = Array.from(document.getElementById(i + "_" + j).children[0].children)
-            .filter((ele) => ele.classList.value === "nucleus")
-        var colors = [];
-        switch (prev.state) {
-            case 1:
-                if (i === 0 && j === 0) colors = ["left", "top"];
-                else if (i === board_x - 1 && j === 0) colors = ["left", "bottom"];
-                else if (i === 0 && j === board_y - 1) colors = ["right", "top"];
-                else if (i === board_x - 1 && j === board_y - 1) colors = ["right", "bottom"];
 
-                //console.log("in play css", i, j, prev, elements)
-
-                elements[0].classList.add(colors[0]);
-                elements[1].classList.add(colors[1]);
-                await timer(400);
-                break;
-            case 2:
-                if (j === 0) colors = ["left", "bottom", "top"];
-                else if (i === 0) colors = ["right", "left", "top"];
-                else if (i === board_x - 1) colors = ["right", "bottom", "top"];
-                else colors = ["right", "bottom", "left", "top"];
-
-                //console.log("in play css", i, j, prev, elements)
-
-                elements[0].classList.add(colors[0]);
-                elements[1].classList.add(colors[1]);
-                elements[2].classList.add(colors[2]);
-                await timer(400);
-                break;
-            case 3:
-                //console.log("in play css", i, j, prev, elements)
-
-                elements[0].classList.add("right");
-                elements[1].classList.add("left");
-                elements[2].classList.add("bottom");
-                elements[3].classList.add("top");
-                await timer(400);
-                break;
-            default:
-                console.log("something went wrong");
+    const removeAniClass = (elements) => {
+        for (let i = 0; i < elements.length; i++) {
+            elements[i].classList.remove("left");
+            elements[i].classList.remove("right");
+            elements[i].classList.remove("top");
+            elements[i].classList.remove("bottom");
         }
+        return elements;
+    }
+
+    const playCSSAnimation = async (i, j, prev) => {
+        try {
+            console.log("play css", i, j, prev)
+            var anim_ele = document.getElementById(i + "_" + j).children[0].children[0];
+            var atom = document.getElementById(i + "_" + j).children[0].children[1];
+            var elements = anim_ele.children;
+            elements = removeAniClass(elements);
+            var colors = [];
+            atom.style.backgroundColor = player_color[curr_player]
+            anim_ele.style.backgroundColor = player_color[curr_player]
+            anim_ele.style.zIndex = num_steps
+            anim_ele.classList.remove("hide");
+            atom.classList.add("hide");
+            switch (prev.state) {
+                case 1:
+                    if (i === 0 && j === 0) colors = ["left", "top"];
+                    else if (i === board_x - 1 && j === 0) colors = ["left", "bottom"];
+                    else if (i === 0 && j === board_y - 1) colors = ["right", "top"];
+                    else if (i === board_x - 1 && j === board_y - 1) colors = ["right", "bottom"];
+
+                    //console.log("in play css", i, j, prev, elements)
+
+                    elements[0].classList.add(colors[0]);
+                    elements[1].classList.add(colors[1]);
+                    await timer(400);
+                    break;
+                case 2:
+                    if (j === 0) colors = ["left", "bottom", "top"];
+                    else if (i === 0) colors = ["right", "left", "top"];
+                    else if (i === board_x - 1) colors = ["right", "bottom", "left"];
+                    else colors = ["right", "bottom", "top"];
+
+                    //console.log("in play css", i, j, prev, elements)
+
+                    elements[0].classList.add(colors[0]);
+                    elements[1].classList.add(colors[1]);
+                    elements[2].classList.add(colors[2]);
+                    await timer(400);
+                    break;
+                case 3:
+                    //console.log("in play css", i, j, prev, elements)
+
+                    elements[0].classList.add("right");
+                    elements[1].classList.add("left");
+                    elements[2].classList.add("bottom");
+                    elements[3].classList.add("top");
+                    await timer(400);
+                    break;
+                default:
+                    console.log("something went wrong");
+            }
+        }
+        catch (err) {
+            console.log("something went wrong", err);
+        }
+        anim_ele.classList.add("hide");
+        atom.classList.remove("hide");
     }
 
     const timer = ms => new Promise(res => setTimeout(res, ms))
@@ -156,58 +202,70 @@ function Game() {
                 || (i === board_x - 1 && j === board_y - 1)
             ) ? 1 : 2)
             : 3;
-        if (original_squares[i][j] == null) {
-            original_squares[i][j] = { player: next_plyr, color: player_color[next_plyr], state: 1 };
-        } else if (isInit && original_squares[i][j].state < max && original_squares[i][j].player === next_plyr) {
-            original_squares[i][j].state += 1;
-        } else if (!isInit && original_squares[i][j].state < max) {
-            original_squares[i][j].state += 1;
-            original_squares[i][j].player = next_plyr;
-            original_squares[i][j].color = player_color[next_plyr];
+        if (squares[i][j] == null) {
+            squares[i][j] = { player: curr_player, color: player_color[curr_player], state: 1 };
+        } else if (isInit && squares[i][j].state < max && squares[i][j].player === curr_player) {
+            squares[i][j].state += 1;
+        } else if (!isInit && squares[i][j].state < max) {
+            squares[i][j].state += 1;
+            squares[i][j].player = curr_player;
+            squares[i][j].color = player_color[curr_player];
         } else {
             return true;
         }
-        setSquares(original_squares.slice());
+        setSquares({ ...squares, [i]: { ...squares[i], [j]: squares[i][j] } });
         return false;
     }
 
-    const gameOver = (tempLoser) => {
-        var flag = true;
-        for (var i = 0; i < board_x; i++) {
-            for (var j = 0; j < board_y; j++) {
-                if (num_steps < player_n) flag = false;
-                if (squares[i][j] !== null && squares[i][j].player !== next_plyr) flag = false;
-                if (squares[i][j] !== null) tempLoser[squares[i][j].player] = true;
+    const checkGame = () => {
+        if (num_steps >= player_n) {
+            var gameOverFlag = true;
+            var prevLoserState = Array(player_n).fill(true);
+            for (var i = 0; i < board_x; i++) {
+                for (var j = 0; j < board_y; j++) {
+                    // check Loser
+                    if (squares[i][j] !== null && squares[i][j].player !== curr_player) gameOverFlag = false;
+                    if (squares[i][j] !== null && prevLoserState[squares[i][j].player]) {
+                        prevLoserState[squares[i][j].player] = false;
+                    }
+                }
+            }
+
+            setLoser(prevLoserState);
+            if (gameOverFlag) {
+                gameOver = true;
+                restartGame();
+                alert("🎮 Game Over 🎯 " + player_color_names[next_player] + " won!");
+
+            } else {
+                for (i = 0; i < player_n; i++) {
+                    if (prevLoserState[i] !== loser[i] && prevLoserState[i] === true) {
+                        alert(player_color_names[i] + " lost.");
+                    }
+                }
             }
         }
-        return flag;
-    }
-    useEffect(() => {
-        console.log("useEffect", squares)
-    }, [squares]);
-    const handleClick = async (i, j, isInit, tempLoser) => {
-        if (isInit && squares[i][j] != null && squares[i][j].player !== next_plyr) return;
+    };
+
+    const handleClick = async (i, j, isInit) => {
+        if (gameOver) return;
         setNumSteps(num_steps + 1);
         if (chainReact(i, j, isInit)) {
-            await playCSSAnimation(i, j, squares[i][j]);
-            original_squares[i][j] = null
-            setSquares(original_squares.slice());
+            var prev = squares[i][j];
+            squares[i][j] = null;
+            setSquares({ ...squares, [i]: { ...squares[i], [j]: squares[i][j] } });
+            await playCSSAnimation(i, j, prev);
             isInit = false;
             if (i - 1 >= 0) handleClick(i - 1, j, false);
             if (i + 1 < board_x) handleClick(i + 1, j, false);
             if (j - 1 >= 0) handleClick(i, j - 1, false);
             if (j + 1 < board_y) handleClick(i, j + 1, false);
         }
-        tempLoser = Array(player_n).fill(false);
-        if (gameOver(tempLoser)) {
-            setNumSteps(0);
-            alert("🎮 Game Over 🎯");
-            restartGame();
-            return;
-        }
+        if (!gameOver) checkGame();
     }
 
-    function renderSquare(i, j, id) {
+
+    const renderSquare = (i, j, id) => {
         return (
             <Square
                 key={id}
@@ -220,23 +278,22 @@ function Game() {
                         || (i === board_x - 1 && j === board_y - 1)
                     ) ? 1 : 2)
                     : 3}
-                onClick={() => {
-                    var tempLoser = Array(player_n).fill(false);
-                    handleClick(i, j, true, tempLoser);
-                    for (i = 0; i < player_n; i++) {
-                        if (tempLoser[i] !== loser[i] && tempLoser[i] === false) {
-                            alert("Player " + (i + 1) + " loses!");
-                        }
+                onClick={async () => {
+                    curr_player = next_player;
+                    if (squares[i][j] != null && squares[i][j].player !== curr_player) return;
+                    if (num_steps === 0) {
+                        gameOver = false;
                     }
-                    setLoser(tempLoser);
-                    if (num_steps < player_n) setPlayer(next_plyr < player_n - 1 ? next_plyr + 1 : 0)
-                    var next = next_plyr < player_n - 1 ? next_plyr + 1 : 0;
+                    await handleClick(i, j, true);
+                    var nextP = curr_player < player_n - 1 ? curr_player + 1 : 0;
+                    if (num_steps < player_n) setNextPlayer(nextP)
+
                     while (num_steps >= player_n) {
-                        if (tempLoser[next]) {
-                            setPlayer(next);
+                        if (!loser[nextP]) {
+                            setNextPlayer(nextP);
                             break;
                         }
-                        next = next < player_n - 1 ? next + 1 : 0;
+                        nextP = nextP < player_n - 1 ? nextP + 1 : 0;
                     }
                 }}
                 hints={hints}
@@ -258,11 +315,11 @@ function Game() {
         }
     }
     const restartGame = () => {
-        setPlayer(0);
+        curr_player = 0;
         setNumSteps(0);
+        setNextPlayer(0);
         setLoser(Array(player_n).fill(false));
-        setSquares(Array.from({ length: board_x }, _ => new Array(board_y).fill(null)));
-        original_squares = squares.slice();
+        setSquares(Object.assign({}, squaresArray.map(a => Object.assign({}, a))));
     }
     const shareGame = () => {
         navigator.clipboard.writeText("Here is the link to play chain reaction 💣: 'https://bharath-bandaru.github.io/chain-reaction-game/'");
@@ -273,7 +330,7 @@ function Game() {
             <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link>
             <div className="root">
 
-                <div className="game" style={{ color: player_color[next_plyr] }} id="game">
+                <div className="game" style={{ color: player_color[next_player] }} id="game">
                     <div className='header'>
                         <span className="material-icons mui"> dashboard_customize </span>
                         <div>
@@ -287,11 +344,11 @@ function Game() {
                                     player_color.map((item, index) => {
                                         return (
                                             <>
-                                                {(index < player_n && index !== next_plyr) &&
+                                                {(index < player_n && index !== next_player) &&
                                                     <div className="dot" style={{ backgroundColor: item }}></div>
                                                 }
 
-                                                {(index < player_n && index === next_plyr) &&
+                                                {(index < player_n && index === next_player) &&
                                                     <div className="dot" style={{ backgroundColor: item, border: "solid #fff" }}></div>
                                                 }
                                             </>
@@ -304,19 +361,21 @@ function Game() {
                         <span className="material-icons mui" onClick={restartGame}> cached </span>
                     </div>
                     {
-                        squares.map((row, i) => {
+                        Object.entries(squares).map(([i, row]) => {
                             return (
                                 <div className='row' id={i}>
                                     {
-                                        row.map((col, j) => {
+                                        Object.entries(row).map(([j, value]) => {
                                             return (
-                                                renderSquare(i, j, i + "_" + j)
+                                                renderSquare(parseInt(i), parseInt(j), i + "_" + j)
                                             );
                                         })
                                     }
                                 </div>
                             );
+
                         })
+
                     }
                     <div className='footer'>
                         <div className='buttons'> ❤️ </div>

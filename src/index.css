@@ -133,8 +133,8 @@ code {
   position: absolute;
   background-color: inherit;
   border-radius: 100%;
-  -webkit-animation: movementLeft 2s ease-in-out infinite, size 2s linear;
-  animation: movementLeft 2s ease-in-out infinite, size 2s linear;
+  -webkit-animation: movementLeft 2s ease-in-out, size 2s linear;
+  animation: movementLeft 2s ease-in-out, size 2s linear;
 }
 
 .electron2 {
@@ -143,8 +143,8 @@ code {
   position: absolute;
   background-color: inherit;
   border-radius: 100%;
-  -webkit-animation: movementRight 2s ease-in-out infinite, size 2s linear;
-  animation: movementRight 2s ease-in-out infinite, size 2s linear;
+  -webkit-animation: movementRight 2s ease-in-out, size 2s linear;
+  animation: movementRight 2s ease-in-out, size 2s linear;
 }
 
 .electron3 {
@@ -153,8 +153,8 @@ code {
   position: absolute;
   background-color: inherit;
   border-radius: 100%;
-  -webkit-animation: movementTop 2s ease-in-out infinite, size 2s linear;
-  animation: movementTop 2s ease-in-out infinite, size 2s linear;
+  -webkit-animation: movementTop 2s ease-in-out, size 2s linear;
+  animation: movementTop 2s ease-in-out, size 2s linear;
 }
 
 @-webkit-keyframes movementLeft {
@@ -203,6 +203,10 @@ code {
   100% {
     top: -70px;
   }
+}
+
+.hide {
+  display: none;
 }
 
 .header {
@@ -370,7 +374,7 @@ code {
 
   100% {
     background-color: inherit;
-    left: 120px;
+    left: 144px;
   }
 }
 
@@ -387,7 +391,7 @@ code {
 
   100% {
     background-color: inherit;
-    right: 120px;
+    right: 144px;
   }
 }
 
@@ -404,7 +408,7 @@ code {
 
   100% {
     background-color: inherit;
-    top: 120px;
+    top: 144px;
   }
 }
 
@@ -421,6 +425,6 @@ code {
 
   100% {
     background-color: inherit;
-    bottom: 120px;
+    bottom: 144px;
   }
 }
