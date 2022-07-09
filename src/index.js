@@ -2,7 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { useState } from "react";
 import "./index.css";
-
+import { ToastContainer, toast, Slide } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+const notify = (message) => toast(message);
 const Player = ({ state, color, max, hints }) => {
     return (
         <>
@@ -79,10 +81,10 @@ const Player = ({ state, color, max, hints }) => {
     );
 }
 
-const Square = ({ id, value, max, hints, onClick }) => {
+const Square = ({ id, value, max, hints, onClick, canClick }) => {
     // console.log("Square props: ", id);
     return (
-        <button  className="square" id={id} onClick={onClick}>
+        <button className="square" id={id} onClick={onClick} disabled={!canClick}>
             <Player
                 color={value != null ? value.color : ''}
                 state={value != null ? value.state : 0}
@@ -111,6 +113,7 @@ const Game = () => {
     const player_color_names = ["Blue", "Pink", "Green", "Red"];
     const [num_steps, setNumSteps] = useState(0);
     var hints = useState(true);
+    const [canClick, setCanClick] = useState(true);
     /*
         00  01  02  03  04  05
         10  11  12  13  14  15
@@ -134,6 +137,7 @@ const Game = () => {
 
     const playCSSAnimation = async (i, j, prev) => {
         try {
+            setCanClick(false);
             console.log("play css", i, j, prev)
             var anim_ele = document.getElementById(i + "_" + j).children[0].children[0];
             var atom = document.getElementById(i + "_" + j).children[0].children[1];
@@ -189,6 +193,7 @@ const Game = () => {
         }
         anim_ele.classList.add("hide");
         atom.classList.remove("hide");
+        setCanClick(true);
     }
 
     const timer = ms => new Promise(res => setTimeout(res, ms))
@@ -217,6 +222,7 @@ const Game = () => {
         return false;
     }
 
+
     const checkGame = () => {
         if (num_steps >= player_n) {
             var gameOverFlag = true;
@@ -235,12 +241,14 @@ const Game = () => {
             if (gameOverFlag) {
                 gameOver = true;
                 restartGame();
-                alert("🎯Game Over. " + player_color_names[next_player] + " won! 🎮");
+                // alert("🎯Game Over. " + player_color_names[next_player] + " won! 🎮");
+                notify("🎮 Game Over. " + player_color_names[next_player] + " won!")
 
             } else {
                 for (i = 0; i < player_n; i++) {
                     if (prevLoserState[i] !== loser[i] && prevLoserState[i] === true) {
-                        alert("🫠 "+player_color_names[i] + " lost.");
+                        // alert("🫠 " + player_color_names[i] + " lost.");
+                        notify("🎮 " + player_color_names[i] + " lost.")
                         loser[i] = prevLoserState[i];
                     }
                 }
@@ -256,7 +264,6 @@ const Game = () => {
             squares[i][j] = null;
             setSquares({ ...squares, [i]: { ...squares[i], [j]: squares[i][j] } });
             await playCSSAnimation(i, j, prev);
-            isInit = false;
             if (i - 1 >= 0) handleClick(i - 1, j, false);
             if (i + 1 < board_x) handleClick(i + 1, j, false);
             if (j - 1 >= 0) handleClick(i, j - 1, false);
@@ -266,7 +273,7 @@ const Game = () => {
     }
 
 
-    const renderSquare = (i, j, id) => {
+    const renderSquare = (i, j, id, canClick) => {
         return (
             <Square
                 key={id}
@@ -298,6 +305,7 @@ const Game = () => {
                     }
                 }}
                 hints={hints}
+                canClick={canClick}
             />
         );
     }
@@ -317,6 +325,7 @@ const Game = () => {
     }
     const restartGame = () => {
         curr_player = 0;
+        setCanClick(true);
         setNumSteps(0);
         setNextPlayer(0);
         setLoser(Array(player_n).fill(false));
@@ -368,7 +377,7 @@ const Game = () => {
                                     {
                                         Object.entries(row).map(([j, value]) => {
                                             return (
-                                                renderSquare(parseInt(i), parseInt(j), i + "_" + j)
+                                                renderSquare(parseInt(i), parseInt(j), i + "_" + j, canClick)
                                             );
                                         })
                                     }
@@ -383,6 +392,12 @@ const Game = () => {
                         <h3>chain reaction</h3>
                         <div className='buttons tooltip' onClick={shareGame}>🚀 </div>
                     </div>
+                    <ToastContainer
+                        transition={Slide}
+                        hideProgressBar={true}
+                        draggablePercent="60"
+                        position="top-right"
+                    />
                 </div>
             </div>
         </>

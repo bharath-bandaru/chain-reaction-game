@@ -428,3 +428,7 @@ code {
     bottom: 144px;
   }
 }
+
+.Toastify__toast {
+  min-height: 0 !important;
+}
