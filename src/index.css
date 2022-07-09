@@ -432,3 +432,8 @@ code {
 .Toastify__toast {
   min-height: 0 !important;
 }
+
+.Toastify__toast-container--bottom-center {
+  max-width: 250px;
+  text-align: center;
+}

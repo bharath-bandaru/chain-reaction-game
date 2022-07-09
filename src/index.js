@@ -247,16 +247,17 @@ const Game = () => {
                 playConfetti();
                 restartGame();
                 // alert("🎯Game Over. " + player_color_names[next_player] + " won! 🎮");
-                notify("🎮 Game Over. " + player_color_names[next_player] + " won!")
+                notify("Game Over." + player_color_names[next_player] + " won! 🃏")
 
             } else {
                 for (i = 0; i < player_n; i++) {
                     if (prevLoserState[i] !== loser[i] && prevLoserState[i] === true) {
                         // alert("🫠 " + player_color_names[i] + " lost.");
-                        notify("🎮 " + player_color_names[i] + " lost.")
+                        notify("🃏 " + player_color_names[i] + " lost.")
                         loser[i] = prevLoserState[i];
                     }
                 }
+                setLoser(prevLoserState);
             }
         }
     };
@@ -414,7 +415,9 @@ const Game = () => {
                         transition={Slide}
                         hideProgressBar={true}
                         draggablePercent="60"
-                        position="top-right"
+                        position="bottom-center"
+                        closeButton={false}
+                        autoClose={2000}
                     />
                     <div id='canvas' style={{ position: "absolute", bottom: "-300px" }}></div>
                 </div>
