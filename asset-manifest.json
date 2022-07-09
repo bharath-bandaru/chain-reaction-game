@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/chain-reaction-game/static/css/main.1fbe86de.css",
-    "main.js": "/chain-reaction-game/static/js/main.9c2ff6bd.js",
+    "main.js": "/chain-reaction-game/static/js/main.13b1541d.js",
     "index.html": "/chain-reaction-game/index.html",
     "main.1fbe86de.css.map": "/chain-reaction-game/static/css/main.1fbe86de.css.map",
-    "main.9c2ff6bd.js.map": "/chain-reaction-game/static/js/main.9c2ff6bd.js.map"
+    "main.13b1541d.js.map": "/chain-reaction-game/static/js/main.13b1541d.js.map"
   },
   "entrypoints": [
     "static/css/main.1fbe86de.css",
-    "static/js/main.9c2ff6bd.js"
+    "static/js/main.13b1541d.js"
   ]
 }
