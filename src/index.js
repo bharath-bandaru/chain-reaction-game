@@ -4,6 +4,9 @@ import { useState } from "react";
 import "./index.css";
 import { ToastContainer, toast, Slide } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+const MyPromise = window.Promise;
+const confetti = require('canvas-confetti');
+confetti.Promise = MyPromise;
 
 const notify = (message) => toast(message);
 const Player = ({ state, color, max, hints }) => {
@@ -197,7 +200,7 @@ const Game = () => {
         setCanClick(true);
     }
 
-    const timer = ms => new Promise(res => setTimeout(res, ms))
+    const timer = (ms) => new Promise(res => setTimeout(res, ms))
 
     const chainReact = (i, j, isInit) => {
         // const nextSquares = squares.slice();
@@ -241,6 +244,7 @@ const Game = () => {
             setLoser(prevLoserState);
             if (gameOverFlag) {
                 gameOver = true;
+                playConfetti();
                 restartGame();
                 // alert("🎯Game Over. " + player_color_names[next_player] + " won! 🎮");
                 notify("🎮 Game Over. " + player_color_names[next_player] + " won!")
@@ -257,7 +261,19 @@ const Game = () => {
         }
     };
 
+    const playConfetti = () => {
+        var myCanvas = document.getElementById("confetti");
+        var myConfetti = confetti.create(myCanvas, {
+            resize: true,
+            useWorker: true
+        });
+        myConfetti({
+            particleCount: 300,
+            spread: 160
+        });
+    }
     const handleClick = async (i, j, isInit) => {
+
         if (gameOver) return;
         setNumSteps(num_steps + 1);
         if (chainReact(i, j, isInit)) {
@@ -338,6 +354,7 @@ const Game = () => {
 
     return (
         <>
+            <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
             <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link>
             <div className="root">
 
@@ -399,6 +416,7 @@ const Game = () => {
                         draggablePercent="60"
                         position="top-right"
                     />
+                    <div id='canvas' style={{ position: "absolute", bottom: "-300px" }}></div>
                 </div>
             </div>
         </>
