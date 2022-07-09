@@ -21,10 +21,9 @@ const Player = ({ state, color, max, hints }) => {
                         <div className="nucleus"></div>
                     </div>
                     <div className="atom" style={{ backgroundColor: color }}>
-                        {
-                            (state === 0) &&
+                        {(state === 0) &&
                             <>
-                                <div className="nucleus"></div>
+                                {/* <div className="nucleus"></div> */}
                                 {
                                     (max === 1 && hints) &&
                                     <>
@@ -35,9 +34,6 @@ const Player = ({ state, color, max, hints }) => {
                         }
                         {(state === 1) &&
                             <>
-                                <div className="nucleus"></div>
-                                <div className="nucleus"></div>
-                                <div className="nucleus"></div>
                                 <div className="nucleus"></div>
                                 {
                                     (max === 1 && hints) &&
@@ -51,9 +47,6 @@ const Player = ({ state, color, max, hints }) => {
                             <>
                                 <div className="nucleus2"></div>
                                 <div className="nucleus"></div>
-                                <div className="nucleus"></div>
-                                <div className="nucleus"></div>
-                                <div className="nucleus"></div>
                                 {
                                     (max === 2 && hints) &&
                                     <>
@@ -66,9 +59,6 @@ const Player = ({ state, color, max, hints }) => {
                             <>
                                 <div className="nucleus2" ></div>
                                 <div className="nucleus3"></div>
-                                <div className="nucleus"></div>
-                                <div className="nucleus"></div>
-                                <div className="nucleus"></div>
                                 <div className="nucleus"></div>
                                 {(max === 3 && hints) &&
                                     <>
@@ -230,7 +220,7 @@ const Game = () => {
     const checkGame = () => {
         if (num_steps >= player_n) {
             var gameOverFlag = true;
-            var prevLoserState = Array(player_n).fill(true);
+            var prevLoserState = loser.slice();
             for (var i = 0; i < board_x; i++) {
                 for (var j = 0; j < board_y; j++) {
                     // check Loser
@@ -240,25 +230,26 @@ const Game = () => {
                     }
                 }
             }
-
-            setLoser(prevLoserState);
             if (gameOverFlag) {
                 gameOver = true;
                 playConfetti();
                 restartGame();
                 // alert("🎯Game Over. " + player_color_names[next_player] + " won! 🎮");
-                notify("Game Over." + player_color_names[next_player] + " won! 🃏")
+                notify("🎯 Game Over. " + player_color_names[next_player] + " won! 🎯")
 
             } else {
                 for (i = 0; i < player_n; i++) {
                     if (prevLoserState[i] !== loser[i] && prevLoserState[i] === true) {
                         // alert("🫠 " + player_color_names[i] + " lost.");
-                        notify("🃏 " + player_color_names[i] + " lost.")
+                        notify("🫠 " + player_color_names[i] + " lost.")
                         loser[i] = prevLoserState[i];
+                        if (next_player === i) {
+                            checkNextPlayer();
+                        }
                     }
                 }
-                setLoser(prevLoserState);
             }
+            setLoser(prevLoserState);
         }
     };
 
@@ -269,7 +260,7 @@ const Game = () => {
             useWorker: true
         });
         myConfetti({
-            particleCount: 300,
+            particleCount: 100,
             spread: 160
         });
     }
@@ -290,7 +281,18 @@ const Game = () => {
         if (!gameOver) checkGame();
     }
 
+    const checkNextPlayer = () => {
+        var nextP = curr_player < player_n - 1 ? curr_player + 1 : 0;
+        if (num_steps < player_n) setNextPlayer(nextP)
 
+        while (num_steps >= player_n) {
+            if (!loser[nextP]) {
+                setNextPlayer(nextP);
+                break;
+            }
+            nextP = nextP < player_n - 1 ? nextP + 1 : 0;
+        }
+    }
     const renderSquare = (i, j, id, canClick) => {
         return (
             <Square
@@ -311,16 +313,7 @@ const Game = () => {
                         gameOver = false;
                     }
                     await handleClick(i, j, true);
-                    var nextP = curr_player < player_n - 1 ? curr_player + 1 : 0;
-                    if (num_steps < player_n) setNextPlayer(nextP)
-
-                    while (num_steps >= player_n) {
-                        if (!loser[nextP]) {
-                            setNextPlayer(nextP);
-                            break;
-                        }
-                        nextP = nextP < player_n - 1 ? nextP + 1 : 0;
-                    }
+                    checkNextPlayer();
                 }}
                 hints={hints}
                 canClick={canClick}
