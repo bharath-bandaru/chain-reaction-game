@@ -220,16 +220,17 @@ const Game = () => {
     const checkGame = () => {
         if (num_steps >= player_n) {
             var gameOverFlag = true;
-            var prevLoserState = loser.slice();
+            var currLoserState = Array(player_n).fill(true);
             for (var i = 0; i < board_x; i++) {
                 for (var j = 0; j < board_y; j++) {
                     // check Loser
                     if (squares[i][j] !== null && squares[i][j].player !== curr_player) gameOverFlag = false;
-                    if (squares[i][j] !== null && prevLoserState[squares[i][j].player]) {
-                        prevLoserState[squares[i][j].player] = false;
+                    if (squares[i][j] !== null && currLoserState[squares[i][j].player]) {
+                        currLoserState[squares[i][j].player] = false;
                     }
                 }
             }
+
             if (gameOverFlag) {
                 gameOver = true;
                 playConfetti();
@@ -239,17 +240,17 @@ const Game = () => {
 
             } else {
                 for (i = 0; i < player_n; i++) {
-                    if (prevLoserState[i] !== loser[i] && prevLoserState[i] === true) {
+                    if (currLoserState[i] !== loser[i] && currLoserState[i] === true) {
                         // alert("🫠 " + player_color_names[i] + " lost.");
                         notify("🫠 " + player_color_names[i] + " lost.")
-                        loser[i] = prevLoserState[i];
+                        loser[i] = currLoserState[i];
                         if (next_player === i) {
                             checkNextPlayer();
                         }
                     }
                 }
+                setLoser(currLoserState);
             }
-            setLoser(prevLoserState);
         }
     };
 
