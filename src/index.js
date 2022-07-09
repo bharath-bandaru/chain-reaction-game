@@ -97,7 +97,7 @@ const Square = ({ id, value, max, hints, onClick, canClick }) => {
 }
 
 const Game = () => {
-    var board_x = 8, board_y = 6;
+    var board_x = 9, board_y = 6;
     var squaresArray = Array.from({ length: board_x }, _ => new Array(board_y).fill(null));
     const [squares, setSquares] = useState(Object.assign({}, squaresArray.map(a => Object.assign({}, a))));
     const [player_n, setNoPlayer] = useState(2);
