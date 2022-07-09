@@ -95,7 +95,7 @@ const Game = () => {
     const [squares, setSquares] = useState(Object.assign({}, squaresArray.map(a => Object.assign({}, a))));
     const [player_n, setNoPlayer] = useState(2);
     var curr_player = 0;
-    const [next_player, setNextPlayer] = useState(curr_player);
+    const [next_player, setNextPlayer] = useState({ player: 0 });
     const [loser, setLoser] = useState(Array(player_n).fill(false));
     var gameOver = false;
     const player_color = [
@@ -236,7 +236,7 @@ const Game = () => {
                 playConfetti();
                 restartGame();
                 // alert("🎯Game Over. " + player_color_names[next_player] + " won! 🎮");
-                notify("🎯 Game Over. " + player_color_names[next_player] + " won! 🎯")
+                notify("🎯 Game Over. " + player_color_names[next_player.player] + " won! 🎯")
 
             } else {
                 for (i = 0; i < player_n; i++) {
@@ -244,7 +244,7 @@ const Game = () => {
                         // alert("🫠 " + player_color_names[i] + " lost.");
                         notify("🫠 " + player_color_names[i] + " lost.")
                         loser[i] = currLoserState[i];
-                        if (next_player === i) {
+                        if (next_player.player === i) {
                             checkNextPlayer();
                         }
                     }
@@ -284,11 +284,17 @@ const Game = () => {
 
     const checkNextPlayer = () => {
         var nextP = curr_player < player_n - 1 ? curr_player + 1 : 0;
-        if (num_steps < player_n) setNextPlayer(nextP)
+        var np = next_player;
+        if (num_steps < player_n) {
+            next_player.player = nextP;
+            setNextPlayer({ ...np });
+        }
 
         while (num_steps >= player_n) {
             if (!loser[nextP]) {
-                setNextPlayer(nextP);
+                np = next_player;
+                next_player.player = nextP;
+                setNextPlayer({ ...np });
                 break;
             }
             nextP = nextP < player_n - 1 ? nextP + 1 : 0;
@@ -308,13 +314,13 @@ const Game = () => {
                     ) ? 1 : 2)
                     : 3}
                 onClick={async () => {
-                    curr_player = next_player;
+                    curr_player = next_player.player;
                     if (squares[i][j] != null && squares[i][j].player !== curr_player) return;
+                    checkNextPlayer();
                     if (num_steps === 0) {
                         gameOver = false;
                     }
-                    await handleClick(i, j, true);
-                    checkNextPlayer();
+                    handleClick(i, j, true);
                 }}
                 hints={hints}
                 canClick={canClick}
@@ -339,7 +345,7 @@ const Game = () => {
         curr_player = 0;
         setCanClick(true);
         setNumSteps(0);
-        setNextPlayer(0);
+        setNextPlayer({ player: 0 });
         setLoser(Array(player_n).fill(false));
         setSquares(Object.assign({}, squaresArray.map(a => Object.assign({}, a))));
     }
@@ -353,7 +359,7 @@ const Game = () => {
             <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link>
             <div className="root">
 
-                <div className="game" style={{ color: player_color[next_player] }} id="game">
+                <div className="game" style={{ color: player_color[next_player.player] }} id="game">
                     <div className='header'>
                         <span className="material-icons mui"> dashboard_customize </span>
                         <div>
@@ -367,11 +373,11 @@ const Game = () => {
                                     player_color.map((item, index) => {
                                         return (
                                             <>
-                                                {(index < player_n && index !== next_player) &&
+                                                {(index < player_n && index !== next_player.player) &&
                                                     <div className="dot" style={{ backgroundColor: item }}></div>
                                                 }
 
-                                                {(index < player_n && index === next_player) &&
+                                                {(index < player_n && index === next_player.player) &&
                                                     <div className="dot" style={{ backgroundColor: item, border: "solid #fff" }}></div>
                                                 }
                                             </>
