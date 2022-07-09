@@ -82,7 +82,7 @@ const Player = ({ state, color, max, hints }) => {
 const Square = ({ id, value, max, hints, onClick }) => {
     // console.log("Square props: ", id);
     return (
-        <button className="square" id={id} onClick={onClick}>
+        <button  className="square" id={id} onClick={onClick}>
             <Player
                 color={value != null ? value.color : ''}
                 state={value != null ? value.state : 0}
@@ -235,12 +235,13 @@ const Game = () => {
             if (gameOverFlag) {
                 gameOver = true;
                 restartGame();
-                alert("🎮 Game Over 🎯 " + player_color_names[next_player] + " won!");
+                alert("🎯Game Over. " + player_color_names[next_player] + " won! 🎮");
 
             } else {
                 for (i = 0; i < player_n; i++) {
                     if (prevLoserState[i] !== loser[i] && prevLoserState[i] === true) {
-                        alert(player_color_names[i] + " lost.");
+                        alert("🫠 "+player_color_names[i] + " lost.");
+                        loser[i] = prevLoserState[i];
                     }
                 }
             }
