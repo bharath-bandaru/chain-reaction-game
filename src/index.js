@@ -9,16 +9,46 @@ const confetti = require('canvas-confetti');
 confetti.Promise = MyPromise;
 
 const notify = (message) => toast(message);
+const gameOverNotify = (message) => toast(message, {
+    position: "bottom-center",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+});
 const Player = ({ state, color, max, hints }) => {
     return (
         <>
             {
                 <div className='container'>
                     <div className='anim hide atom'>
-                        <div className="nucleus"></div>
-                        <div className="nucleus"></div>
-                        <div className="nucleus"></div>
-                        <div className="nucleus"></div>
+                        {
+                            (max === 1) &&
+                            <>
+                                <div className="nucleus"></div>
+                                <div className="nucleus"></div>
+                            </>
+                        }
+                        {
+                            (max === 2) &&
+                            <>
+                                <div className="nucleus"></div>
+                                <div className="nucleus"></div>
+                                <div className="nucleus"></div>
+                            </>
+                        }
+                        {
+                            (max === 3) &&
+                            <>
+                                <div className="nucleus"></div>
+                                <div className="nucleus"></div>
+                                <div className="nucleus"></div>
+                                <div className="nucleus"></div>
+                            </>
+                        }
+
                     </div>
                     <div className="atom" style={{ backgroundColor: color }}>
                         {(state === 0) &&
@@ -132,7 +162,6 @@ const Game = () => {
     const playCSSAnimation = async (i, j, prev) => {
         try {
             setCanClick(false);
-            console.log("play css", i, j, prev)
             var anim_ele = document.getElementById(i + "_" + j).children[0].children[0];
             var atom = document.getElementById(i + "_" + j).children[0].children[1];
             var elements = anim_ele.children;
@@ -217,6 +246,12 @@ const Game = () => {
     }
 
 
+    const waitAndRestartGame = async () => {
+        setCanClick(false);
+        await timer(5000);
+        restartGame();
+    }
+
     const checkGame = () => {
         if (num_steps >= player_n) {
             var gameOverFlag = true;
@@ -229,15 +264,11 @@ const Game = () => {
                         currLoserState[squares[i][j].player] = false;
                     }
                 }
-            }
-
-            if (gameOverFlag) {
+            } if (gameOverFlag) {
                 gameOver = true;
+                gameOverNotify("🎯 Game Over! " + player_color_names[curr_player] + " won. 🎯")
                 playConfetti();
-                restartGame();
-                // alert("🎯Game Over. " + player_color_names[next_player] + " won! 🎮");
-                notify("🎯 Game Over. " + player_color_names[next_player.player] + " won! 🎯")
-
+                waitAndRestartGame();
             } else {
                 for (i = 0; i < player_n; i++) {
                     if (currLoserState[i] !== loser[i] && currLoserState[i] === true) {
