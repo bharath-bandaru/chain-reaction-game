@@ -16,6 +16,9 @@ code {
 
 .row {
   color: inherit;
+  display: flex;
+  text-align: center;
+  justify-content: center;
 }
 
 .square {
@@ -434,6 +437,38 @@ code {
 }
 
 .Toastify__toast-container--bottom-center {
-  max-width: 250px;
   text-align: center;
+}
+
+@-webkit-keyframes likesize {
+  0% {
+    transform: scale(1)
+  }
+
+  25% {
+    transform: scale(1.1)
+  }
+
+  75% {
+    transform: scale(1)
+  }
+}
+
+@keyframes likesize {
+  0% {
+    transform: scale(1)
+  }
+
+  25% {
+    transform: scale(1.1)
+  }
+
+  75% {
+    transform: scale(1)
+  }
+}
+
+.like:hover {
+  -webkit-animation: likesize 2s linear infinite;
+  animation: likesize 2s linear infinite;
 }

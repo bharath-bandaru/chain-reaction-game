@@ -183,7 +183,8 @@ const Game = () => {
 
                     elements[0].classList.add(colors[0]);
                     elements[1].classList.add(colors[1]);
-                    await timer(400);
+                    var t = await timer(400);
+                    clearTimeout(t);
                     break;
                 case 2:
                     if (j === 0) colors = ["left", "bottom", "top"];
@@ -196,7 +197,8 @@ const Game = () => {
                     elements[0].classList.add(colors[0]);
                     elements[1].classList.add(colors[1]);
                     elements[2].classList.add(colors[2]);
-                    await timer(400);
+                    var t = await timer(400);
+                    clearTimeout(t);
                     break;
                 case 3:
                     //console.log("in play css", i, j, prev, elements)
@@ -205,7 +207,8 @@ const Game = () => {
                     elements[1].classList.add("left");
                     elements[2].classList.add("bottom");
                     elements[3].classList.add("top");
-                    await timer(400);
+                    var t = await timer(400);
+                    clearTimeout(t);
                     break;
                 default:
                     console.log("something went wrong");
@@ -248,7 +251,8 @@ const Game = () => {
 
     const waitAndRestartGame = async () => {
         setCanClick(false);
-        await timer(5000);
+        var t = await timer(5000);
+        clearTimeout(t);
         restartGame();
     }
 
@@ -384,12 +388,30 @@ const Game = () => {
         navigator.clipboard.writeText("Here is the link to play chain reaction 💣: 'https://bharath-bandaru.github.io/chain-reaction-game/'");
     }
 
+    const likeButton = async () => {
+        var butt = document.getElementById("like-button");
+        butt.innerHTML = '😍';
+        var t = await timer(100);
+        clearTimeout(t);
+        butt.innerHTML = '😘';
+        var t = await timer(200);
+        clearTimeout(t);
+        butt.innerHTML = '🥳';
+        var t = await timer(300);
+        clearTimeout(t);
+        butt.innerHTML = '🎉';
+        var t = await timer(200);
+        clearTimeout(t);
+        butt.innerHTML = '💣';
+        var t = await timer(100);
+        clearTimeout(t);
+        butt.innerHTML = '❤️';
+    }
     return (
         <>
             <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
             <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link>
             <div className="root">
-
                 <div className="game" style={{ color: player_color[next_player.player] }} id="game">
                     <div className='header'>
                         <span className="material-icons mui"> dashboard_customize </span>
@@ -438,7 +460,7 @@ const Game = () => {
 
                     }
                     <div className='footer'>
-                        <div className='buttons'> ❤️ </div>
+                        <div id='like-button' onClick={likeButton} className='buttons like'> <span>❤️</span> </div>
                         <h3>chain reaction</h3>
                         <div className='buttons tooltip' onClick={shareGame}>🚀 </div>
                     </div>
