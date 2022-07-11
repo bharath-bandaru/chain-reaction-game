@@ -172,6 +172,7 @@ const Game = () => {
             anim_ele.style.zIndex = num_steps
             anim_ele.classList.remove("hide");
             atom.classList.add("hide");
+            var t = null;
             switch (prev.state) {
                 case 1:
                     if (i === 0 && j === 0) colors = ["left", "top"];
@@ -183,7 +184,7 @@ const Game = () => {
 
                     elements[0].classList.add(colors[0]);
                     elements[1].classList.add(colors[1]);
-                    var t = await timer(400);
+                    t = await timer(400);
                     clearTimeout(t);
                     break;
                 case 2:
@@ -197,7 +198,7 @@ const Game = () => {
                     elements[0].classList.add(colors[0]);
                     elements[1].classList.add(colors[1]);
                     elements[2].classList.add(colors[2]);
-                    var t = await timer(400);
+                    t = await timer(400);
                     clearTimeout(t);
                     break;
                 case 3:
@@ -207,7 +208,7 @@ const Game = () => {
                     elements[1].classList.add("left");
                     elements[2].classList.add("bottom");
                     elements[3].classList.add("top");
-                    var t = await timer(400);
+                    t = await timer(400);
                     clearTimeout(t);
                     break;
                 default:
@@ -394,16 +395,16 @@ const Game = () => {
         var t = await timer(100);
         clearTimeout(t);
         butt.innerHTML = '😘';
-        var t = await timer(200);
+        t = await timer(200);
         clearTimeout(t);
         butt.innerHTML = '🥳';
-        var t = await timer(300);
+        t = await timer(300);
         clearTimeout(t);
         butt.innerHTML = '🎉';
-        var t = await timer(200);
+        t = await timer(200);
         clearTimeout(t);
         butt.innerHTML = '💣';
-        var t = await timer(100);
+        t = await timer(100);
         clearTimeout(t);
         butt.innerHTML = '❤️';
     }
