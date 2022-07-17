@@ -21,14 +21,15 @@ code {
   justify-content: center;
 }
 
+
 .square {
   background: #191919;
   color: inherit;
   border: 1px solid;
   float: left;
-  font-size: 15px;
-  font-weight: bold;
-  line-height: 24px;
+  /* font-size: 15px; */
+  /* font-weight: bold; */
+  /* line-height: 24px; */
   height: 55px;
   margin-right: -1px;
   margin-top: -1px;
@@ -446,7 +447,7 @@ code {
   }
 
   25% {
-    transform: scale(1.1)
+    transform: scale(1.2)
   }
 
   75% {
@@ -460,7 +461,7 @@ code {
   }
 
   25% {
-    transform: scale(1.1)
+    transform: scale(1.2)
   }
 
   75% {
@@ -469,6 +470,6 @@ code {
 }
 
 .like:hover {
-  -webkit-animation: likesize 2s linear infinite;
-  animation: likesize 2s linear infinite;
+  -webkit-animation: likesize 1.5s linear infinite;
+  animation: likesize 1.5s linear infinite;
 }

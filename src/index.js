@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { useState } from "react";
 import "./index.css";
 import { ToastContainer, toast, Slide } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
 const MyPromise = window.Promise;
 const confetti = require('canvas-confetti');
 confetti.Promise = MyPromise;
@@ -18,10 +19,67 @@ const gameOverNotify = (message) => toast(message, {
     draggable: true,
     progress: undefined,
 });
+const One = () => {
+    return (
+        <svg style={{ "width": "18.9px", "fill": "inherit", "marginTop": "4px", "padding": "3px" }}
+            viewBox="0 0 60 60"><defs>
+            </defs>
+            <g >
+                <g>
+                    <circle style={{ "fill": "inherit" }} cx="30" cy="30" r="29.5" />
+                    <path style={{ "fill": "#191919" }}
+                        d="M30,1c15.99,0,29,13.01,29,29s-13.01,29-29,29S1,45.99,1,30,14.01,1,30,1m0-1C13.43,0,0,13.43,0,30s13.43,30,30,30,30-13.43,30-30S46.57,0,30,0h0Z" />
+                </g>
+            </g>
+        </svg>
+    );
+}
+
+const Two = () => {
+    return (
+        <svg style={{ "width": "26px", "fill": "inherit", "marginTop": "4px", "padding": "3px" }}
+            viewBox="0 0 82 90">
+            <defs>
+            </defs>
+            <g>
+                <g>
+                    <circle cx="52" cy="60" r="29.5" />
+                    <path style={{ "fill": "#191919" }} d="M52,31c15.99,0,29,13.01,29,29s-13.01,29-29,29-29-13.01-29-29,13.01-29,29-29m0-1c-16.57,0-30,13.43-30,30s13.43,30,30,30,30-13.43,30-30-13.43-30-30-30h0Z" />
+                </g>
+                <g>
+                    <circle cx="30" cy="30" r="29.5" />
+                    <path style={{ "fill": "#191919" }} d="M30,1c15.99,0,29,13.01,29,29s-13.01,29-29,29S1,45.99,1,30,14.01,1,30,1m0-1C13.43,0,0,13.43,0,30s13.43,30,30,30,30-13.43,30-30S46.57,0,30,0h0Z" />
+                </g>
+            </g>
+        </svg>
+    );
+}
+
+const Three = () => {
+    return (
+        <svg style={{ "width": "33px", "fill": "inherit", "marginTop": "4px", "padding": "3px" }}
+            viewBox="0 0 104 90"><defs>
+            </defs><g id="Layer_1-2">
+                <g>
+                    <circle cx="74" cy="60" r="29.5" />
+                    <path style={{ "fill": "#191919" }} d="M74,31c15.99,0,29,13.01,29,29s-13.01,29-29,29-29-13.01-29-29,13.01-29,29-29m0-1c-16.57,0-30,13.43-30,30s13.43,30,30,30,30-13.43,30-30-13.43-30-30-30h0Z" />
+                </g>
+                <g>
+                    <circle cx="30" cy="60" r="29.5" />
+                    <path style={{ "fill": "#191919" }} d="M30,31c15.99,0,29,13.01,29,29s-13.01,29-29,29S1,75.99,1,60,14.01,31,30,31m0-1C13.43,30,0,43.43,0,60s13.43,30,30,30,30-13.43,30-30-13.43-30-30-30h0Z" />
+                </g>
+                <g>
+                    <circle cx="52" cy="30" r="29.5" />
+                    <path style={{ "fill": "#191919" }} d="M52,1c15.99,0,29,13.01,29,29s-13.01,29-29,29-29-13.01-29-29S36.01,1,52,1m0-1c-16.57,0-30,13.43-30,30s13.43,30,30,30,30-13.43,30-30S68.57,0,52,0h0Z" />
+                </g>
+            </g>
+        </svg>
+    );
+}
 const Player = ({ state, color, max, hints }) => {
     return (
         <>
-            {
+            {<>
                 <div className='container'>
                     <div className='anim hide atom'>
                         {
@@ -50,65 +108,34 @@ const Player = ({ state, color, max, hints }) => {
                         }
 
                     </div>
-                    <div className="atom" style={{ backgroundColor: color }}>
-                        {(state === 0) &&
-                            <>
-                                {/* <div className="nucleus"></div> */}
-                                {
-                                    (max === 1 && hints) &&
-                                    <>
-                                        {/* <div className="electron1"></div> */}
-                                    </>
-                                }
-                            </>
-                        }
+                    <div style={{ fill: color }}>
                         {(state === 1) &&
-                            <>
-                                <div className="nucleus"></div>
-                                {
-                                    (max === 1 && hints) &&
-                                    <>
-                                        {/* <div className="electron1"></div> */}
-                                    </>
-                                }
-                            </>
+                            <One />
                         }
                         {(state === 2) &&
-                            <>
-                                <div className="nucleus2"></div>
-                                <div className="nucleus"></div>
-                                {
-                                    (max === 2 && hints) &&
-                                    <>
-                                        {/* <div className="electron2"></div> */}
-                                    </>
-                                }
-                            </>
+                            <Two />
                         }
                         {(state >= 3) &&
-                            <>
-                                <div className="nucleus2" ></div>
-                                <div className="nucleus3"></div>
-                                <div className="nucleus"></div>
-                                {(max === 3 && hints) &&
-                                    <>
-                                        {/* <div className="electron3"></div> */}
-                                    </>
-                                }
-
-                            </>
+                            <Three />
                         }
                     </div>
                 </div>
+            </>
             }
         </>
     );
 }
 
-const Square = ({ id, value, max, hints, onClick, canClick }) => {
+const Square = ({ id, value, max, hints, currrentPlayer, onClick, canClick }) => {
+    const player_color = [
+        '#00A8CD',
+        '#CD00C5',
+        '#B0CD00',
+        '#CD0000'
+    ];
     // console.log("Square props: ", id);
     return (
-        <button className="square" id={id} onClick={onClick} disabled={!canClick}>
+        <button className="square" id={id} onClick={onClick} disabled={!canClick} style={{ "color": player_color[currrentPlayer] }}>
             <Player
                 color={value != null ? value.color : ''}
                 state={value != null ? value.state : 0}
@@ -120,7 +147,7 @@ const Square = ({ id, value, max, hints, onClick, canClick }) => {
 }
 
 const Game = () => {
-    var board_x = 9, board_y = 9;
+    var board_x = 9, board_y = 6;
     var squaresArray = Array.from({ length: board_x }, _ => new Array(board_y).fill(null));
     const [squares, setSquares] = useState(Object.assign({}, squaresArray.map(a => Object.assign({}, a))));
     const [player_n, setNoPlayer] = useState(2);
@@ -167,7 +194,7 @@ const Game = () => {
             var elements = anim_ele.children;
             elements = removeAniClass(elements);
             var colors = [];
-            atom.style.backgroundColor = player_color[curr_player]
+            atom.style.fill = player_color[curr_player]
             anim_ele.style.backgroundColor = player_color[curr_player]
             anim_ele.style.zIndex = num_steps
             anim_ele.classList.remove("hide");
@@ -274,11 +301,11 @@ const Game = () => {
 
     const checkPlayerState = () => {
         if (!gameOver && num_steps >= player_n) {
+            var currLoserState = loser;
             var state = loopAllStates();
-            var currLoserState = state[1];
+            currLoserState = state[1];
             for (var i = 0; i < player_n; i++) {
                 if (currLoserState[i] !== loser[i] && currLoserState[i] === true) {
-                    // alert("🫠 " + player_color_names[i] + " lost.");
                     notify("🫠 " + player_color_names[i] + " lost.")
                     loser[i] = currLoserState[i];
                     if (next_player.player === i) {
@@ -318,9 +345,14 @@ const Game = () => {
     }
     var interval;
     const stopwatch = async () => {
-        interval = setInterval(startInterval, 410);
-        return true;
+        interval = setInterval(startInterval, 450);
     }
+
+    useEffect(() => {
+        // clearInterval(interval);
+        // stopwatch();
+    }, [squares])
+
     const startInterval = async () => {
         checkPlayerState();
         clearInterval(interval);
@@ -380,9 +412,11 @@ const Game = () => {
                     if (num_steps === 0) {
                         gameOver = false;
                     }
+                    clearInterval(interval);
                     stopwatch();
                     handleClick(i, j, true,);
                 }}
+                currrentPlayer={next_player.player}
                 hints={hints}
                 canClick={canClick}
             />
@@ -416,20 +450,9 @@ const Game = () => {
 
     const likeButton = async () => {
         var butt = document.getElementById("like-button");
-        butt.innerHTML = '😍';
-        var t = await timer(100);
-        clearTimeout(t);
-        butt.innerHTML = '😘';
-        t = await timer(200);
-        clearTimeout(t);
+        playConfetti();
         butt.innerHTML = '🥳';
-        t = await timer(300);
-        clearTimeout(t);
-        butt.innerHTML = '🎉';
-        t = await timer(200);
-        clearTimeout(t);
-        butt.innerHTML = '💣';
-        t = await timer(100);
+        var t = await timer(3000);
         clearTimeout(t);
         butt.innerHTML = '❤️';
     }
