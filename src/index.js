@@ -120,7 +120,7 @@ const Square = ({ id, value, max, hints, onClick, canClick }) => {
 }
 
 const Game = () => {
-    var board_x = 9, board_y = 6;
+    var board_x = 9, board_y = 9;
     var squaresArray = Array.from({ length: board_x }, _ => new Array(board_y).fill(null));
     const [squares, setSquares] = useState(Object.assign({}, squaresArray.map(a => Object.assign({}, a))));
     const [player_n, setNoPlayer] = useState(2);
@@ -220,7 +220,7 @@ const Game = () => {
         }
         anim_ele.classList.add("hide");
         atom.classList.remove("hide");
-        setCanClick(true);
+        if(!gameOver) setCanClick(true);
     }
 
     const timer = (ms) => new Promise(res => setTimeout(res, ms))
@@ -255,40 +255,55 @@ const Game = () => {
         var t = await timer(5000);
         clearTimeout(t);
         restartGame();
+        setCanClick(true);
     }
 
-    const checkGame = () => {
+    const checkGameOver = () => {
         if (num_steps >= player_n) {
-            var gameOverFlag = true;
-            var currLoserState = Array(player_n).fill(true);
-            for (var i = 0; i < board_x; i++) {
-                for (var j = 0; j < board_y; j++) {
-                    // check Loser
-                    if (squares[i][j] !== null && squares[i][j].player !== curr_player) gameOverFlag = false;
-                    if (squares[i][j] !== null && currLoserState[squares[i][j].player]) {
-                        currLoserState[squares[i][j].player] = false;
-                    }
-                }
-            } if (gameOverFlag) {
+            var state = loopAllStates();
+            var gameOverFlag = state[0];
+            if (gameOverFlag) {
+                setCanClick(false);
                 gameOver = true;
                 gameOverNotify("🎯 Game Over! " + player_color_names[curr_player] + " won. 🎯")
                 playConfetti();
                 waitAndRestartGame();
-            } else {
-                for (i = 0; i < player_n; i++) {
-                    if (currLoserState[i] !== loser[i] && currLoserState[i] === true) {
-                        // alert("🫠 " + player_color_names[i] + " lost.");
-                        notify("🫠 " + player_color_names[i] + " lost.")
-                        loser[i] = currLoserState[i];
-                        if (next_player.player === i) {
-                            checkNextPlayer();
-                        }
-                    }
-                }
-                setLoser(currLoserState);
             }
         }
     };
+
+    const checkPlayerState = () =>{
+        if (!gameOver && num_steps >= player_n) {
+            var state = loopAllStates();
+            var currLoserState = state[1];
+            for (var i = 0; i < player_n; i++) {
+                if (currLoserState[i] !== loser[i] && currLoserState[i] === true) {
+                    // alert("🫠 " + player_color_names[i] + " lost.");
+                    notify("🫠 " + player_color_names[i] + " lost.")
+                    loser[i] = currLoserState[i];
+                    if (next_player.player === i) {
+                        checkNextPlayer();
+                    }
+                }
+            }
+            setLoser(currLoserState);
+        }
+    }
+
+    const loopAllStates = () =>{
+        var gameOverFlag = true;
+        var currLoserState = Array(player_n).fill(true);
+        for (var i = 0; i < board_x; i++) {
+            for (var j = 0; j < board_y; j++) {
+                // check Loser
+                if (squares[i][j] !== null && squares[i][j].player !== curr_player) gameOverFlag = false;
+                if (squares[i][j] !== null && currLoserState[squares[i][j].player]) {
+                    currLoserState[squares[i][j].player] = false;
+                }
+            }
+        }
+        return [gameOverFlag, currLoserState];
+    }
 
     const playConfetti = () => {
         var myCanvas = document.getElementById("confetti");
@@ -301,8 +316,18 @@ const Game = () => {
             spread: 160
         });
     }
+    var interval;
+    const stopwatch = async() => {
+        interval = setInterval(startInterval, 410);
+        return true;
+    }
+    const startInterval = async ()=>{
+        checkPlayerState();
+        clearInterval(interval);
+    }
     const handleClick = async (i, j, isInit) => {
-
+        clearInterval(interval);
+        stopwatch();
         if (gameOver) return;
         setNumSteps(num_steps + 1);
         if (chainReact(i, j, isInit)) {
@@ -315,7 +340,7 @@ const Game = () => {
             if (j - 1 >= 0) handleClick(i, j - 1, false);
             if (j + 1 < board_y) handleClick(i, j + 1, false);
         }
-        if (!gameOver) checkGame();
+        if (!gameOver) checkGameOver();
     }
 
     const checkNextPlayer = () => {
@@ -325,7 +350,6 @@ const Game = () => {
             next_player.player = nextP;
             setNextPlayer({ ...np });
         }
-
         while (num_steps >= player_n) {
             if (!loser[nextP]) {
                 np = next_player;
@@ -349,14 +373,15 @@ const Game = () => {
                         || (i === board_x - 1 && j === board_y - 1)
                     ) ? 1 : 2)
                     : 3}
-                onClick={async () => {
+                onClick={() => {
                     curr_player = next_player.player;
                     if (squares[i][j] != null && squares[i][j].player !== curr_player) return;
                     checkNextPlayer();
                     if (num_steps === 0) {
                         gameOver = false;
                     }
-                    handleClick(i, j, true);
+                    stopwatch();
+                    handleClick(i, j, true, );
                 }}
                 hints={hints}
                 canClick={canClick}
