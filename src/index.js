@@ -220,7 +220,7 @@ const Game = () => {
         }
         anim_ele.classList.add("hide");
         atom.classList.remove("hide");
-        if(!gameOver) setCanClick(true);
+        if (!gameOver) setCanClick(true);
     }
 
     const timer = (ms) => new Promise(res => setTimeout(res, ms))
@@ -272,7 +272,7 @@ const Game = () => {
         }
     };
 
-    const checkPlayerState = () =>{
+    const checkPlayerState = () => {
         if (!gameOver && num_steps >= player_n) {
             var state = loopAllStates();
             var currLoserState = state[1];
@@ -290,7 +290,7 @@ const Game = () => {
         }
     }
 
-    const loopAllStates = () =>{
+    const loopAllStates = () => {
         var gameOverFlag = true;
         var currLoserState = Array(player_n).fill(true);
         for (var i = 0; i < board_x; i++) {
@@ -317,11 +317,11 @@ const Game = () => {
         });
     }
     var interval;
-    const stopwatch = async() => {
+    const stopwatch = async () => {
         interval = setInterval(startInterval, 410);
         return true;
     }
-    const startInterval = async ()=>{
+    const startInterval = async () => {
         checkPlayerState();
         clearInterval(interval);
     }
@@ -381,7 +381,7 @@ const Game = () => {
                         gameOver = false;
                     }
                     stopwatch();
-                    handleClick(i, j, true, );
+                    handleClick(i, j, true,);
                 }}
                 hints={hints}
                 canClick={canClick}
