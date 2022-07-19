@@ -1,6 +1,5 @@
 # Demo
 Play Game: https://bharath-bandaru.github.io/chain-reaction-game/
-https://bharath-bandaru.github.io/chain-reaction-game/
 
 # Getting Started with Create React App
 
