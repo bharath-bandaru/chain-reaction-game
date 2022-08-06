@@ -1,42 +1,76 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics, logEvent } from "firebase/analytics";
+import { getAnalytics } from "firebase/analytics";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
-import { getDatabase } from "firebase/database";
+import { getDatabase, onDisconnect, ref, remove, set } from "firebase/database";
 
 
 const firebaseConfig = {
-
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const auth = getAuth(app);
-const database = getDatabase(app);
+export const analytics = getAnalytics(app);
+export const auth = getAuth(app);
+export const database = getDatabase(app);
+export var localuser = null;
+export var playerRef = null;
 
-
-logEvent(analytics, 'notification_received');
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        const uid = user.uid;
         console.log(user);
-        playerId = user.Id;
+        localuser = user;
+        playerRef = ref(database, 'players/' + user.uid);
+        set(playerRef, {
+            id: true,
+        });
+        onDisconnect(playerRef).set(false);
     } else {
         console.log('User is signed out');
     }
 });
 
+export const getUser = () => {
+    return localuser;
+}
 
-signInAnonymously(auth)
-    .then(() => {
-        // Signed in..
-        console.log('User is signed in Anonymously');
-    })
-    .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // ...
-    });
+export const signIn = () => {
+    signInAnonymously(auth)
+        .then(() => {
+            // Signed in..
+            console.log('User is signed in Anonymously');
+        })
+        .catch((error) => {
+            // ...
+        });
+}
 
+
+export const generateGroupIds = (user) => {
+    var uniqs = new Set();
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var charactersLength = characters.length;
+
+    for (var j = 0; j < 10000; j++) {
+        var result = ""
+        for (var i = 0; i < 4; i++) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        uniqs.add(result);
+    }
+    for (const each of uniqs) {
+        set(ref(database, 'groups/' + each), {
+            status: false,
+            players: [],
+        })
+            .then(() => {
+                console.log("Data saved successfully!");
+            })
+            .catch((error) => {
+                // The write failed...
+            });
+    }
+    console.log(uniqs);
+
+}

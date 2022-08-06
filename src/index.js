@@ -4,11 +4,23 @@ import { useState } from "react";
 import "./index.css";
 import { ToastContainer, toast, Slide } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import {
+    Menu,
+    MenuItem,
+    MenuRadioGroup
+} from '@szhsin/react-menu';
+import '@szhsin/react-menu/dist/index.css';
+import '@szhsin/react-menu/dist/transitions/slide.css';
+import "@szhsin/react-menu/dist/theme-dark.css";
+import { signIn, localuser, database, analytics } from './firebase';
+import { child, get, onValue, ref, remove, set } from "firebase/database";
+import { logEvent } from 'firebase/analytics';
+import { v4 as uuidv4 } from 'uuid';
 
 const MyPromise = window.Promise;
 const confetti = require('canvas-confetti');
 confetti.Promise = MyPromise;
-
+logEvent(analytics, 'notification_received');
 const notify = (message) => toast(message);
 const gameOverNotify = (message) => toast(message, {
     position: "bottom-center",
@@ -19,6 +31,7 @@ const gameOverNotify = (message) => toast(message, {
     draggable: true,
     progress: undefined,
 });
+
 const One = () => {
     return (
         <svg style={{ "width": "18.9px", "fill": "inherit", "marginTop": "4px", "padding": "3px" }}
@@ -76,6 +89,7 @@ const Three = () => {
         </svg>
     );
 }
+
 const Player = ({ state, color, max, hints }) => {
     return (
         <>
@@ -126,34 +140,41 @@ const Player = ({ state, color, max, hints }) => {
     );
 }
 
-const Square = ({ id, value, max, hints, currrentPlayer, onClick, canClick }) => {
+const Square = ({ id, value, max, hints, currrentPlayer, onClick, canClick, isLive, mainPLayer }) => {
     const player_color = [
         '#00A8CD',
         '#CD00C5',
         '#B0CD00',
         '#CD0000'
     ];
-    // console.log("Square props: ", id);
     return (
-        <button className="square" id={id} onClick={onClick} disabled={!canClick} style={{ "color": player_color[currrentPlayer] }}>
-            <Player
-                color={value != null ? value.color : ''}
-                state={value != null ? value.state : 0}
-                max={max}
-                hints={hints}
-            />
-        </button>
+        <>
+            {
+                <button className="square" id={id} onClick={onClick} disabled={!canClick} style={isLive?{ "color": player_color[mainPLayer] }:
+                                                                                                            { "color": player_color[currrentPlayer] }}>
+                    <Player
+                        color={value != null ? value.color : ''}
+                        state={value != null ? value.state : 0}
+                        max={max}
+                        hints={hints}
+                    />
+                </button>
+            }
+        </>
     );
 }
 
 const Game = () => {
-    var board_x = 10, board_y = 15;
+    const [board_x, setBoardX] = useState(9);
+    const [board_y, setBoardY] = useState(6);
     var squaresArray = Array.from({ length: board_x }, _ => new Array(board_y).fill(null));
-    const [squares, setSquares] = useState(Object.assign({}, squaresArray.map(a => Object.assign({}, a))));
+    const initialArray = squaresArray.map(a => Object.assign({}, a)).map(a => Object.assign({}, a));
+    const [squares, setSquares] = useState({ ...initialArray });
     const [player_n, setNoPlayer] = useState(2);
-    var curr_player = 0;
+    const [curr_player, setCurrentPlayer] = useState({ player: 0 });
     const [next_player, setNextPlayer] = useState({ player: 0 });
     const [loser, setLoser] = useState(Array(player_n).fill(false));
+    const [main_player, setMainPlayer] = useState(0);
     var gameOver = false;
     const player_color = [
         '#00A8CD',
@@ -162,9 +183,15 @@ const Game = () => {
         '#CD0000'
     ];
     const player_color_names = ["Blue", "Pink", "Green", "Red"];
-    const [num_steps, setNumSteps] = useState(0);
+    const [numSteps, setNumSteps] = useState({n:0});
     var hints = useState(true);
     const [canClick, setCanClick] = useState(true);
+    const [isLive, setIsLive] = useState(false);
+    const [title_message, setTitleMessage] = useState("chain reaction");
+    const [isLoading, setIsLoading] = useState(false);
+    const [isMainLoading, setIsMainLoading] = useState(false);
+    const [code, setCode] = useState('••••');
+    const [UUID, setUUID] = useState('');
     /*
         00  01  02  03  04  05
         10  11  12  13  14  15
@@ -188,15 +215,15 @@ const Game = () => {
 
     const playCSSAnimation = async (i, j, prev) => {
         try {
-            setCanClick(false);
+            // setCanClick(false);
             var anim_ele = document.getElementById(i + "_" + j).children[0].children[0];
             var atom = document.getElementById(i + "_" + j).children[0].children[1];
             var elements = anim_ele.children;
             elements = removeAniClass(elements);
             var colors = [];
-            atom.style.fill = player_color[curr_player]
-            anim_ele.style.backgroundColor = player_color[curr_player]
-            anim_ele.style.zIndex = num_steps
+            atom.style.fill = player_color[curr_player.player]
+            anim_ele.style.backgroundColor = player_color[curr_player.player]
+            anim_ele.style.zIndex = 0;
             anim_ele.classList.remove("hide");
             atom.classList.add("hide");
             var t = null;
@@ -247,7 +274,7 @@ const Game = () => {
         }
         anim_ele.classList.add("hide");
         atom.classList.remove("hide");
-        if (!gameOver) setCanClick(true);
+        // if (!gameOver) setCanClick(true);
     }
 
     const timer = (ms) => new Promise(res => setTimeout(res, ms))
@@ -262,45 +289,41 @@ const Game = () => {
             ) ? 1 : 2)
             : 3;
         if (squares[i][j] == null) {
-            squares[i][j] = { player: curr_player, color: player_color[curr_player], state: 1 };
-        } else if (isInit && squares[i][j].state < max && squares[i][j].player === curr_player) {
+            squares[i][j] = { player: curr_player.player, color: player_color[curr_player.player], state: 1 };
+        } else if (isInit && squares[i][j].state < max && squares[i][j].player === curr_player.player) {
             squares[i][j].state += 1;
         } else if (!isInit && squares[i][j].state < max) {
             squares[i][j].state += 1;
-            squares[i][j].player = curr_player;
-            squares[i][j].color = player_color[curr_player];
+            squares[i][j].player = curr_player.player;
+            squares[i][j].color = player_color[curr_player.player];
         } else {
+            if (isInit) {
+                setCanClick(false);
+                clearInterval(interval);
+                stopwatch();
+            }
             return true;
         }
         setSquares({ ...squares, [i]: { ...squares[i], [j]: squares[i][j] } });
+        if (isInit) checkNextPlayer();
         return false;
     }
 
-
-    const waitAndRestartGame = async () => {
-        setCanClick(false);
-        var t = await timer(5000);
-        clearTimeout(t);
-        restartGame();
-        setCanClick(true);
-    }
-
     const checkGameOver = () => {
-        if (num_steps >= player_n) {
+        if (numSteps.n >= player_n) {
             var state = loopAllStates();
             var gameOverFlag = state[0];
             if (gameOverFlag) {
                 setCanClick(false);
                 gameOver = true;
-                gameOverNotify("🎯 Game Over! " + player_color_names[curr_player] + " won. 🎯")
+                gameOverNotify("🎯 Game Over! " + player_color_names[curr_player.player] + " won. 🎯")
                 playConfetti();
-                waitAndRestartGame();
             }
         }
     };
 
     const checkPlayerState = () => {
-        if (!gameOver && num_steps >= player_n) {
+        if (!gameOver && numSteps.n >= player_n) {
             var currLoserState = loser;
             var state = loopAllStates();
             currLoserState = state[1];
@@ -323,7 +346,7 @@ const Game = () => {
         for (var i = 0; i < board_x; i++) {
             for (var j = 0; j < board_y; j++) {
                 // check Loser
-                if (squares[i][j] !== null && squares[i][j].player !== curr_player) gameOverFlag = false;
+                if (squares[i][j] !== null && squares[i][j].player !== curr_player.player) gameOverFlag = false;
                 if (squares[i][j] !== null && currLoserState[squares[i][j].player]) {
                     currLoserState[squares[i][j].player] = false;
                 }
@@ -344,25 +367,66 @@ const Game = () => {
         });
     }
     var interval;
+
+    const [box_size, setBoxSize] = useState("0");
+    const [boardSizes, setBoardSizes] = useState({});
+
+    useEffect(() => {
+        var squaresArray = [];
+        if (box_size === "0") {
+            setBoardX(9);
+            setBoardY(6);
+            squaresArray = Array.from({ length: 9 }, _ => new Array(6).fill(null));
+            setSquares(squaresArray.map(a => Object.assign({}, a)).map(a => Object.assign({}, a)));
+        } else {
+            setBoardX(10);
+            setBoardY(10);
+            squaresArray = Array.from({ length: 10 }, _ => new Array(10).fill(null));
+            setSquares(squaresArray.map(a => Object.assign({}, a)).map(a => Object.assign({}, a)));
+        }
+        setNumSteps({n:0});
+        setNextPlayer({ player: 0 });
+        setLoser(Array(player_n).fill(false));
+        setCurrentPlayer({ player: 0 });
+    }, [box_size, player_n]);
+
     const stopwatch = async () => {
         interval = setInterval(startInterval, 450);
     }
 
     useEffect(() => {
-        // clearInterval(interval);
-        // stopwatch();
-    }, [squares])
+        setUUID(uuidv4());
+        signIn();
+        const { innerWidth: width, innerHeight: height } = window;
+        if (height < 670 || width < 930) {
+            setBoardSizes({
+                "0": "6 x 9"
+            })
+        } else {
+            setBoardSizes({
+                "0": "6 x 9",
+                "1": "10 x 10",
+            })
+        }
+    }, [])
 
     const startInterval = async () => {
         checkPlayerState();
+        if (!gameOver) {
+            checkNextPlayer();
+            setCanClick(true);
+        }
         clearInterval(interval);
     }
+
     const handleClick = async (i, j, isInit) => {
-        clearInterval(interval);
-        stopwatch();
         if (gameOver) return;
-        setNumSteps(num_steps + 1);
+        var nStep = numSteps;
+        nStep.n = nStep.n + 1;
+        setNumSteps(nStep);
         if (chainReact(i, j, isInit)) {
+            clearInterval(interval);
+            stopwatch();
             var prev = squares[i][j];
             squares[i][j] = null;
             setSquares({ ...squares, [i]: { ...squares[i], [j]: squares[i][j] } });
@@ -376,13 +440,13 @@ const Game = () => {
     }
 
     const checkNextPlayer = () => {
-        var nextP = curr_player < player_n - 1 ? curr_player + 1 : 0;
+        var nextP = curr_player.player < player_n - 1 ? curr_player.player + 1 : 0;
         var np = next_player;
-        if (num_steps < player_n) {
+        if (numSteps.n < player_n) {
             next_player.player = nextP;
             setNextPlayer({ ...np });
         }
-        while (num_steps >= player_n) {
+        while (numSteps.n >= player_n) {
             if (!loser[nextP]) {
                 np = next_player;
                 next_player.player = nextP;
@@ -392,6 +456,40 @@ const Game = () => {
             nextP = nextP < player_n - 1 ? nextP + 1 : 0;
         }
     }
+
+    const onClickSquare = async (i, j, isCloud) => {
+        console.log(squares)
+        var curr = curr_player;
+        curr.player = next_player.player;
+        setCurrentPlayer(curr);
+        if (squares[i][j] != null && squares[i][j].player !== curr.player) return;
+        if(!isLive){
+            if (numSteps.n === 0) {
+                gameOver = false;
+            }
+            handleClick(i, j, true,);
+            return;
+        }
+        
+        var hookRef = ref(database, 'hooks/' + code);
+        if(!isCloud) {
+            set(hookRef, {
+            move: {
+                i: i,
+                j: j,
+            },
+            nextPlayer: next_player.player,
+            uuid: UUID,
+            });
+        }
+        else {
+            if (numSteps.n === 0) {
+                gameOver = false;
+            }
+            handleClick(i, j, true,);
+        }
+    }
+
     const renderSquare = (i, j, id, canClick) => {
         return (
             <Square
@@ -406,22 +504,18 @@ const Game = () => {
                     ) ? 1 : 2)
                     : 3}
                 onClick={() => {
-                    curr_player = next_player.player;
-                    if (squares[i][j] != null && squares[i][j].player !== curr_player) return;
-                    checkNextPlayer();
-                    if (num_steps === 0) {
-                        gameOver = false;
-                    }
-                    clearInterval(interval);
-                    stopwatch();
-                    handleClick(i, j, true,);
+                    if(isLive && next_player.player !== main_player) return;
+                    onClickSquare(i,j,false);
                 }}
                 currrentPlayer={next_player.player}
                 hints={hints}
+                mainPLayer= {main_player}
+                isLive={isLive}
                 canClick={canClick}
             />
         );
     }
+
     const addPlayer = () => {
         if (player_n < 4) {
             setNoPlayer(player_n + 1);
@@ -429,6 +523,7 @@ const Game = () => {
             setLoser(Array(player_n + 1).fill(false));
         }
     }
+
     const removePlayer = () => {
         if (player_n > 2) {
             setNoPlayer(player_n - 1);
@@ -436,16 +531,209 @@ const Game = () => {
             setLoser(Array(player_n - 1).fill(false));
         }
     }
-    const restartGame = () => {
-        curr_player = 0;
+
+    const restartGame = (isCloud) => {
+        if(!isCloud && isLive) {
+            // set(ref(database, 'restartHook/' + code), true);
+            set(ref(database, 'hooks/' + code), {
+                move: {
+                    i: -1,
+                    j: -1
+                }
+            });
+            return;
+        }
+        var curr = curr_player;
+        curr.player = 0;
+        setCurrentPlayer(curr);
         setCanClick(true);
-        setNumSteps(0);
+        var nStep = numSteps;
+        nStep.n = 0;
+        setNumSteps(nStep);
         setNextPlayer({ player: 0 });
         setLoser(Array(player_n).fill(false));
-        setSquares(Object.assign({}, squaresArray.map(a => Object.assign({}, a))));
+        // const squaresArray = Array.from({ length: board_x }, _ => new Array(board_y).fill(null));
+        // const initialArray = Object.assign({}, squaresArray.map(a => Object.assign({}, a)))
+        // setSquares({ ...initialArray });
+        Object.keys(squares).forEach(i => {
+            Object.keys(squares[i]).forEach(j => {
+                    squares[i][j] = null;
+                    setSquares({ ...squares, [i]: { ...squares[i], [j]: squares[i][j] } });
+                }
+            )
+        });
+        console.log(squares);
     }
-    const shareGame = () => {
-        navigator.clipboard.writeText("Here is the link to play chain reaction 💣: 'https://bharath-bandaru.github.io/chain-reaction-game/'");
+
+    // const shareGame = () => {
+    //     signIn();
+    //     navigator.clipboard.writeText("Here is the link to play chain reaction 💣: 'https://bharath-bandaru.github.io/chain-reaction-game/'");
+    // }
+
+    const joinRoom = () => {
+        var groupID = prompt("Enter the room code: ");
+        if(groupID){
+            setIsLive(true);
+            connectToRoom(groupID);
+        }
+    }
+
+
+    const createRoom = () => {
+        setIsLive(true);
+        setCanClick(false);
+        setNoPlayer(1);
+        setTitleMessage("start");
+        getNewRoom(localuser);
+        setMainPlayer(0)
+        setIsLoading(true);
+    }
+
+    const waitForPlayers = async (groupID) => {
+        var hookRef = ref(database, 'hooks/' + groupID);
+        var onlineGroupRef = ref(database, 'online/' + groupID)
+        onValue(onlineGroupRef, (snapshot) => {
+            let color = ["🔵", "🟣", "🟡", "🔴"]
+            const data = snapshot.val();
+            var n = data.n;
+            setNoPlayer(n);
+            if(data.status === 'started'){
+                setIsMainLoading(false);
+                setTitleMessage("chain reaction");
+                setCanClick(true);
+                setIsLoading(false);
+            }else if (n > 1) {
+                setIsLoading(false);
+                notify(color[n-1] + " player added");
+                setIsMainLoading(true);
+            }
+        });
+         
+        onValue(hookRef,(snapshot) => {
+            const data = snapshot.val();
+            if(data.move != null && data.move.i < 0 && data.move.j < 0){
+                setSquares({ ...initialArray });
+                restartGame(true);
+            }else if(data.move != null){
+                onClickSquare(data.move.i, data.move.j, true);
+            }
+        });
+
+        var restartRef = ref(database, 'restartHook/' + groupID);
+        onValue(restartRef,(snapshot) => {
+            const shouldRestart = snapshot.val();
+            if(shouldRestart){
+                setSquares({ ...initialArray});
+                restartGame(true);
+            }
+        });
+    }
+
+    const leaveRoom = () => {
+        setIsLive(false);
+        setNoPlayer(2);
+        setIsLoading(false);
+        setTitleMessage("chain reaction");
+    }
+
+    const connectToRoom = (groupID) => {
+        var onlineGroupRef = ref(database, 'online/' + groupID)
+        get(onlineGroupRef).then((snapshot) => {
+            if (snapshot.exists()) {
+                const group = snapshot.val();
+                if (group.n > 4) {
+                    notify("Room is full");
+                } else {
+                    if(!group.players.includes(localuser.uid)){
+                        set(onlineGroupRef, {
+                            ...group,
+                            n: group.n + 1,
+                            players: [...group.players, localuser.uid]
+                        }).then(() => {
+                            setCode(groupID);
+                            setIsLive(true);
+                            setCanClick(false);
+                            setNoPlayer(group.n);
+                            setTitleMessage("chain reaction");
+                            setMainPlayer(group.n);
+                            setIsLoading(true);
+                            var hookRef = ref(database, 'hooks/' + groupID);
+                            get(hookRef).then((snapshot) => {
+                                waitForPlayers(groupID);
+                            }).catch(error => {
+                                console.log(error);
+                            });
+                        }).catch((error) => {
+                            // The write failed...
+                        });
+                    }else{
+                        get(child(ref(database), 'players/'+localuser.uid)).then((snapshot) => {
+                            setCode(groupID);
+                            setIsLive(true);
+                            setCanClick(false);
+                            setNoPlayer(group.n-1);
+                            setTitleMessage("chain reaction");
+                            setMainPlayer(group.n);
+                            setIsLoading(true);
+                            var hookRef = ref(database, 'hooks/' + groupID);
+                            get(hookRef).then((snapshot) => {
+                                waitForPlayers(groupID);
+                            }).catch(error => {
+                                console.log(error);
+                            });
+                        })
+                    }
+                }
+            }
+        }).catch((error) => {
+            console.error(error);
+        });
+    }
+
+    const getNewRoom = (userId) => {
+        get(child(ref(database), `groups1`)).then((snapshot) => {
+            if (snapshot.exists()) {
+                const groups = snapshot.val();
+                if (groups.count > 1) {
+                    const key = Object.keys(groups).filter(key => key !== 'count')[0];
+                    var keyref = ref(database, 'groups1/' + key);
+                    remove(keyref);
+
+                    set(ref(database, 'groups1/count'), groups.count - 1)
+                        .then(() => {
+                            console.log("count updated successfully!");
+                        })
+                        .catch((error) => {
+                            console.log("count failed!", error);
+                        });
+                    var onlineGroupRef = ref(database, 'online/' + key);
+                    set(onlineGroupRef, {
+                        players: [
+                            userId.uid,
+                        ],
+                        n: 1,
+                        status: "waiting"
+                    }).then(() => {
+                        setMainPlayer(0);
+                        var hookRef = ref(database, 'hooks/' + key);
+                        set(hookRef,{
+                            move: null,
+                            nextPlayer: curr_player
+                        }).then(() => {
+                            waitForPlayers(key);
+                            console.log("Data saved successfully!");
+                            setCode(key);
+                        }).catch(error => {
+                            console.log(error);
+                        });
+                    })
+                }
+            } else {
+                console.log("No data available");
+            }
+        }).catch((error) => {
+            console.error(error);
+        });
     }
 
     const likeButton = async () => {
@@ -456,20 +744,72 @@ const Game = () => {
         clearTimeout(t);
         butt.innerHTML = '❤️';
     }
+
+    const startGame = () => {
+        setIsMainLoading(false);
+        setTitleMessage("chain reaction");
+        setCanClick(true);
+        set(ref(database, 'online/'+code+'/status'), 'started')
+            .then(() => {
+                console.log("count updated successfully!");
+            })
+            .catch((error) => {
+                console.log("count failed!", error);
+        });
+    }
+
+    const onClickTitle = () => {
+        if (title_message === "start") {
+            startGame();
+        } else if (title_message === "chain reaction") {
+            console.log("chain reaction");
+        }
+    }
+
     return (
         <>
             <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
             <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link>
             <div className="root">
+
+                {
+                    isMainLoading && <div className='loader-center-div'>
+                        <div className="loader-center loading"></div>
+                    </div>
+                }
                 <div className="game" style={{ color: player_color[next_player.player] }} id="game">
                     <div className='header'>
-                        <span className="material-icons mui"> dashboard_customize </span>
                         <div>
-                            <div>
-                                <span className="material-icons mui" onClick={addPlayer}> add </span>
-                                <span className="material-icons mui-people"> groups </span>
-                                <span className="material-icons mui" onClick={removePlayer}> remove </span>
-                            </div>
+                            <Menu menuButton={<span className="material-icons mui"> dashboard_customize </span>} theming={"dark"}>
+                                <MenuRadioGroup value={box_size}
+                                    onRadioChange={e => setBoxSize(e.value)}>
+                                    <span style={{ fontWeight: "bold", paddingBottom: "20px" }}>Available Boards</span>
+                                    <>
+                                        {
+                                            Object.entries(boardSizes).map(([key, val]) => {
+                                                return (<MenuItem type="radio" value={key}>{val}</MenuItem>)
+                                            })
+                                        }
+                                    </>
+                                </MenuRadioGroup>
+                            </Menu>
+                        </div>
+                        <div style={{ zIndex: 100 }}>
+                            {
+                                !isLive &&
+                                <div>
+                                    <span className="material-icons mui" onClick={addPlayer}> add </span>
+                                    <span className="material-icons mui-people"> groups </span>
+                                    <span className="material-icons mui" onClick={removePlayer}> remove </span>
+                                </div>
+                            }
+                            {
+                                isLive &&
+                                <div className='flex' style={{ paddingBottom: "6px", paddingTop: "4px" }}>
+                                    <span className="live-code">{code}</span>
+                                    <span className="material-icons mui pl-5 f-23"> content_copy </span>
+                                </div>
+                            }
                             <div>
                                 {
                                     player_color.map((item, index) => {
@@ -489,7 +829,7 @@ const Game = () => {
                                 }
                             </div>
                         </div>
-                        <span className="material-icons mui" onClick={restartGame}> cached </span>
+                        <span className="material-icons mui" onClick={()=>{restartGame()}}> cached </span>
                     </div>
                     {
                         Object.entries(squares).map(([i, row]) => {
@@ -506,12 +846,18 @@ const Game = () => {
                             );
 
                         })
-
                     }
                     <div className='footer'>
                         <div id='like-button' onClick={likeButton} className='buttons like'> <span>❤️</span> </div>
-                        <h3>chain reaction</h3>
-                        <div className='buttons tooltip' onClick={shareGame}>🚀 </div>
+                        {(!isLoading && (title_message === 'start' || title_message === 'chain reaction')) && <h3 id='title' className= {(title_message === "start")?'title-button cursor-pointer':'cursor-pointer'}  onClick={() => onClickTitle()}>{title_message}</h3>}
+                        { !isMainLoading && (title_message === 'waiting' || isLoading) && <div style={{ margin: "26px" }} className="loading"></div>}
+                        <div style={{zIndex:'101'}}>
+                            <Menu menuButton={<div className='buttons tooltip'>🚀</div>} theming={"dark"}>
+                                <MenuItem onClick={() => joinRoom()} disabled={isLive}>Join Room</MenuItem>
+                                <MenuItem onClick={() => createRoom()} disabled={isLive}>Create Room</MenuItem>
+                                <MenuItem onClick={() => leaveRoom()} disabled={!isLive}>Leave Room</MenuItem>
+                            </Menu>
+                        </div>
                     </div>
                     <ToastContainer
                         transition={Slide}
