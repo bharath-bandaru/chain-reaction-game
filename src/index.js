@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { useState } from "react";
-import "./index.css";
+import "./css/index.css";
 import { ToastContainer, toast, Slide } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
@@ -12,10 +12,11 @@ import {
 import '@szhsin/react-menu/dist/index.css';
 import '@szhsin/react-menu/dist/transitions/slide.css';
 import "@szhsin/react-menu/dist/theme-dark.css";
-import { signIn, localuser, database, analytics } from './firebase';
+import { signIn, localuser, database, analytics } from './components/firebase';
 import { child, get, onValue, ref, remove, set } from "firebase/database";
 import { logEvent } from 'firebase/analytics';
 import { v4 as uuidv4 } from 'uuid';
+import { Square } from './components/Square';
 
 const MyPromise = window.Promise;
 const confetti = require('canvas-confetti');
@@ -31,138 +32,6 @@ const gameOverNotify = (message) => toast(message, {
     draggable: true,
     progress: undefined,
 });
-
-const One = () => {
-    return (
-        <svg style={{ "width": "18.9px", "fill": "inherit", "marginTop": "4px", "padding": "3px" }}
-            viewBox="0 0 60 60"><defs>
-            </defs>
-            <g >
-                <g>
-                    <circle style={{ "fill": "inherit" }} cx="30" cy="30" r="29.5" />
-                    <path style={{ "fill": "#191919" }}
-                        d="M30,1c15.99,0,29,13.01,29,29s-13.01,29-29,29S1,45.99,1,30,14.01,1,30,1m0-1C13.43,0,0,13.43,0,30s13.43,30,30,30,30-13.43,30-30S46.57,0,30,0h0Z" />
-                </g>
-            </g>
-        </svg>
-    );
-}
-
-const Two = () => {
-    return (
-        <svg style={{ "width": "26px", "fill": "inherit", "marginTop": "4px", "padding": "3px" }}
-            viewBox="0 0 82 90">
-            <defs>
-            </defs>
-            <g>
-                <g>
-                    <circle cx="52" cy="60" r="29.5" />
-                    <path style={{ "fill": "#191919" }} d="M52,31c15.99,0,29,13.01,29,29s-13.01,29-29,29-29-13.01-29-29,13.01-29,29-29m0-1c-16.57,0-30,13.43-30,30s13.43,30,30,30,30-13.43,30-30-13.43-30-30-30h0Z" />
-                </g>
-                <g>
-                    <circle cx="30" cy="30" r="29.5" />
-                    <path style={{ "fill": "#191919" }} d="M30,1c15.99,0,29,13.01,29,29s-13.01,29-29,29S1,45.99,1,30,14.01,1,30,1m0-1C13.43,0,0,13.43,0,30s13.43,30,30,30,30-13.43,30-30S46.57,0,30,0h0Z" />
-                </g>
-            </g>
-        </svg>
-    );
-}
-
-const Three = () => {
-    return (
-        <svg style={{ "width": "33px", "fill": "inherit", "marginTop": "4px", "padding": "3px" }}
-            viewBox="0 0 104 90"><defs>
-            </defs><g id="Layer_1-2">
-                <g>
-                    <circle cx="74" cy="60" r="29.5" />
-                    <path style={{ "fill": "#191919" }} d="M74,31c15.99,0,29,13.01,29,29s-13.01,29-29,29-29-13.01-29-29,13.01-29,29-29m0-1c-16.57,0-30,13.43-30,30s13.43,30,30,30,30-13.43,30-30-13.43-30-30-30h0Z" />
-                </g>
-                <g>
-                    <circle cx="30" cy="60" r="29.5" />
-                    <path style={{ "fill": "#191919" }} d="M30,31c15.99,0,29,13.01,29,29s-13.01,29-29,29S1,75.99,1,60,14.01,31,30,31m0-1C13.43,30,0,43.43,0,60s13.43,30,30,30,30-13.43,30-30-13.43-30-30-30h0Z" />
-                </g>
-                <g>
-                    <circle cx="52" cy="30" r="29.5" />
-                    <path style={{ "fill": "#191919" }} d="M52,1c15.99,0,29,13.01,29,29s-13.01,29-29,29-29-13.01-29-29S36.01,1,52,1m0-1c-16.57,0-30,13.43-30,30s13.43,30,30,30,30-13.43,30-30S68.57,0,52,0h0Z" />
-                </g>
-            </g>
-        </svg>
-    );
-}
-
-const Player = ({ state, color, max, hints }) => {
-    return (
-        <>
-            {<>
-                <div className='container'>
-                    <div className='anim hide atom'>
-                        {
-                            (max === 1) &&
-                            <>
-                                <div className="nucleus"></div>
-                                <div className="nucleus"></div>
-                            </>
-                        }
-                        {
-                            (max === 2) &&
-                            <>
-                                <div className="nucleus"></div>
-                                <div className="nucleus"></div>
-                                <div className="nucleus"></div>
-                            </>
-                        }
-                        {
-                            (max === 3) &&
-                            <>
-                                <div className="nucleus"></div>
-                                <div className="nucleus"></div>
-                                <div className="nucleus"></div>
-                                <div className="nucleus"></div>
-                            </>
-                        }
-
-                    </div>
-                    <div style={{ fill: color }}>
-                        {(state === 1) &&
-                            <One />
-                        }
-                        {(state === 2) &&
-                            <Two />
-                        }
-                        {(state >= 3) &&
-                            <Three />
-                        }
-                    </div>
-                </div>
-            </>
-            }
-        </>
-    );
-}
-
-const Square = ({ id, value, max, hints, currrentPlayer, onClick, canClick, isLive, mainPLayer }) => {
-    const player_color = [
-        '#00A8CD',
-        '#CD00C5',
-        '#B0CD00',
-        '#CD0000'
-    ];
-    return (
-        <>
-            {
-                <button className="square" id={id} onClick={onClick} disabled={!canClick} style={isLive?{ "color": player_color[mainPLayer] }:
-                                                                                                            { "color": player_color[currrentPlayer] }}>
-                    <Player
-                        color={value != null ? value.color : ''}
-                        state={value != null ? value.state : 0}
-                        max={max}
-                        hints={hints}
-                    />
-                </button>
-            }
-        </>
-    );
-}
 
 const Game = () => {
     const [board_x, setBoardX] = useState(9);
@@ -398,7 +267,7 @@ const Game = () => {
         setUUID(uuidv4());
         signIn();
         const { innerWidth: width, innerHeight: height } = window;
-        if (height < 670 || width < 930) {
+        if (height < 663 || width < 572) {
             setBoardSizes({
                 "0": "6 x 9"
             })
@@ -458,7 +327,7 @@ const Game = () => {
     }
 
     const onClickSquare = async (i, j, isCloud) => {
-        console.log(squares)
+        console.log(numSteps.n)
         var curr = curr_player;
         curr.player = next_player.player;
         setCurrentPlayer(curr);
