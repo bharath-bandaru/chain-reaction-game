@@ -68,10 +68,7 @@ export const generateGroupIds = (user) => {
         uniqs.add(result);
     }
     for (const each of uniqs) {
-        set(ref(database, 'groups/' + each), {
-            status: false,
-            players: [],
-        })
+        set(ref(database, 'groups/' + each), {emp:"val"})
             .then(() => {
                 console.log("Data saved successfully!");
             })

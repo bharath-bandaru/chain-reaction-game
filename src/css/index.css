@@ -668,6 +668,29 @@ code {
   margin-block-end: 15px;
 }
 
+.title-y-button {
+  border: solid 1px;
+  padding: 0px 50px 5px 50px;
+  font-weight: 500;
+  font-size: 17px;
+  border-radius: 5px;
+  margin-block-start: 16px;
+  margin-block-end: 16px;
+  z-index: 100;
+}
+
+.title-y-button:hover {
+  background: #ffff09;
+  border: solid 1px;
+  padding: 1px 51px 4px 51px;
+  color: #191919;
+  font-weight: 500;
+  font-size: 17px;
+  border-radius: 5px;
+  margin-block-start: 17px;
+  margin-block-end: 15px;
+}
+
 .cursor-pointer {
   cursor: pointer;
   z-index: 101;
@@ -735,11 +758,49 @@ code {
 
 .loader-center-div {
   position: absolute;
-  height: 100vw;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   background: #000000bd;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+.center-div {
+  position: absolute;
+  background: #000000bd;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 .display-none {
   display: none;
+}
+
+.szh-menu__divider {
+  margin: 0 !important;
+}
+
+.number {
+    width: 23px;
+    height: 21px;
+    text-align: center;
+    border-radius: 20px;
+    background: #05a8cd;
+    margin-right: 5px;
+    font-size: 15px;
+    padding-top: 2px;
+    color: #fff;
+    margin-top: 3px;
+}
+
+.m-0 {
+  margin: 0 !important;
+}
+
+.quote {
+  margin: 3px;
+  text-align: center;
+  width: 90%;
+  font-family: "Times New Roman", 'Ancient Runes', serif;
+  width: 400px !important;
 }
