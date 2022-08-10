@@ -781,16 +781,16 @@ code {
 }
 
 .number {
-    width: 23px;
-    height: 21px;
-    text-align: center;
-    border-radius: 20px;
-    background: #05a8cd;
-    margin-right: 5px;
-    font-size: 15px;
-    padding-top: 2px;
-    color: #fff;
-    margin-top: 3px;
+  width: 23px;
+  height: 21px;
+  text-align: center;
+  border-radius: 20px;
+  background: #05a8cd;
+  margin-right: 5px;
+  font-size: 15px;
+  padding-top: 2px;
+  color: #fff;
+  margin-top: 3px;
 }
 
 .m-0 {
@@ -803,4 +803,14 @@ code {
   width: 90%;
   font-family: "Times New Roman", 'Ancient Runes', serif;
   width: 400px !important;
+}
+
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
 }

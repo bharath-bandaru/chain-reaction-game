@@ -6,14 +6,6 @@ import { getDatabase, onDisconnect, ref, set } from "firebase/database";
 
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCwTUxZUqK89uapKCbMMbMHXk2eU-NsKq0",
-    authDomain: "chain-reaction-18013.firebaseapp.com",
-    databaseURL: "https://chain-reaction-18013-default-rtdb.firebaseio.com",
-    projectId: "chain-reaction-18013",
-    storageBucket: "chain-reaction-18013.appspot.com",
-    messagingSenderId: "626865732219",
-    appId: "1:626865732219:web:287a045ff6b6711b3100de",
-    measurementId: "G-YW168Y2371"
 };
 
 // Initialize Firebase
@@ -68,7 +60,7 @@ export const generateGroupIds = (user) => {
         uniqs.add(result);
     }
     for (const each of uniqs) {
-        set(ref(database, 'groups/' + each), {emp:"val"})
+        set(ref(database, 'groups/' + each), { emp: "val" })
             .then(() => {
                 console.log("Data saved successfully!");
             })

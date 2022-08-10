@@ -42,11 +42,11 @@ const Game = () => {
     var squaresArray = Array.from({ length: board_x }, _ => new Array(board_y).fill(null));
     const initialArray = squaresArray.map(a => Object.assign({}, a)).map(a => Object.assign({}, a));
     const [squares, setSquares] = useState({ ...initialArray });
-    const [player_n, setNoPlayer] = useState(2);
+    const [player_n, setNoPlayer] = useState({ n: 2 });
     const [curr_player, setCurrentPlayer] = useState({ player: 0 });
     const [next_player, setNextPlayer] = useState({ player: 0 });
-    const [loser, setLoser] = useState(Array(player_n).fill(false));
-    const [main_player, setMainPlayer] = useState(0);
+    const [loser, setLoser] = useState(Array(player_n.n).fill(false));
+    const [main_player, setMainPlayer] = useState({ player: 0 });
     var gameOver = false;
     const player_color = [
         '#00A8CD',
@@ -185,15 +185,15 @@ const Game = () => {
     }
 
     const checkGameOver = async () => {
-        if (numSteps.n >= player_n) {
+        if (numSteps.n >= player_n.n) {
             var state = loopAllStates();
             var gameOverFlag = state[0];
             if (gameOverFlag) {
                 setCanClick(false);
                 gameOver = true;
-                if (isLive.live && curr_player.player !== main_player) {
+                if (isLive.live && curr_player.player !== main_player.player) {
                     setShowIwon(true);
-                    await timer(4000);
+                    await timer(5000);
                     setShowIwon(false);
                 } else {
                     gameOverNotify("Game over! " + player_color_names[curr_player.player] + " won. 🎮")
@@ -204,11 +204,11 @@ const Game = () => {
     };
 
     const checkPlayerState = () => {
-        if (!gameOver && numSteps.n >= player_n) {
+        if (!gameOver && numSteps.n >= player_n.n) {
             var currLoserState = loser;
             var state = loopAllStates();
             currLoserState = state[1];
-            for (var i = 0; i < player_n; i++) {
+            for (var i = 0; i < player_n.n; i++) {
                 if (currLoserState[i] !== loser[i] && currLoserState[i] === true) {
                     notify("🫠 " + player_color_names[i] + " lost.")
                     loser[i] = currLoserState[i];
@@ -223,7 +223,7 @@ const Game = () => {
 
     const loopAllStates = () => {
         var gameOverFlag = true;
-        var currLoserState = Array(player_n).fill(true);
+        var currLoserState = Array(player_n.n).fill(true);
         for (var i = 0; i < board_x; i++) {
             for (var j = 0; j < board_y; j++) {
                 // check Loser
@@ -267,9 +267,9 @@ const Game = () => {
         }
         setNumSteps({ n: 0 });
         setNextPlayer({ player: 0 });
-        setLoser(Array(player_n).fill(false));
+        setLoser(Array(player_n.n).fill(false));
         setCurrentPlayer({ player: 0 });
-    }, [box_size, player_n]);
+    }, [box_size, player_n.n]);
 
     const stopwatch = async () => {
         interval = setInterval(startInterval, 450);
@@ -321,20 +321,20 @@ const Game = () => {
     }
 
     const checkNextPlayer = () => {
-        var nextP = curr_player.player < player_n - 1 ? curr_player.player + 1 : 0;
+        var nextP = curr_player.player < player_n.n - 1 ? curr_player.player + 1 : 0;
         var np = next_player;
-        if (numSteps.n < player_n) {
+        if (numSteps.n < player_n.n) {
             next_player.player = nextP;
             setNextPlayer({ ...np });
         }
-        while (numSteps.n >= player_n) {
+        while (numSteps.n >= player_n.n) {
             if (!loser[nextP]) {
                 np = next_player;
                 next_player.player = nextP;
                 setNextPlayer({ ...np });
                 break;
             }
-            nextP = nextP < player_n - 1 ? nextP + 1 : 0;
+            nextP = nextP < player_n.n - 1 ? nextP + 1 : 0;
         }
     }
 
@@ -385,12 +385,12 @@ const Game = () => {
                     ) ? 1 : 2)
                     : 3}
                 onClick={() => {
-                    if (isLive.live && next_player.player !== main_player) return;
+                    if (isLive.live && next_player.player !== main_player.player) return;
                     onClickSquare(i, j, false);
                 }}
                 currrentPlayer={next_player.player}
                 hints={hints}
-                mainPLayer={main_player}
+                mainPLayer={main_player.player}
                 isLive={isLive.live}
                 canClick={canClick}
             />
@@ -398,18 +398,22 @@ const Game = () => {
     }
 
     const addPlayer = () => {
-        if (player_n < 4) {
-            setNoPlayer(player_n + 1);
+        if (player_n.n < 4) {
+            var n = player_n;
+            n.n += 1;
+            setNoPlayer({ ...n });
             restartGame();
-            setLoser(Array(player_n + 1).fill(false));
+            setLoser(Array(player_n.n + 1).fill(false));
         }
     }
 
     const removePlayer = () => {
-        if (player_n > 2) {
-            setNoPlayer(player_n - 1);
+        if (player_n.n > 2) {
+            var n = player_n;
+            n.n -= 1;
+            setNoPlayer({ ...n });
             restartGame();
-            setLoser(Array(player_n - 1).fill(false));
+            setLoser(Array(player_n.n - 1).fill(false));
         }
     }
 
@@ -429,7 +433,7 @@ const Game = () => {
         nStep.n = 0;
         setNumSteps(nStep);
         setNextPlayer({ ...next_player, player: 0 });
-        setLoser(Array(player_n).fill(false));
+        setLoser(Array(player_n.n).fill(false));
         setShowHowToPlay(false);
         setTitleMessage("chain reaction");
         Object.keys(squares).forEach(i => {
@@ -450,19 +454,27 @@ const Game = () => {
     const joinRoom = () => {
         var groupID = prompt("Enter the room code: ");
         if (groupID) {
-            setIsLive({ ...isLive, live: true });
+            var liveStatus = isLive;
+            liveStatus.live = true;
+            setIsLive({ ...liveStatus });
             connectToRoom(groupID);
         }
     }
 
 
     const createRoom = () => {
-        setIsLive({ ...isLive, live: true });
+        var liveStatus = isLive;
+        liveStatus.live = true;
+        setIsLive({ ...liveStatus });
         setCanClick(false);
-        setNoPlayer(1);
+        var n = player_n;
+        n.n = 1;
+        setNoPlayer({ ...n });
         setTitleMessage("start");
         getNewRoom(localuser);
-        setMainPlayer(0)
+        var mainP = main_player;
+        mainP.player = 0;
+        setMainPlayer({ ...mainP });
         setIsLoading(true);
     }
 
@@ -473,7 +485,9 @@ const Game = () => {
             let color = ["🔵", "🟣", "🟡", "🔴"]
             const data = snapshot.val();
             var n = data.n;
-            setNoPlayer(n);
+            var noOfplayers = player_n;
+            noOfplayers.n = n;
+            setNoPlayer({ ...noOfplayers });
             if (data.status === 'started') {
                 setIsMainLoading(false);
                 setTitleMessage("chain reaction");
@@ -508,8 +522,12 @@ const Game = () => {
     }
 
     const leaveRoom = () => {
-        setIsLive({ ...isLive, live: false });
-        setNoPlayer(2);
+        var liveStatus = isLive;
+        liveStatus.live = false;
+        setIsLive({ ...liveStatus });
+        var noOfplayers = player_n;
+        noOfplayers.n = 2;
+        setNoPlayer({ ...noOfplayers });
         setIsMainLoading(false);
         setIsLoading(false);
         setTitleMessage("chain reaction");
@@ -523,7 +541,7 @@ const Game = () => {
                 notify("player left");
                 setIsMainLoading(true);
                 setCanClick(false);
-                setTitleMessage("restart")
+                setTitleMessage("Leave Room")
             }
         });
         onDisconnect(disconnectRef).set(true);
@@ -544,11 +562,17 @@ const Game = () => {
                             players: [...group.players, localuser.uid]
                         }).then(() => {
                             setCode(groupID);
-                            setIsLive({ ...isLive, live: true });
+                            var liveStatus = isLive;
+                            liveStatus.live = true;
+                            setIsLive({ ...liveStatus });
                             setCanClick(false);
-                            setNoPlayer(group.n);
+                            var noOfplayers = player_n;
+                            noOfplayers.n = group.n;
+                            setNoPlayer({ ...noOfplayers });
                             setTitleMessage("chain reaction");
-                            setMainPlayer(group.n);
+                            var mainP = main_player;
+                            mainP.player = group.n;
+                            setMainPlayer({ ...mainP });
                             setIsLoading(true);
                             var hookRef = ref(database, 'hooks/' + groupID);
                             get(hookRef).then((snapshot) => {
@@ -568,11 +592,20 @@ const Game = () => {
                             var data = snapshot.val();
                             console.log("sadasdasd", data);
                             setCode(groupID);
-                            setIsLive({ ...isLive, live: true });
+                            var liveStatus = isLive;
+                            liveStatus.live = true;
+                            setIsLive({ ...liveStatus });
                             setCanClick(false);
-                            setNoPlayer(group.n - 1);
+                            var noOfplayers = player_n;
+                            noOfplayers.n = group.n - 1;
+                            setNoPlayer({ ...noOfplayers });
                             setTitleMessage("chain reaction");
-                            setMainPlayer(group?.players?.indexOf(localuser.uid));
+                            var mainP = main_player;
+                            mainP.player = group?.players?.indexOf(localuser.uid);
+                            setMainPlayer({ ...mainP });
+                            if (group?.players?.indexOf(localuser.uid) === 0) {
+                                setTitleMessage("start")
+                            }
                             setIsLoading(true);
                             var hookRef = ref(database, 'hooks/' + groupID);
                             get(hookRef).then((snapshot) => {
@@ -617,7 +650,9 @@ const Game = () => {
                         n: 1,
                         status: "waiting"
                     }).then(() => {
-                        setMainPlayer(0);
+                        var mainP = main_player;
+                        mainP.player = 0;
+                        setMainPlayer({ ...mainP });
                         var hookRef = ref(database, 'hooks/' + key);
                         set(hookRef, {
                             move: null,
@@ -728,7 +763,7 @@ const Game = () => {
                 <div className="game" style={{ color: player_color[next_player.player] }} id="game">
                     <div className='header'>
                         <div>
-                            <Menu menuButton={<span className="material-icons mui"> dashboard_customize </span>} theming={"dark"}>
+                            <Menu menuButton={<span className="material-icons mui noselect"> dashboard_customize </span>} theming={"dark"}>
                                 {
                                     (!isLive.live) &&
                                     <>
@@ -759,16 +794,16 @@ const Game = () => {
                             {
                                 !isLive.live &&
                                 <div>
-                                    <span className="material-icons mui" onClick={addPlayer}> add </span>
-                                    <span className="material-icons mui-people"> groups </span>
-                                    <span className="material-icons mui" onClick={removePlayer}> remove </span>
+                                    <span className="material-icons mui noselect" onClick={addPlayer}> add </span>
+                                    <span className="material-icons mui-people noselect"> groups </span>
+                                    <span className="material-icons mui noselect" onClick={removePlayer}> remove </span>
                                 </div>
                             }
                             {
                                 isLive.live &&
                                 <div className='flex' style={{ paddingBottom: "6px", paddingTop: "4px" }}>
                                     <span className="live-code">{code}</span>
-                                    <span className="material-icons mui pl-5 f-23"> content_copy </span>
+                                    <span className="material-icons mui pl-5 f-23 noselect"> content_copy </span>
                                 </div>
                             }
                             {
@@ -777,11 +812,11 @@ const Game = () => {
                                         player_color.map((item, index) => {
                                             return (
                                                 <>
-                                                    {(index < player_n && index !== next_player.player) &&
+                                                    {(index < player_n.n && index !== next_player.player) &&
                                                         <div className="dot" style={{ backgroundColor: item }}></div>
                                                     }
 
-                                                    {(index < player_n && index === next_player.player) &&
+                                                    {(index < player_n.n && index === next_player.player) &&
                                                         <div className="dot" style={{ backgroundColor: item, border: "solid #fff" }}></div>
                                                     }
                                                 </>
@@ -792,7 +827,7 @@ const Game = () => {
                                 </div>
                             }
                         </div>
-                        <span className="material-icons mui" onClick={() => { restartGame() }}> cached </span>
+                        <span className="material-icons mui noselect" onClick={() => { restartGame() }}> cached </span>
                     </div>
                     {
                         Object.entries(squares).map(([i, row]) => {
@@ -811,21 +846,21 @@ const Game = () => {
                         })
                     }
                     <div className='footer'>
-                        <div id='like-button' onClick={likeButton} className='buttons like'> <span>❤️</span> </div>
+                        <div id='like-button' onClick={likeButton} className='buttons like noselect'> <span>❤️</span> </div>
                         {(!isLoading && (title_message === 'start' || title_message === 'chain reaction')) &&
-                            <h3 id='title' className={(title_message === "start") ? 'title-button cursor-pointer' : 'cursor-pointer'} onClick={() => onClickTitle()}>{title_message}</h3>}
+                            <h3 id='title' className={(title_message === "start") ? 'title-button cursor-pointer noselect' : 'cursor-pointer noselect'} onClick={() => onClickTitle()}>{title_message}</h3>}
                         {!isMainLoading && (title_message === 'waiting' || isLoading) && <div style={{ margin: "26px" }} className="loading"></div>}
                         {!isMainLoading && (title_message === 'next') &&
-                            <h3 className='title-y-button cursor-pointer'
+                            <h3 className='title-y-button cursor-pointer noselect'
                                 onClick={onClickTitle}>{title_message}
                             </h3>}
                         {title_message === "Leave Room" &&
-                            <h3 className='title-button cursor-pointer'
+                            <h3 className='title-button cursor-pointer noselect'
                                 onClick={onClickTitle}>{title_message}
                             </h3>
                         }
                         <div style={{ zIndex: '101' }}>
-                            <Menu menuButton={<div className='buttons tooltip'>🚀</div>} theming={"dark"}>
+                            <Menu menuButton={<div className='buttons tooltip noselect'>🚀</div>} theming={"dark"}>
                                 <MenuItem onClick={() => joinRoom()} disabled={isLive.live}>Join Room</MenuItem>
                                 <MenuItem onClick={() => createRoom()} disabled={isLive.live}>Create Room</MenuItem>
                                 <MenuItem onClick={() => leaveRoom()} disabled={!isLive.live}>Leave Room</MenuItem>
@@ -843,6 +878,7 @@ const Game = () => {
                     <div id='canvas' style={{ position: "absolute", bottom: "-300px" }}></div>
                 </div>
             </div>
+            <div></div>
         </>
     );
 }
