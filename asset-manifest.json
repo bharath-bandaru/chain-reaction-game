@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/chain-reaction-game/static/css/main.ab792cf5.css",
-    "main.js": "/chain-reaction-game/static/js/main.4f9e11ab.js",
+    "main.js": "/chain-reaction-game/static/js/main.19fb3f3d.js",
     "static/media/lose.gif": "/chain-reaction-game/static/media/lose.521c6fec98b27859aceb.gif",
     "static/media/ch.gif": "/chain-reaction-game/static/media/ch.2d8ff376dc33d902e387.gif",
     "static/media/won.gif": "/chain-reaction-game/static/media/won.f8a4eeac98483de88753.gif",
@@ -12,10 +12,10 @@
     "static/media/logo.png": "/chain-reaction-game/static/media/logo.136b9ba1a56ddc411ce4.png",
     "index.html": "/chain-reaction-game/index.html",
     "main.ab792cf5.css.map": "/chain-reaction-game/static/css/main.ab792cf5.css.map",
-    "main.4f9e11ab.js.map": "/chain-reaction-game/static/js/main.4f9e11ab.js.map"
+    "main.19fb3f3d.js.map": "/chain-reaction-game/static/js/main.19fb3f3d.js.map"
   },
   "entrypoints": [
     "static/css/main.ab792cf5.css",
-    "static/js/main.4f9e11ab.js"
+    "static/js/main.19fb3f3d.js"
   ]
 }
