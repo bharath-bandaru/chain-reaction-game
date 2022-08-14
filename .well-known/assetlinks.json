@@ -1,0 +1,14 @@
+[
+    {
+        "relation": [
+            "delegate_permission/common.handle_all_urls"
+        ],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "com.bhvp.chainreaction",
+            "sha256_cert_fingerprints": [
+                "A1:ED:45:F4:0D:2D:5A:76:39:07:B1:F1:22:D9:AF:B5:E2:4F:73:02:51:79:B5:DD:3D:2E:02:B9:9A:0D:37:38"
+            ]
+        }
+    }
+]
