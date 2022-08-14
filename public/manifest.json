@@ -1,6 +1,6 @@
 {
-  "short_name": "Chain Reaction",
-  "name": "Chain Reaction. By Bharath Bandaru.",
+  "short_name": "chain reaction",
+  "name": "",
   "icons": [
     {
       "src": "favicon.ico",
@@ -19,7 +19,7 @@
     }
   ],
   "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
+  "display": "fullscreen",
+  "theme_color": "#191919",
   "background_color": "#ffffff"
 }

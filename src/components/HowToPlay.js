@@ -8,7 +8,7 @@ export const HowToPlay = ({ state }) => {
             {
                 (state === 0) &&
                 <div className='loader-center-div' style={{ background: "#000000e3" }}>
-                    <div className="loader-center" style={{ marginTop: '8px', minWidth: '405px' }}>
+                    <div className="loader-center" style={{ marginTop: '8px', width: '100%' }}>
                         <div className="flex" style={{ flexDirection: 'column' }}>
                             <h2 style={{
                                 backgroundColor: 'rgb(255 255 9)',
@@ -39,7 +39,7 @@ export const HowToPlay = ({ state }) => {
             {
                 (state === 1) &&
                 <div className='loader-center-div' style={{ background: "#000000e3" }}>
-                    <div className="loader-center" style={{ marginTop: '8px', minWidth: '405px' }}>
+                    <div className="loader-center" style={{ marginTop: '8px', width: '100%' }}>
                         <div className="flex" style={{ flexDirection: 'column' }}>
                             <h2 style={{
                                 backgroundColor: 'rgb(255 255 9)',
@@ -50,13 +50,13 @@ export const HowToPlay = ({ state }) => {
                         </div>
                         <div className="flex" style={{ marginBottom: "10px", flexDirection: 'column' }}>
                             <div className="number" style={{ background: "#05a8cd", color: '#000' }}>1</div>
-                            <div className="quote" style={{ fontWeight: "700", paddingTop: '7px' }}>"EDGE CORNERS"</div>
                         </div>
                         <div className="flex" style={{ marginBottom: "10px", flexDirection: 'column' }}>
                             <img src={edgeCorner} alt="one" width={'300px'}></img>
                         </div>
                         <div className="flex" style={{ marginBottom: "10px", flexDirection: 'column' }}>
-                            <div style={{ width: "300px" }} className="quote">"As available number of surroundings = 2, edge corners ball when the state of the box have 1 and will split into 2!"</div>
+                            <div className="quote" style={{ fontWeight: "700", paddingTop: '7px' }}>EDGE CORNERS</div>
+                            <div style={{ width: "300px" }} className="quote">"1 explodes to 2!"</div>
                         </div>
                     </div>
                 </div>
@@ -64,7 +64,7 @@ export const HowToPlay = ({ state }) => {
             {
                 (state === 2) &&
                 <div className='loader-center-div' style={{ background: "#000000e3" }}>
-                    <div className="loader-center" style={{ marginTop: '8px', minWidth: '405px' }}>
+                    <div className="loader-center" style={{ marginTop: '8px', width: '100%' }}>
                         <div className="flex" style={{ flexDirection: 'column' }}>
                             <h2 style={{
                                 backgroundColor: 'rgb(255 255 9)',
@@ -75,13 +75,13 @@ export const HowToPlay = ({ state }) => {
                         </div>
                         <div className="flex" style={{ marginBottom: "10px", flexDirection: 'column' }}>
                             <div className="number" style={{ background: "#cd00c5" }}>2</div>
-                            <div className="quote" style={{ fontWeight: "700", paddingTop: '7px' }}>"EDGES"</div>
                         </div>
                         <div className="flex" style={{ marginBottom: "10px", flexDirection: 'column' }}>
                             <img src={edge} alt="one" width={'300px'}></img>
                         </div>
                         <div className="flex" style={{ marginBottom: "10px", flexDirection: 'column' }}>
-                            <div style={{ width: "300px" }} className="quote">"As number of surroundings available are 3, edge balls will react when the state of the box have 2 and will split into 3!"</div>
+                            <div className="quote" style={{ fontWeight: "700", paddingTop: '7px' }}>SIDES</div>
+                            <div style={{ width: "300px" }} className="quote">"2 explodes to 3!"</div>
                         </div>
                     </div>
                 </div>
@@ -89,7 +89,7 @@ export const HowToPlay = ({ state }) => {
             {
                 (state === 3) &&
                 <div className='loader-center-div' style={{ background: "#000000e3" }}>
-                    <div className="loader-center" style={{ marginTop: '8px', minWidth: '405px' }}>
+                    <div className="loader-center" style={{ marginTop: '8px', width: '100%' }}>
                         <div className="flex" style={{ flexDirection: 'column' }}>
                             <h2 style={{
                                 backgroundColor: 'rgb(255 255 9)',
@@ -100,13 +100,13 @@ export const HowToPlay = ({ state }) => {
                         </div>
                         <div className="flex" style={{ marginBottom: "10px", flexDirection: 'column' }}>
                             <div className="number" style={{ background: "#cc0100" }}>3</div>
-                            <div className="quote" style={{ fontWeight: "700", paddingTop: '7px' }}>"INNER"</div>
                         </div>
                         <div className="flex" style={{ marginBottom: "10px", flexDirection: 'column' }}>
                             <img src={inner} alt="one" width={'300px'}></img>
                         </div>
                         <div className="flex" style={{ marginBottom: "10px", flexDirection: 'column' }}>
-                            <div style={{ width: "300px" }} className="quote">"As number of surroundings available are 4, inner balls will react when the state of the box have 3 and will split into 4 in all directions!"</div>
+                            <div className="quote" style={{ fontWeight: "700", paddingTop: '7px' }}>INSIDE BOX</div>
+                            <div style={{ width: "300px" }} className="quote">"3 explodes to 4!"</div>
                         </div>
                     </div>
                 </div>
@@ -114,7 +114,7 @@ export const HowToPlay = ({ state }) => {
             {
                 (state === 4) &&
                 <div className='loader-center-div' style={{ background: "#000000e3" }}>
-                    <div className="loader-center" style={{ marginTop: '8px', minWidth: '405px' }}>
+                    <div className="loader-center" style={{ marginTop: '8px', width: '100%' }}>
                         <div className="flex" style={{ flexDirection: 'column' }}>
                             <h2 style={{
                                 backgroundColor: 'rgb(255 255 9)',
@@ -127,7 +127,7 @@ export const HowToPlay = ({ state }) => {
                             <img src={gif} alt="one" width={'300px'}></img>
                         </div>
                         <div className="flex" style={{ marginBottom: "10px", flexDirection: 'column' }}>
-                            <div style={{ width: "300px" }} className="quote">"As number of surroundings available are 4, inner balls will react when the state of the box have 3 and will split into 4 in all directions!"</div>
+                            <div style={{ width: "300px", fontWeight: "bold" }} className="quote">"Thanks for playing!"</div>
                         </div>
                     </div>
                 </div>

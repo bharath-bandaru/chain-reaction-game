@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
-import { getDatabase, onDisconnect, ref, set } from "firebase/database";
+import { get, getDatabase, onDisconnect, ref, set } from "firebase/database";
 
 
 const firebaseConfig = {
@@ -26,6 +26,12 @@ onAuthStateChanged(auth, (user) => {
             id: true,
         });
         onDisconnect(playerRef).set(false);
+        var numOfVisits = ref(database, 'numOfVisits/');
+        get(numOfVisits).then((snapshot) => {
+            if (snapshot.exists()) {
+                set(numOfVisits, snapshot.val() + 1);
+            }
+        });
     } else {
         console.log('User is signed out');
     }

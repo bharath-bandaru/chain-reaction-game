@@ -20,21 +20,16 @@ import { v4 as uuidv4 } from 'uuid';
 import { Square } from './components/Square';
 import { HowToPlay } from './components/HowToPlay';
 import { IWon } from './components/IWon';
+// import gitsvg from './images/github.svg';
+import logo from './images/logo.png';
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+
 
 const MyPromise = window.Promise;
 const confetti = require('canvas-confetti');
 confetti.Promise = MyPromise;
 logEvent(analytics, 'notification_received');
 const notify = (message) => toast(message);
-const gameOverNotify = (message) => toast(message, {
-    position: "bottom-center",
-    autoClose: 5000,
-    hideProgressBar: false,
-    closeOnClick: true,
-    pauseOnHover: true,
-    draggable: true,
-    progress: undefined,
-});
 
 const Game = () => {
     const [board_x, setBoardX] = useState(9);
@@ -67,6 +62,9 @@ const Game = () => {
     const [code, setCode] = useState('••••');
     const [showIwon, setShowIwon] = useState(false);
     const [UUID, setUUID] = useState('');
+    const [wonStatus, setWonStatus] = useState({ won: true });
+    const [showAboutMe, setShowAboutMe] = useState(false);
+    const [numberOfLikes, setNumberOfLikes] = useState("...");
     /*
         00  01  02  03  04  05
         10  11  12  13  14  15
@@ -191,13 +189,33 @@ const Game = () => {
             if (gameOverFlag) {
                 setCanClick(false);
                 gameOver = true;
+                if (isLive.live) {
+                    var gameOverORef = ref(database, 'gameOverOnline/');
+                    get(gameOverORef).then(snapshot => {
+                        if (snapshot.exists) {
+                            set(gameOverORef, snapshot.val() + 1);
+                        }
+                    });
+                } else {
+                    var gameOverRef = ref(database, 'gameOver/');
+                    get(gameOverRef).then(snapshot => {
+                        if (snapshot.exists) {
+                            set(gameOverRef, snapshot.val() + 1);
+                        }
+                    });
+                }
+                var src = wonStatus;
                 if (isLive.live && curr_player.player !== main_player.player) {
                     setShowIwon(true);
-                    await timer(5000);
-                    setShowIwon(false);
+                    src.won = false;
+                    setWonStatus({ ...src });
+                    setTitleMessage("restart")
                 } else {
-                    gameOverNotify("Game over! " + player_color_names[curr_player.player] + " won. 🎮")
+                    setShowIwon(true);
                     playConfetti();
+                    src.won = true;
+                    setWonStatus({ ...src });
+                    setTitleMessage("restart")
                 }
             }
         }
@@ -237,7 +255,17 @@ const Game = () => {
     }
 
     const playConfetti = () => {
-        var myCanvas = document.getElementById("confetti");
+        var myCanvas = document.createElement('canvas');
+        myCanvas.style.position = "absolute";
+        myCanvas.style.width = "100%";
+        myCanvas.style.height = "100%";
+        myCanvas.style.pointerEvents = "none";
+        myCanvas.style.top = "0px";
+        myCanvas.style.left = "50%";
+        myCanvas.style.transform = "translateX(-50%)";
+        myCanvas.style.zIndex = "1001";
+        document.body.appendChild(myCanvas);
+
         var myConfetti = confetti.create(myCanvas, {
             resize: true,
             useWorker: true
@@ -247,6 +275,7 @@ const Game = () => {
             spread: 160
         });
     }
+
     var interval;
 
     const [box_size, setBoxSize] = useState("0");
@@ -269,6 +298,9 @@ const Game = () => {
         setNextPlayer({ player: 0 });
         setLoser(Array(player_n.n).fill(false));
         setCurrentPlayer({ player: 0 });
+        onValue(ref(database, 'likes'), (snapshot) => {
+            setNumberOfLikes(snapshot.val());
+        });
     }, [box_size, player_n.n]);
 
     const stopwatch = async () => {
@@ -282,12 +314,15 @@ const Game = () => {
         if (height < 663 || width < 572) {
             setBoardOptions({
                 "0": "6 x 9"
-            })
+            });
         } else {
             setBoardOptions({
                 "0": "6 x 9",
                 "1": "10 x 10",
-            })
+            });
+        }
+        if (height >= 800 && width >= 1100) {
+            setShowAboutMe(true);
         }
     }, [])
 
@@ -342,7 +377,7 @@ const Game = () => {
         console.log(numSteps.n)
         var curr = curr_player;
         curr.player = next_player.player;
-        setCurrentPlayer(curr);
+        setCurrentPlayer({ ...curr });
         if (squares[i][j] != null && squares[i][j].player !== curr.player) return;
         if (!isLive.live) {
             if (numSteps.n === 0) {
@@ -427,12 +462,17 @@ const Game = () => {
             });
             return;
         }
-        setCurrentPlayer({ ...curr_player, player: 0 });
+        var curr = curr_player;
+        curr.player = 0;
+        setCurrentPlayer({ ...curr });
         setCanClick(true);
         var nStep = numSteps;
+        setShowIwon(false);
         nStep.n = 0;
         setNumSteps(nStep);
-        setNextPlayer({ ...next_player, player: 0 });
+        var next = next_player;
+        next.player = 0;
+        setNextPlayer({ ...next });
         setLoser(Array(player_n.n).fill(false));
         setShowHowToPlay(false);
         setTitleMessage("chain reaction");
@@ -446,18 +486,18 @@ const Game = () => {
         console.log(squares);
     }
 
-    // const shareGame = () => {
-    //     signIn();
-    //     navigator.clipboard.writeText("Here is the link to play chain reaction 💣: 'https://bharath-bandaru.github.io/chain-reaction-game/'");
-    // }
+    const shareGame = () => {
+        navigator.clipboard.writeText("CODE: " + code + "\nLINK: 'https://bharath-bandaru.github.io/chain-reaction-game/'");
+    }
 
-    const joinRoom = () => {
-        var groupID = prompt("Enter the room code: ");
-        if (groupID) {
-            var liveStatus = isLive;
-            liveStatus.live = true;
-            setIsLive({ ...liveStatus });
-            connectToRoom(groupID);
+    const joinRoom = (input) => {
+        if (input) {
+            connectToRoom(input);
+        } else {
+            var groupID = prompt("Enter the room code: ");
+            if (groupID) {
+                connectToRoom(groupID);
+            }
         }
     }
 
@@ -475,6 +515,7 @@ const Game = () => {
         var mainP = main_player;
         mainP.player = 0;
         setMainPlayer({ ...mainP });
+        notify("share the code.")
         setIsLoading(true);
     }
 
@@ -541,7 +582,7 @@ const Game = () => {
                 notify("player left");
                 setIsMainLoading(true);
                 setCanClick(false);
-                setTitleMessage("Leave Room")
+                setTitleMessage("rejoin room")
             }
         });
         onDisconnect(disconnectRef).set(true);
@@ -551,6 +592,9 @@ const Game = () => {
         var onlineGroupRef = ref(database, 'online/' + groupID)
         get(onlineGroupRef).then((snapshot) => {
             if (snapshot.exists()) {
+                var liveStatus = isLive;
+                liveStatus.live = true;
+                setIsLive({ ...liveStatus });
                 const group = snapshot.val();
                 if (group.n > 4) {
                     notify("Room is full");
@@ -620,8 +664,11 @@ const Game = () => {
                         })
                     }
                 }
+            } else {
+                notify("room not found");
             }
         }).catch((error) => {
+            notify("Room not found");
             console.error(error);
         });
     }
@@ -678,11 +725,15 @@ const Game = () => {
         });
     }
 
-    const likeButton = async () => {
-        var butt = document.getElementById("like-button");
+    const updateLike = () => {
         get(ref(database, 'likes')).then((snapshot) => {
             set(ref(database, 'likes'), snapshot.val() + 1);
         });
+    }
+
+    const likeButton = async () => {
+        var butt = document.getElementById("like-button");
+        updateLike();
         playConfetti();
         butt.innerHTML = '🥳';
         var t = await timer(3000);
@@ -731,9 +782,11 @@ const Game = () => {
                     console.log("howState: ", howState);
                     break;
             }
-        } else if (title_message === "Leave Room") {
-            leaveRoom();
+        } else if (title_message === "rejoin room") {
+            joinRoom(code);
             setTitleMessage("chain reaction");
+        } else if (title_message === "restart") {
+            restartGame();
         }
     }
 
@@ -744,7 +797,10 @@ const Game = () => {
             <div className="root">
                 {
                     (showIwon) &&
-                    <IWon />
+                    <IWon
+                        wonStatus={wonStatus.won}
+                        showAboutMe={!showAboutMe}
+                    />
                 }
                 {
                     (showHowToPlay)
@@ -786,7 +842,7 @@ const Game = () => {
                                         setShowHowToPlay(true);
                                         setTitleMessage("next");
                                     }}>
-                                    <span >How to Play</span>
+                                    <span style={{ fontWeight: '600' }} >How to Play?</span>
                                 </MenuItem>
                             </Menu>
                         </div>
@@ -803,7 +859,7 @@ const Game = () => {
                                 isLive.live &&
                                 <div className='flex' style={{ paddingBottom: "6px", paddingTop: "4px" }}>
                                     <span className="live-code">{code}</span>
-                                    <span className="material-icons mui pl-5 f-23 noselect"> content_copy </span>
+                                    <span className="material-icons mui pl-5 f-23 noselect" onClick={shareGame}> content_copy </span>
                                 </div>
                             }
                             {
@@ -817,13 +873,14 @@ const Game = () => {
                                                     }
 
                                                     {(index < player_n.n && index === next_player.player) &&
-                                                        <div className="dot" style={{ backgroundColor: item, border: "solid #fff" }}></div>
+                                                        <div className="dot-2" style={{ backgroundColor: item, border: "3px solid #fff" }}></div>
                                                     }
                                                 </>
                                             )
                                         }
                                         )
                                     }
+
                                 </div>
                             }
                         </div>
@@ -846,7 +903,7 @@ const Game = () => {
                         })
                     }
                     <div className='footer'>
-                        <div id='like-button' onClick={likeButton} className='buttons like noselect'> <span>❤️</span> </div>
+                        <div id='like-button' onClick={likeButton} className='buttons like noselect'> <span>❤️</span></div>
                         {(!isLoading && (title_message === 'start' || title_message === 'chain reaction')) &&
                             <h3 id='title' className={(title_message === "start") ? 'title-button cursor-pointer noselect' : 'cursor-pointer noselect'} onClick={() => onClickTitle()}>{title_message}</h3>}
                         {!isMainLoading && (title_message === 'waiting' || isLoading) && <div style={{ margin: "26px" }} className="loading"></div>}
@@ -854,13 +911,15 @@ const Game = () => {
                             <h3 className='title-y-button cursor-pointer noselect'
                                 onClick={onClickTitle}>{title_message}
                             </h3>}
-                        {title_message === "Leave Room" &&
-                            <h3 className='title-button cursor-pointer noselect'
+                        {(title_message === "rejoin room" || title_message === "restart") &&
+                            <h3 className='title-o-button cursor-pointer noselect' style={{ zIndex: '1000' }}
                                 onClick={onClickTitle}>{title_message}
                             </h3>
                         }
                         <div style={{ zIndex: '101' }}>
-                            <Menu menuButton={<div className='buttons tooltip noselect'>🚀</div>} theming={"dark"}>
+                            <Menu menuButton={<div className='buttons tooltip noselect'>🚀</div>} direction='top' theming={"dark"}>
+                                <div style={{ fontWeight: "bold", marginBottom: "6px" }}>Play Online</div>
+                                <MenuDivider />
                                 <MenuItem onClick={() => joinRoom()} disabled={isLive.live}>Join Room</MenuItem>
                                 <MenuItem onClick={() => createRoom()} disabled={isLive.live}>Create Room</MenuItem>
                                 <MenuItem onClick={() => leaveRoom()} disabled={!isLive.live}>Leave Room</MenuItem>
@@ -875,12 +934,26 @@ const Game = () => {
                         closeButton={false}
                         autoClose={2000}
                     />
-                    <div id='canvas' style={{ position: "absolute", bottom: "-300px" }}></div>
                 </div>
             </div>
-            <div></div>
+
+            {
+                (showIwon && showAboutMe) && <div className={"abme"}>
+                    <span style={{ color: '#6a6a6a', marginBottom: '3px' }}> Designed and Developed by &nbsp;</span>
+                    <a href='http://www.bharathbandaru.com/' target={'_blank'}
+                        rel="noopener noreferrer"><img style={{ opacity: '1', borderRadius: "50%" }} src={logo} alt="logo" width={"20px"} /></a>
+                    <a style={{ color: 'rgb(115 115 115)', marginLeft: '5px', marginBottom: '3px' }} href='http://www.bharathbandaru.com/' target={'_blank'} rel="noopener noreferrer">Bharath Bandaru</a>
+                </div>
+            }
+            {
+                <div className={"abme-top"}>
+                    <span>{numberOfLikes}</span>
+                    <span className="material-icons mui pl-5 f-15 noselect" onClick={shareGame}> favorite </span>
+                </div>
+            }
         </>
     );
 }
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<Game />);
+serviceWorkerRegistration.register();
