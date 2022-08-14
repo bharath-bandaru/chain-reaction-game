@@ -16,7 +16,6 @@ export const database = getDatabase(app);
 export var localuser = null;
 export var playerRef = null;
 
-
 onAuthStateChanged(auth, (user) => {
     if (user) {
         console.log(user);

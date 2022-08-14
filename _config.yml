@@ -1,1 +1,3 @@
-include: ["public/.well-known", ".nojekyll"]
+theme: jekyll-theme-cayman
+
+include: [".well-known", "public/.well-known"]
