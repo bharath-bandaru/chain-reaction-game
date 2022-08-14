@@ -1,1 +1,1 @@
-include: [".well-known", "public/.well-known"]
+include: [".well-known", ".nojekyll"]
