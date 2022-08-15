@@ -1,24 +1,24 @@
 {
   "files": {
     "main.css": "/chain-reaction-game/static/css/main.cd1c4134.css",
-    "main.js": "/chain-reaction-game/static/js/main.a27b800c.js",
+    "main.js": "/chain-reaction-game/static/js/main.875834ad.js",
     "static/media/lose.gif": "/chain-reaction-game/static/media/lose.521c6fec98b27859aceb.gif",
     "static/media/ch.gif": "/chain-reaction-game/static/media/ch.2d8ff376dc33d902e387.gif",
     "static/media/won.gif": "/chain-reaction-game/static/media/won.f8a4eeac98483de88753.gif",
     "static/media/inner.png": "/chain-reaction-game/static/media/inner.f9d5acce3a142ecde632.png",
     "static/media/edge_corner.png": "/chain-reaction-game/static/media/edge_corner.67402a65838007d2c3f0.png",
     "service-worker.js": "/chain-reaction-game/service-worker.js",
-    "static/media/party.svg": "/chain-reaction-game/static/media/party.423e3f0d38b8fa08186f990956db005f.svg",
+    "static/media/party.svg": "/chain-reaction-game/static/media/party.7721f63689723757582a4b8203985a89.svg",
     "static/media/edge.png": "/chain-reaction-game/static/media/edge.8cd6edb59a434d7e45bd.png",
-    "static/media/rocket.svg": "/chain-reaction-game/static/media/rocket.a06d16929d67ae9068afa18c7045e9bb.svg",
-    "static/media/love.svg": "/chain-reaction-game/static/media/love.ba1e134ab1349249cc48cafed222c7dd.svg",
+    "static/media/rocket.svg": "/chain-reaction-game/static/media/rocket.217d6b1781d65238cb30da1a1e3248cb.svg",
+    "static/media/love.svg": "/chain-reaction-game/static/media/love.33cc2665845f495c52cce030196ad07a.svg",
     "static/media/logo.png": "/chain-reaction-game/static/media/logo.136b9ba1a56ddc411ce4.png",
     "index.html": "/chain-reaction-game/index.html",
     "main.cd1c4134.css.map": "/chain-reaction-game/static/css/main.cd1c4134.css.map",
-    "main.a27b800c.js.map": "/chain-reaction-game/static/js/main.a27b800c.js.map"
+    "main.875834ad.js.map": "/chain-reaction-game/static/js/main.875834ad.js.map"
   },
   "entrypoints": [
     "static/css/main.cd1c4134.css",
-    "static/js/main.a27b800c.js"
+    "static/js/main.875834ad.js"
   ]
 }
