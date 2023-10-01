@@ -1,0 +1,49 @@
+{
+  "packageId": "com.bhvp.chainreaction",
+  "host": "bharath-bandaru.github.io",
+  "name": "chain reaction",
+  "launcherName": "chainreact",
+  "display": "fullscreen",
+  "themeColor": "#191919",
+  "navigationColor": "#000000",
+  "navigationColorDark": "#000000",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
+  "backgroundColor": "#191919",
+  "enableNotifications": true,
+  "startUrl": "/chain-reaction-game/",
+  "iconUrl": "https://bharath-bandaru.github.io/chain-reaction-game/logo512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "/Users/bharathbandaru/Developer/chain-reaction-android/android.keystore",
+    "alias": "chain reaction android"
+  },
+  "appVersionName": "512",
+  "appVersionCode": 512,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://bharath-bandaru.github.io/chain-reaction-game/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {
+    "locationDelegation": {
+      "enabled": true
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://bharath-bandaru.github.io/chain-reaction-game/",
+  "minSdkVersion": 19,
+  "orientation": "portrait",
+  "fingerprints": [
+    {
+      "value": "5A:9E:F8:86:41:91:6E:D4:6A:BF:0D:00:F5:00:01:EA:96:0C:18:77:1D:5D:2F:06:E8:70:D3:4A:CF:F1:49:D3"
+    }
+  ],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "appVersion": "512"
+}

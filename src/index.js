@@ -21,6 +21,9 @@ import { Square } from './components/Square';
 import { HowToPlay } from './components/HowToPlay';
 import { IWon } from './components/IWon';
 // import gitsvg from './images/github.svg';
+import love from './images/love.svg';
+import party from './images/party.svg';
+import rocket from './images/rocket.svg';
 import logo from './images/logo.png';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
@@ -64,7 +67,9 @@ const Game = () => {
     const [UUID, setUUID] = useState('');
     const [wonStatus, setWonStatus] = useState({ won: true });
     const [showAboutMe, setShowAboutMe] = useState(false);
-    const [numberOfLikes, setNumberOfLikes] = useState("...");
+    const [numberOfLikes, setNumberOfLikes] = useState(null);
+    const [likeIcon, setLikeIcon] = useState(love);
+    const [isSafari, setIsSafari] = useState(false);
     /*
         00  01  02  03  04  05
         10  11  12  13  14  15
@@ -161,7 +166,7 @@ const Game = () => {
                 || (i === board_x - 1 && j === board_y - 1)
             ) ? 1 : 2)
             : 3;
-        if (squares[i][j] == null) {
+        if (squares[i][j] === null) {
             squares[i][j] = { player: curr_player.player, color: player_color[curr_player.player], state: 1 };
         } else if (isInit && squares[i][j].state < max && squares[i][j].player === curr_player.player) {
             squares[i][j].state += 1;
@@ -307,7 +312,41 @@ const Game = () => {
         interval = setInterval(startInterval, 450);
     }
 
+    const getBrowser = () => {
+        if ((navigator.userAgent.indexOf("Opera") || navigator.userAgent.indexOf('OPR')) !== -1) {
+            return 'opera';
+        }
+        else if (navigator.userAgent.indexOf("Edg") !== -1) {
+            return 'edge';
+        }
+        else if (navigator.userAgent.indexOf("Samsung") !== -1) {
+            return 'samsung';
+        }
+        else if (navigator.userAgent.indexOf("Chrome") !== -1) {
+            return 'chrome';
+        }
+        else if (navigator.userAgent.indexOf("Safari") !== -1) {
+            return 'safari';
+        }
+        else if (navigator.userAgent.indexOf("Firefox") !== -1) {
+            return 'firefox';
+        }
+        else if ((navigator.userAgent.indexOf("MSIE") !== -1) || (!!document.documentMode === true)) //IF IE > 10
+        {
+            return 'ie';
+        }
+        else {
+            return 'unknown';
+        }
+    }
+
     useEffect(() => {
+        var bro = getBrowser();
+        if (bro === 'safari') {
+            setIsSafari(true);
+        } else if (bro === 'unknown' || bro === 'ie' || bro === 'samsung') {
+            alert("Make chrome as default browser and Restart the game");
+        }
         setUUID(uuidv4());
         signIn();
         const { innerWidth: width, innerHeight: height } = window;
@@ -378,7 +417,7 @@ const Game = () => {
         var curr = curr_player;
         curr.player = next_player.player;
         setCurrentPlayer({ ...curr });
-        if (squares[i][j] != null && squares[i][j].player !== curr.player) return;
+        if (squares[i][j] !== null && squares[i][j].player !== curr.player) return;
         if (!isLive.live) {
             if (numSteps.n === 0) {
                 gameOver = false;
@@ -487,10 +526,12 @@ const Game = () => {
     }
 
     const shareGame = () => {
+        notify("🚀 Copied to clipboard");
         navigator.clipboard.writeText("CODE: " + code + "\nLINK: 'https://bharath-bandaru.github.io/chain-reaction-game/'");
     }
 
     const joinRoom = (input) => {
+        setBoxSize("0");
         if (input) {
             connectToRoom(input);
         } else {
@@ -505,6 +546,7 @@ const Game = () => {
     const createRoom = () => {
         var liveStatus = isLive;
         liveStatus.live = true;
+        setBoxSize("0");
         setIsLive({ ...liveStatus });
         setCanClick(false);
         var n = player_n;
@@ -544,10 +586,10 @@ const Game = () => {
 
         onValue(hookRef, (snapshot) => {
             const data = snapshot.val();
-            if (data.move != null && data.move.i < 0 && data.move.j < 0) {
+            if (data.move !== null && data.move.i < 0 && data.move.j < 0) {
                 setSquares({ ...initialArray });
                 restartGame(true);
-            } else if (data.move != null) {
+            } else if (data.move !== null) {
                 onClickSquare(data.move.i, data.move.j, true);
             }
         });
@@ -735,10 +777,10 @@ const Game = () => {
         var butt = document.getElementById("like-button");
         updateLike();
         playConfetti();
-        butt.innerHTML = '🥳';
+        if (isSafari) butt.innerHTML = '🥳'; else setLikeIcon(party);
         var t = await timer(3000);
         clearTimeout(t);
-        butt.innerHTML = '❤️';
+        if (isSafari) butt.innerHTML = '❤️'; else setLikeIcon(love);
     }
 
     const startGame = () => {
@@ -819,7 +861,7 @@ const Game = () => {
                 <div className="game" style={{ color: player_color[next_player.player] }} id="game">
                     <div className='header'>
                         <div>
-                            <Menu menuButton={<span className="material-icons mui noselect"> dashboard_customize </span>} theming={"dark"}>
+                            <Menu menuButton={<span className="material-icons mui noselect button-big"> dashboard_customize </span>} theming={"dark"}>
                                 {
                                     (!isLive.live) &&
                                     <>
@@ -849,10 +891,10 @@ const Game = () => {
                         <div style={{ zIndex: 100 }}>
                             {
                                 !isLive.live &&
-                                <div>
-                                    <span className="material-icons mui noselect" onClick={addPlayer}> add </span>
+                                <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                                    <span className="material-icons mui noselect butt" onClick={addPlayer}> add </span>
                                     <span className="material-icons mui-people noselect"> groups </span>
-                                    <span className="material-icons mui noselect" onClick={removePlayer}> remove </span>
+                                    <span className="material-icons mui noselect butt" onClick={removePlayer}> remove </span>
                                 </div>
                             }
                             {
@@ -884,7 +926,14 @@ const Game = () => {
                                 </div>
                             }
                         </div>
-                        <span className="material-icons mui noselect" onClick={() => { restartGame() }}> cached </span>
+                        {showHowToPlay ?
+                            <span className="material-icons mui noselect button-big" onClick={() => {
+                                setShowHowToPlay(false);
+                                setTitleMessage("chain reaction");
+                            } }> close </span>
+                            :
+                            <span className="material-icons mui noselect button-big" onClick={() => { restartGame() }}> cached </span>
+                        }
                     </div>
                     {
                         Object.entries(squares).map(([i, row]) => {
@@ -902,28 +951,34 @@ const Game = () => {
 
                         })
                     }
-                    <div className='footer'>
-                        <div id='like-button' onClick={likeButton} className='buttons like noselect'> <span>❤️</span></div>
-                        {(!isLoading && (title_message === 'start' || title_message === 'chain reaction')) &&
-                            <h3 id='title' className={(title_message === "start") ? 'title-button cursor-pointer noselect' : 'cursor-pointer noselect'} onClick={() => onClickTitle()}>{title_message}</h3>}
-                        {!isMainLoading && (title_message === 'waiting' || isLoading) && <div style={{ margin: "26px" }} className="loading"></div>}
-                        {!isMainLoading && (title_message === 'next') &&
-                            <h3 className='title-y-button cursor-pointer noselect'
-                                onClick={onClickTitle}>{title_message}
-                            </h3>}
-                        {(title_message === "rejoin room" || title_message === "restart") &&
-                            <h3 className='title-o-button cursor-pointer noselect' style={{ zIndex: '1000' }}
-                                onClick={onClickTitle}>{title_message}
-                            </h3>
-                        }
-                        <div style={{ zIndex: '101' }}>
-                            <Menu menuButton={<div className='buttons tooltip noselect'>🚀</div>} direction='top' theming={"dark"}>
-                                <div style={{ fontWeight: "bold", marginBottom: "6px" }}>Play Online</div>
-                                <MenuDivider />
-                                <MenuItem onClick={() => joinRoom()} disabled={isLive.live}>Join Room</MenuItem>
-                                <MenuItem onClick={() => createRoom()} disabled={isLive.live}>Create Room</MenuItem>
-                                <MenuItem onClick={() => leaveRoom()} disabled={!isLive.live}>Leave Room</MenuItem>
-                            </Menu>
+                    <div>
+                        <div className='footer'>
+                            <div id='like-button' onClick={likeButton} className='buttons button-big like noselect'>
+                                {isSafari ? <span>❤️</span> : <img src={likeIcon} alt="like" width="20px" />}
+                            </div>
+                            {(!isLoading && (title_message === 'start' || title_message === 'chain reaction')) &&
+                                <h3 id='title' className={(title_message === "start") ? 'title-button cursor-pointer noselect' : 'cursor-pointer noselect'} onClick={() => onClickTitle()}>{title_message}</h3>}
+                            {!isMainLoading && (title_message === 'waiting' || isLoading) && <div style={{ margin: "26px" }} className="loading"></div>}
+                            {!isMainLoading && (title_message === 'next') &&
+                                <h3 className='title-y-button cursor-pointer noselect'
+                                    onClick={onClickTitle}>{title_message}
+                                </h3>}
+                            {(title_message === "rejoin room" || title_message === "restart") &&
+                                <h3 className='title-o-button cursor-pointer noselect' style={{ zIndex: '1000' }}
+                                    onClick={onClickTitle}>{title_message}
+                                </h3>
+                            }
+                            <div style={{ zIndex: '101' }}>
+                                <Menu menuButton={<div className='buttons button-big tooltip noselect'>
+                                    {isSafari ? <span>🚀</span> : <img src={rocket} alt="online" width="20px" />}
+                                </div>} direction='top' theming={"dark"}>
+                                    <div style={{ fontWeight: "bold", marginBottom: "6px" }}>Play Online</div>
+                                    <MenuDivider />
+                                    <MenuItem onClick={() => joinRoom()} disabled={isLive.live}>Join Room</MenuItem>
+                                    <MenuItem onClick={() => createRoom()} disabled={isLive.live}>Create Room</MenuItem>
+                                    <MenuItem onClick={() => leaveRoom()} disabled={!isLive.live}>Leave Room</MenuItem>
+                                </Menu>
+                            </div>
                         </div>
                     </div>
                     <ToastContainer
@@ -948,7 +1003,7 @@ const Game = () => {
             {
                 <div className={"abme-top"}>
                     <span>{numberOfLikes}</span>
-                    <span className="material-icons mui pl-5 f-15 noselect" onClick={shareGame}> favorite </span>
+                    <span className="material-icons mui pl-5 f-15 noselect" onClick={likeButton}> favorite </span>
                 </div>
             }
         </>

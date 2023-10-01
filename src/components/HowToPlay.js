@@ -19,19 +19,19 @@ export const HowToPlay = ({ state }) => {
                         </div>
                         <div className="flex" style={{ marginBottom: "10px", flexDirection: 'column' }}>
                             <div className="number" style={{ background: "#05a8cd", color: '#000' }}>1</div>
-                            <div className="quote">"It is a strategy game for 2 to 4 players."</div>
+                            <div className="quote">"A strategy game that can be played online for 2 to 4 players."</div>
                         </div>
                         <div className="flex" style={{ marginBottom: "10px", flexDirection: 'column' }}>
                             <div className="number" style={{ background: "#cd00c5" }}>2</div>
-                            <div className="quote">"The objective of chain reaction is to take control of the board by eliminating your opponents' balls. Players take it in turns to place their balls in a cell."</div>
+                            <div className="quote">"The objective of the game is to take control of the board by eliminating your opponents' balls. Players take turns to place their balls in a cell."</div>
                         </div>
                         <div className="flex" style={{ marginBottom: "10px", flexDirection: 'column' }}>
                             <div className="number" style={{ background: "rgb(255 255 9)", color: "#000" }}>3</div>
-                            <div className="quote">"Once a cell was reached <span style={{ backgroundColor: '#ffff09', color: "#191919" }}>"critical mass"</span> , the balls explode into the surrounding cells adding an extra ball and claiming the cell for the player."</div>
+                            <div className="quote">"Once a cell reaches <span style={{ backgroundColor: '#ffff09', color: "#191919" }}>"critical mass"</span> , the balls explode into the surrounding cells adding an extra ball and claiming the cells of the player."</div>
                         </div>
                         <div className="flex" style={{ marginBottom: "10px", flexDirection: 'column' }}>
                             <div className="number" style={{ background: "#cc0100" }}>4</div>
-                            <div className="quote">"A player may only place their balls in a blank cell or a cell that contains balls of their own color. As soon as a player loses all their balls they are out of the game."</div>
+                            <div className="quote">"A player can only place their balls in a Blank cell (or) a cell that contains balls of their Own color. As soon as a player loses all their balls they are out of the game."</div>
                         </div>
                     </div>
                 </div>
@@ -105,7 +105,7 @@ export const HowToPlay = ({ state }) => {
                             <img src={inner} alt="one" width={'300px'}></img>
                         </div>
                         <div className="flex" style={{ marginBottom: "10px", flexDirection: 'column' }}>
-                            <div className="quote" style={{ fontWeight: "700", paddingTop: '7px' }}>INSIDE BOX</div>
+                            <div className="quote" style={{ fontWeight: "700", paddingTop: '7px' }}>INNER CELLS</div>
                             <div style={{ width: "300px" }} className="quote">"3 explodes to 4!"</div>
                         </div>
                     </div>
@@ -127,7 +127,8 @@ export const HowToPlay = ({ state }) => {
                             <img src={gif} alt="one" width={'300px'}></img>
                         </div>
                         <div className="flex" style={{ marginBottom: "10px", flexDirection: 'column' }}>
-                            <div style={{ width: "300px", fontWeight: "bold" }} className="quote">"Thanks for playing!"</div>
+                            <div className="quote">"Now, you can play <span style={{ width: "300px", fontWeight: "bold" }} >ONLINE</span> with your friends!"</div>
+                            <div className="quote">"(Click  🚀 on bottom right)"</div>
                         </div>
                     </div>
                 </div>

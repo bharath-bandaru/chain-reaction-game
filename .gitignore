@@ -21,3 +21,14 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+.gradle
+.idea
+/android/app/build
+
+private_key.pepk
+.gitignore
+android/app-release-bundle.aab
+android/app-release-signed.apk
+android/app-release-signed.apk.idsig
+android/app-release-unsigned-aligned.apk
