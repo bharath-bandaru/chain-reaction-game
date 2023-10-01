@@ -7,6 +7,6 @@ public final class BuildConfig {
   public static final boolean DEBUG = Boolean.parseBoolean("true");
   public static final String APPLICATION_ID = "com.bhvp.chainreaction";
   public static final String BUILD_TYPE = "debug";
-  public static final int VERSION_CODE = 512;
-  public static final String VERSION_NAME = "512";
+  public static final int VERSION_CODE = 4096;
+  public static final String VERSION_NAME = "0.40.96";
 }
