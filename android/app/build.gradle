@@ -55,8 +55,8 @@ android {
         applicationId "com.bhvp.chainreaction"
         minSdkVersion 19
         targetSdk 33
-        versionCode 4096
-        versionName '0.40.96'
+        versionCode 10243
+        versionName '10.24.3'
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
@@ -198,8 +198,6 @@ repositories {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     
-        implementation 'com.google.androidbrowserhelper:locationdelegation:1.1.1'
-    
-        implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
+        implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.3.0'
     
 }

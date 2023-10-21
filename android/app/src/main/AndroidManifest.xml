@@ -21,7 +21,7 @@
      the abbreviated format. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    
+
 
     
 
@@ -172,9 +172,6 @@
             </intent-filter>
         </service>
 
-        
-            <activity android:name=
-        "com.google.androidbrowserhelper.locationdelegation.PermissionRequestActivity"/>
         
     </application>
 </manifest>
