@@ -910,12 +910,23 @@ const Game = () => {
                                         player_color.map((item, index) => {
                                             return (
                                                 <>
-                                                    {(index < player_n.n && index !== next_player.player) &&
-                                                        <div className="dot" style={{ backgroundColor: item }}></div>
-                                                    }
-
-                                                    {(index < player_n.n && index === next_player.player) &&
+                                                    {
+                                                        (isLive.live && index < player_n.n && index === main_player.player) &&
                                                         <div className="dot-2" style={{ backgroundColor: item, border: "3px solid #fff" }}></div>
+                                                        
+                                                    }
+                                                    {
+                                                        (isLive.live && index < player_n.n && index !== main_player.player) &&
+                                                            <div className="dot" style={{ backgroundColor: item }}></div>
+                                                        
+                                                    }
+                                                    {
+                                                        (!isLive.live && index < player_n.n && index !== next_player.player) &&
+                                                            <div className="dot" style={{ backgroundColor: item }}></div>
+                                                    }
+                                                    {
+                                                        (!isLive.live && index < player_n.n && index === next_player.player) &&
+                                                            <div className="dot-2" style={{ backgroundColor: item, border: "3px solid #fff" }}></div>
                                                     }
                                                 </>
                                             )
