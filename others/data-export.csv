@@ -1,0 +1,8 @@
+# ----------------------------------------
+# Events
+# ----------------------------------------
+Event Name,Count,Users,Mark as conversion
+first_visit,6829,6854,false
+notification_received,25641,6805,false
+page_view,25919,6883,false
+session_start,15585,6878,false

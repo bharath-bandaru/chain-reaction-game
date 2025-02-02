@@ -1,0 +1,44 @@
+{
+  "rules": {
+    ".read": "auth.uid != null",
+    ".write": false, 
+      "players":{
+        	"$uid":{
+            ".write": "auth != null && auth.uid != null"
+          }
+      },
+      "groups":{
+        	".write": "auth != null && auth.uid != null"
+      },
+      "online":{
+        	".write": "auth != null && auth.uid != null",
+          "$uid":{
+            ".write": "auth != null && auth.uid == $uid"
+          }
+      },
+      "status":{
+        	".write": "auth != null && auth.uid != null"
+      },
+      "hooks":{
+        	".write": "auth != null && auth.uid != null"
+      },
+      "restartHook":{
+        	".write": "auth != null && auth.uid != null"
+      },
+      "likes":{
+        	".write": "auth != null && auth.uid != null"
+      },
+      "disconnectHook":{
+        	".write": "auth != null && auth.uid != null"
+      },
+      "numOfVisits":{
+        	".write": "auth != null && auth.uid != null"
+      },
+      "gameOverOnline":{
+        	".write": "auth != null && auth.uid != null"
+      },
+      "gameOver":{
+        	".write": "auth != null && auth.uid != null"
+      }
+  }
+}
