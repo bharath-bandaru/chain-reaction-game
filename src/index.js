@@ -13,7 +13,7 @@ import {
 import '@szhsin/react-menu/dist/index.css';
 import '@szhsin/react-menu/dist/transitions/slide.css';
 import "@szhsin/react-menu/dist/theme-dark.css";
-import { signIn, localuser, database, analytics } from './components/firebase';
+import { signIn, localuser, database, analytics, generateGroupIds } from './components/firebase';
 import { child, get, onDisconnect, onValue, ref, remove, set } from "firebase/database";
 import { logEvent } from 'firebase/analytics';
 import { v4 as uuidv4 } from 'uuid';
@@ -760,6 +760,8 @@ const Game = () => {
                     })
                 }
             } else {
+                generateGroupIds();
+                getNewRoom(userId);
                 console.log("No data available");
             }
         }).catch((error) => {

@@ -5,7 +5,9 @@ import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 import { get, getDatabase, onDisconnect, ref, set } from "firebase/database";
 
 
+
 const firebaseConfig = {
+
 };
 
 // Initialize Firebase
@@ -48,11 +50,12 @@ export const signIn = () => {
         })
         .catch((error) => {
             // ...
+            console.log('something went wrong: ' + error);
         });
 }
 
 
-export const generateGroupIds = (user) => {
+export const generateGroupIds = () => {
     var uniqs = new Set();
     var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     var charactersLength = characters.length;
