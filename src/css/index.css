@@ -14,13 +14,35 @@ code {
     monospace;
 }
 
+.szh-menu__item {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 0.5rem 1.5rem !important;
+}
+
+.szh-menu__radio-group {
+  margin: 0;
+  padding: 7px 0px 0 0px !important;
+  list-style: none;
+}
+
 .row {
   color: inherit;
   display: flex;
   text-align: center;
   justify-content: center;
 }
-
+.szh-menu{
+  margin: 0;
+  padding: 0px !important;
+  list-style: none;
+  box-sizing: border-box;
+  width: max-content;
+  z-index: 100;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
 
 .square {
   background: #191919;

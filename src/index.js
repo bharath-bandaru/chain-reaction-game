@@ -13,7 +13,7 @@ import {
 import '@szhsin/react-menu/dist/index.css';
 import '@szhsin/react-menu/dist/transitions/slide.css';
 import "@szhsin/react-menu/dist/theme-dark.css";
-import { signIn, localuser, database, analytics, generateGroupIds } from './components/firebase';
+import { signIn, localuser, database, analytics } from './components/firebase';
 import { child, get, onDisconnect, onValue, ref, remove, set } from "firebase/database";
 import { logEvent } from 'firebase/analytics';
 import { v4 as uuidv4 } from 'uuid';
@@ -352,12 +352,12 @@ const Game = () => {
         const { innerWidth: width, innerHeight: height } = window;
         if (height < 663 || width < 572) {
             setBoardOptions({
-                "0": "6 x 9"
+                "0": <p style={{paddingLeft:"5px", margin: "0", fontSize: "15px"}}>6 x 9</p>
             });
         } else {
             setBoardOptions({
-                "0": "6 x 9",
-                "1": "10 x 10",
+                "0": <p style={{paddingLeft:"5px", margin: "0", fontSize: "15px"}}>6 x 9</p>,
+                "1": <p style={{paddingLeft:"5px", margin: "0", fontSize: "15px"}}>10 x 10</p>,
             });
         }
         if (height >= 800 && width >= 1100) {
@@ -379,18 +379,32 @@ const Game = () => {
         var nStep = numSteps;
         nStep.n = nStep.n + 1;
         setNumSteps(nStep);
-        if (chainReact(i, j, isInit)) {
-            clearInterval(interval);
-            stopwatch();
-            var prev = squares[i][j];
-            squares[i][j] = null;
-            setSquares({ ...squares, [i]: { ...squares[i], [j]: squares[i][j] } });
-            await playCSSAnimation(i, j, prev);
-            if (i - 1 >= 0) handleClick(i - 1, j, false);
-            if (i + 1 < board_x) handleClick(i + 1, j, false);
-            if (j - 1 >= 0) handleClick(i, j - 1, false);
-            if (j + 1 < board_y) handleClick(i, j + 1, false);
+        let queue = [[i, j]];
+
+        while (queue.length > 0) {
+            let nextQueue = [];
+            let animationPromises = [];
+
+            while (queue.length > 0) {
+                let [x, y] = queue.shift();
+                if (chainReact(x, y, isInit)) {
+                    clearInterval(interval);
+                    stopwatch();
+                    var prev = squares[x][y];
+                    squares[x][y] = null;
+                    setSquares({ ...squares, [x]: { ...squares[x], [y]: squares[x][y] } });
+                    animationPromises.push(playCSSAnimation(x, y, prev));
+                    if (x - 1 >= 0) nextQueue.push([x - 1, y]);
+                    if (x + 1 < board_x) nextQueue.push([x + 1, y]);
+                    if (y - 1 >= 0) nextQueue.push([x, y - 1]);
+                    if (y + 1 < board_y) nextQueue.push([x, y + 1]);
+                }
+            }
+
+            await Promise.all(animationPromises);
+            queue = nextQueue;
         }
+
         if (!gameOver) checkGameOver();
     }
 
@@ -715,6 +729,32 @@ const Game = () => {
         });
     }
 
+    const generateGroupIds = (userId) => {
+        var uniqs = new Set();
+        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        var charactersLength = characters.length;
+
+        for (var j = 0; j < 10000; j++) {
+            var result = ""
+            for (var i = 0; i < 4; i++) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+            uniqs.add(result);
+        }
+        for (const each of uniqs) {
+            set(ref(database, 'groups/' + each), { emp: "val" })
+                .then(() => {
+                    getNewRoom(userId);
+                    console.log("Data saved successfully!");
+                })
+                .catch((error) => {
+                    // The write failed...
+                });
+        }
+        console.log(uniqs);
+
+    }
+
     const getNewRoom = (userId) => {
         get(child(ref(database), `groups`)).then((snapshot) => {
             if (snapshot.exists()) {
@@ -760,8 +800,7 @@ const Game = () => {
                     })
                 }
             } else {
-                generateGroupIds();
-                getNewRoom(userId);
+                generateGroupIds(userId);
                 console.log("No data available");
             }
         }).catch((error) => {
@@ -863,7 +902,15 @@ const Game = () => {
                 <div className="game" style={{ color: player_color[next_player.player] }} id="game">
                     <div className='header'>
                         <div>
-                            <Menu menuButton={<span className="material-icons mui noselect button-big"> dashboard_customize </span>} theming={"dark"}>
+                            <Menu style = {{padding: "0px"}} menuButton={<span className="material-icons mui noselect button-big"> dashboard_customize </span>} theming={"dark"}>
+                                <MenuItem
+                                    onClick={() => {
+                                        setShowHowToPlay(true);
+                                        setTitleMessage("next");
+                                    }}>
+                                    <span style={{ fontWeight: '600' }} >Play with Computer</span>
+                                </MenuItem>
+                                <MenuDivider />
                                 {
                                     (!isLive.live) &&
                                     <>
@@ -985,7 +1032,7 @@ const Game = () => {
                                 <Menu menuButton={<div className='buttons button-big tooltip noselect'>
                                     {isSafari ? <span>🚀</span> : <img src={rocket} alt="online" width="20px" />}
                                 </div>} direction='top' theming={"dark"}>
-                                    <div style={{ fontWeight: "bold", marginBottom: "6px" }}>Play Online</div>
+                                    <div style={{ fontWeight: "bold", marginBottom: "6px", marginTop:"6px" }}>Play Online</div>
                                     <MenuDivider />
                                     <MenuItem onClick={() => joinRoom()} disabled={isLive.live}>Join Room</MenuItem>
                                     <MenuItem onClick={() => createRoom()} disabled={isLive.live}>Create Room</MenuItem>
