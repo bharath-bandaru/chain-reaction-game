@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { useState } from "react";
 import "./css/index.css";
+import "./css/robot.css";
 import { ToastContainer, toast, Slide } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
@@ -26,6 +27,7 @@ import party from './images/party.svg';
 import rocket from './images/rocket.svg';
 import logo from './images/logo.png';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+import { getNextMove } from './ai';
 
 
 const MyPromise = window.Promise;
@@ -70,6 +72,9 @@ const Game = () => {
     const [numberOfLikes, setNumberOfLikes] = useState(null);
     const [likeIcon, setLikeIcon] = useState(love);
     const [isSafari, setIsSafari] = useState(false);
+    const [aiPlayerIndex, setAiPlayerIndex] = useState();
+
+
     /*
         00  01  02  03  04  05
         10  11  12  13  14  15
@@ -183,7 +188,7 @@ const Game = () => {
             return true;
         }
         setSquares({ ...squares, [i]: { ...squares[i], [j]: squares[i][j] } });
-        if (isInit) checkNextPlayer();
+        if (isInit) checkAndUpdateNextPlayer();
         return false;
     }
 
@@ -236,7 +241,7 @@ const Game = () => {
                     notify("🫠 " + player_color_names[i] + " lost.")
                     loser[i] = currLoserState[i];
                     if (next_player.player === i) {
-                        checkNextPlayer();
+                        checkAndUpdateNextPlayer();
                     }
                 }
             }
@@ -368,7 +373,7 @@ const Game = () => {
     const startInterval = async () => {
         checkPlayerState();
         if (!gameOver) {
-            checkNextPlayer();
+            checkAndUpdateNextPlayer();
             setCanClick(true);
         }
         clearInterval(interval);
@@ -379,36 +384,30 @@ const Game = () => {
         var nStep = numSteps;
         nStep.n = nStep.n + 1;
         setNumSteps(nStep);
-        let queue = [[i, j]];
-
-        while (queue.length > 0) {
-            let nextQueue = [];
-            let animationPromises = [];
-
-            while (queue.length > 0) {
-                let [x, y] = queue.shift();
-                if (chainReact(x, y, isInit)) {
-                    clearInterval(interval);
-                    stopwatch();
-                    var prev = squares[x][y];
-                    squares[x][y] = null;
-                    setSquares({ ...squares, [x]: { ...squares[x], [y]: squares[x][y] } });
-                    animationPromises.push(playCSSAnimation(x, y, prev));
-                    if (x - 1 >= 0) nextQueue.push([x - 1, y]);
-                    if (x + 1 < board_x) nextQueue.push([x + 1, y]);
-                    if (y - 1 >= 0) nextQueue.push([x, y - 1]);
-                    if (y + 1 < board_y) nextQueue.push([x, y + 1]);
-                }
-            }
-
-            await Promise.all(animationPromises);
-            queue = nextQueue;
+        if (chainReact(i, j, isInit)) {
+            clearInterval(interval);
+            stopwatch();
+            var prev = squares[i][j];
+            squares[i][j] = null;
+            setSquares({ ...squares, [i]: { ...squares[i], [j]: squares[i][j] } });
+            await playCSSAnimation(i, j, prev);
+            if (i - 1 >= 0) handleClick(i - 1, j, false);
+            if (i + 1 < board_x) handleClick(i + 1, j, false);
+            if (j - 1 >= 0) handleClick(i, j - 1, false);
+            if (j + 1 < board_y) handleClick(i, j + 1, false);
         }
-
         if (!gameOver) checkGameOver();
     }
 
-    const checkNextPlayer = () => {
+    const playAI = async(np) => {
+        if (aiPlayerIndex && np.player === aiPlayerIndex) {
+            let [i, j] = getNextMove(squares);
+            onClickSquare(i, j, false);
+        }
+    }
+
+
+    const checkAndUpdateNextPlayer = () => {
         var nextP = curr_player.player < player_n.n - 1 ? curr_player.player + 1 : 0;
         var np = next_player;
         if (numSteps.n < player_n.n) {
@@ -424,10 +423,11 @@ const Game = () => {
             }
             nextP = nextP < player_n.n - 1 ? nextP + 1 : 0;
         }
+        // check if AI player is there and if its AI player's turn
+        playAI(np);
     }
 
     const onClickSquare = async (i, j, isCloud) => {
-        console.log(numSteps.n)
         var curr = curr_player;
         curr.player = next_player.player;
         setCurrentPlayer({ ...curr });
@@ -473,6 +473,7 @@ const Game = () => {
                     ) ? 1 : 2)
                     : 3}
                 onClick={() => {
+                    if(aiPlayerIndex && aiPlayerIndex === next_player.player) return;
                     if (isLive.live && next_player.player !== main_player.player) return;
                     onClickSquare(i, j, false);
                 }}
@@ -873,6 +874,33 @@ const Game = () => {
         }
     }
 
+    const robotHtml = (showThinking) => {
+        return (
+            <div className={`cute-robot-v1 ${showThinking ? 'thinking' : ''}`} >
+            <div className="circle-bg">
+                <div className="robot-ear left"></div>
+                <div className="robot-head">
+                <div className="robot-face">
+                    <div className="eyes left"></div>
+                    <div className="eyes right"></div>
+                    <div className="mouth"></div>
+                </div>
+                </div>
+                <div className="robot-ear right"></div>
+                <div className="robot-body"></div>
+                
+                {/* Thinking Bars */}
+                <div className="thinking-stripes">
+                <div className="bar one"></div>
+                <div className="bar two"></div>
+                <div className="bar three"></div>
+                </div>
+            </div>
+            </div>
+        );
+    };
+
+
     return (
         <>
             <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
@@ -905,10 +933,19 @@ const Game = () => {
                             <Menu style = {{padding: "0px"}} menuButton={<span className="material-icons mui noselect button-big"> dashboard_customize </span>} theming={"dark"}>
                                 <MenuItem
                                     onClick={() => {
-                                        setShowHowToPlay(true);
-                                        setTitleMessage("next");
+                                        let aiPlayerIndexTemp = aiPlayerIndex;
+                                        setAiPlayerIndex(aiPlayerIndexTemp?undefined:1);
+                                        var n = player_n;
+                                        n.n = 2;
+                                        setNoPlayer({ ...n });
+                                        restartGame();
+
                                     }}>
-                                    <span style={{ fontWeight: '600' }} >Play with Computer</span>
+                                    {
+                                        (aiPlayerIndex) ?
+                                        <span style={{ fontWeight: '600' }} >Play with Friends</span>:
+                                        <span style={{ fontWeight: '600' }} >Play with Computer</span>
+                                    }
                                 </MenuItem>
                                 <MenuDivider />
                                 {
@@ -954,28 +991,31 @@ const Game = () => {
                                 </div>
                             }
                             {
-                                <div>
+                                <div className='flex' style={{ paddingBottom: "6px", paddingTop: "4px", gap:"5px" }}>
                                     {
                                         player_color.map((item, index) => {
+
                                             return (
                                                 <>
                                                     {
                                                         (isLive.live && index < player_n.n && index === main_player.player) &&
                                                         <div className="dot-2" style={{ backgroundColor: item, border: "3px solid #fff" }}></div>
-                                                        
                                                     }
                                                     {
                                                         (isLive.live && index < player_n.n && index !== main_player.player) &&
-                                                            <div className="dot" style={{ backgroundColor: item }}></div>
-                                                        
+                                                        <div className="dot" style={{ backgroundColor: item, border : "3px solid #191919" }}></div>
                                                     }
                                                     {
-                                                        (!isLive.live && index < player_n.n && index !== next_player.player) &&
-                                                            <div className="dot" style={{ backgroundColor: item }}></div>
+                                                        (!isLive.live && index < player_n.n && index !== next_player.player && index !== aiPlayerIndex) &&
+                                                        <div className="dot" style={{ backgroundColor: item, border : "3px solid #191919" }}></div>
                                                     }
                                                     {
-                                                        (!isLive.live && index < player_n.n && index === next_player.player) &&
-                                                            <div className="dot-2" style={{ backgroundColor: item, border: "3px solid #fff" }}></div>
+                                                        (!isLive.live && index < player_n.n && index === next_player.player && index !== aiPlayerIndex) &&
+                                                        <div className="dot-2" style={{ backgroundColor: item, border: "3px solid #fff" }}></div>
+                                                    }
+                                                    {
+                                                        (!isLive.live && index < player_n.n && index === aiPlayerIndex) &&
+                                                        robotHtml(index === next_player.player)
                                                     }
                                                 </>
                                             )

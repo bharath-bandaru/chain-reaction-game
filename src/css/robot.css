@@ -1,0 +1,184 @@
+.cute-robot-v1 {
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.cute-robot-v1 * {
+  box-sizing: border-box;
+}
+.cute-robot-v1 .circle-bg {
+  background: rgb(92 38 90);
+  width: 20px;
+  height: 20px;
+  border-radius: 100%;
+  border: 0.64px solid rgb(205, 0, 197);
+  position: relative;
+}
+.cute-robot-v1 .circle-bg:after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  height: 100%;
+  width: 100%;
+  top: -0.24px;
+  left: 0;
+  border-radius: 100%;
+  border-bottom: 0.8px solid rgb(255, 255, 255);
+}
+.cute-robot-v1.thinking .circle-bg .robot-face {
+  top: 3.2px !important;
+}
+.cute-robot-v1.thinking .circle-bg .eyes {
+  top: 2.4px !important;
+}
+.cute-robot-v1.thinking .circle-bg .mouth {
+  background: rgb(205, 0, 197);
+  border: none;
+  clip-path: polygon(0% 30%, 100% 30%, 100% 100%, 0% 100%);
+}
+.cute-robot-v1.thinking .circle-bg .mouth:after {
+  content: "";
+  position: absolute;
+  height: 80%;
+  width: 80%;
+  bottom: -50%;
+  left: -2.4px;
+  transform: translateX(-50%);
+  background: rgb(255, 255, 255);
+  border-radius: 100%;
+}
+.cute-robot-v1 .circle-bg .robot-head {
+  height: 16px;
+  width: 16px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: -1.6px;
+  border: 0.64px solid rgb(255, 255, 255);
+  border-radius: 6.8px / 4.8px;
+  background: rgb(205, 0, 197);
+  z-index: 4;
+}
+.cute-robot-v1 .circle-bg .robot-head:after {
+  content: "";
+  position: absolute;
+  top: -2.4px;
+  height: 2.4px;
+  width: 0.8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgb(255, 255, 255);
+}
+.cute-robot-v1 .circle-bg .robot-head:before {
+  content: "";
+  position: absolute;
+  top: -4.8px;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 1.6px;
+  width: 1.6px;
+  background: rgb(255, 255, 255, 0.2);
+  border: 0.64px solid rgb(255, 255, 255);
+  border-radius: 100%;
+}
+.cute-robot-v1 .circle-bg .robot-head .robot-face {
+  height: 9.6px;
+  width: 12.8px;
+  background: rgb(255 255 255 / 84%);
+  position: absolute;
+  top: 3.6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 0.64px solid rgb(255, 255, 255);
+  transition: all 200ms;
+  border-radius: 3.6px;
+}
+.cute-robot-v1 .circle-bg .robot-head .robot-face .eyes {
+  height: 1.6px;
+  width: 1.6px;
+  background: rgb(205, 0, 197);
+  border-radius: 100%;
+  position: absolute;
+  transition: all 200ms;
+  top: 3.2px;
+}
+.cute-robot-v1 .circle-bg .robot-head .robot-face .eyes.left {
+  left: 2.4px;
+}
+.cute-robot-v1 .circle-bg .robot-head .robot-face .eyes.right {
+  right: 2.4px;
+}
+.cute-robot-v1 .circle-bg .robot-head .robot-face .mouth {
+  height: 3.6px;
+  width: 3.6px;
+  border-radius: 100%;
+  border: 0.64px solid transparent;
+  border-bottom-color: rgb(205, 0, 197);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 4px;
+  overflow: hidden;
+}
+.cute-robot-v1 .circle-bg .robot-ear {
+  position: absolute;
+  height: 8px;
+  width: 8px;
+  border-radius: 100%;
+  background: rgb(205, 0, 197);
+  border: 0.64px solid rgb(255, 255, 255);
+  z-index: 3;
+  top: 2.4px;
+}
+.cute-robot-v1 .circle-bg .robot-ear.left {
+  left: -1.6px;
+}
+.cute-robot-v1 .circle-bg .robot-ear.right {
+  right: -1.6px;
+}
+.cute-robot-v1 .circle-bg .robot-body {
+  height: 4px;
+  width: 8px;
+  border: 0.64px solid rgb(205, 0, 197);
+  background: rgb(205, 0, 197);
+  position: absolute;
+  bottom: -0.4px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 2px 2px 2.4px 2.4px;
+}
+.cute-robot-v1 .circle-bg .thinking-stripes {
+  position: absolute;
+  top: -8px; /* Slightly above head */
+  right: -6px; /* Align towards right like the image */
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  opacity: 0;
+  transition: opacity 200ms;
+}
+.cute-robot-v1.thinking .circle-bg .thinking-stripes {
+  opacity: 1;
+  transform: rotate(321deg);
+}
+.cute-robot-v1 .circle-bg .thinking-stripes .bar {
+  width: 6px;
+  height: 2px;
+  background: rgb(255, 255, 255);
+  border-radius: 4px;
+  transform: rotate(20deg);
+}
+/* Adjusting position of each bar */
+.cute-robot-v1 .circle-bg .thinking-stripes .one {
+  width: 4px;
+  transform: rotate(321deg);
+}
+.cute-robot-v1 .circle-bg .thinking-stripes .two {
+  width: 6px;
+  transform: rotate(0deg);
+}
+.cute-robot-v1 .circle-bg .thinking-stripes .three {
+  width: 4px;
+  transform: rotate(34deg);
+}
