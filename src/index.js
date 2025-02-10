@@ -425,6 +425,7 @@ const Game = () => {
         }
         // check if AI player is there and if its AI player's turn
         playAI(np);
+        console.log("next player", np);
     }
 
     const onClickSquare = async (i, j, isCloud) => {

@@ -15,43 +15,25 @@ const getMaxState = (i, j, board) => {
   let rows = Object.keys(board).length;
   let cols = Object.keys(board[0]).length;
   let maxState = 0;
-  if (i === 0 || i === rows - 1) {
-    if (j === 0 || j === cols - 1) {
-      maxState = 1;
-    } else if (j === 1 || j === cols - 2) {
-      maxState = 2;
-    } else {
-      maxState = 3;
-    }
-  } else if (i === 1 || i === rows - 2) {
-    if (j === 0 || j === cols - 1) {
-      maxState = 2;
-    } else {
-      maxState = 3;
-    }
+
+  if ((i === 0 || i === rows - 1) && (j === 0 || j === cols - 1)) {
+    maxState = 1;
+  } else if (i === 0 || i === rows - 1 || j === 0 || j === cols - 1) {
+    maxState = 2;
   } else {
     maxState = 3;
   }
+
   return maxState;
 }
 
-const getAvailableMoves = (board) => {
-  board = convertBoardToArray(board);
+const getAvailableMoves = (board, player) => {
   let availableMoves = [];
-  let rows = board.length;
-  let cols = board[0].length;
-
-  for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < cols; j++) {
-      if (board[i][j] !== null && board[i][j].player !== 1) {
-        for (let x = Math.max(0, i - 2); x <= Math.min(rows - 1, i + 2); x++) {
-          for (let y = Math.max(0, j - 2); y <= Math.min(cols - 1, j + 2); y++) {
-            let maxState = getMaxState(x, y, board);
-            if (board[x][y] === null || (board[x][y].player === 1 && board[x][y].state < maxState)) {
-              availableMoves.push([x, y]);
-            }
-          }
-        }
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[i].length; j++) {
+      let maxState = getMaxState(i, j, board);
+      if (board[i][j] === null || (board[i][j].player === player && board[i][j].state <= maxState)) {
+        availableMoves.push([i, j]);
       }
     }
   }
@@ -60,47 +42,84 @@ const getAvailableMoves = (board) => {
 
 const makeMove = (board, move) => {
   let newBoard = JSON.parse(JSON.stringify(board));
-  let i = move[0];
-  let j = move[1];
-  let maxState = getMaxState(i, j, newBoard);
-  if (newBoard[i][j] === null) {
-    newBoard[i][j] = { player: 1, color: "#CD00C5", state: 1 };
-  } else if (newBoard[i][j].player === 1 && newBoard[i][j].state < maxState) {
-    newBoard[i][j].state += 1;
+  let [i, j] = move;
+  let board_x = newBoard.length;
+  let board_y = newBoard[0].length;
+
+  if (chainReact(i, j, board_x, board_y, newBoard)) {
+    newBoard[i][j] = null;
+    if (i - 1 >= 0) chainReact(i - 1, j, board_x, board_y, newBoard);
+    if (i + 1 < board_x) chainReact(i + 1, j, board_x, board_y, newBoard);
+    if (j - 1 >= 0) chainReact(i, j - 1, board_x, board_y, newBoard);
+    if (j + 1 < board_y) chainReact(i, j + 1, board_x, board_y, newBoard);
   }
+
   return newBoard;
+}
+
+const chainReact = (i, j, board_x, board_y, board, player) => {
+  let max = (i === 0 || i === board_x - 1 || j === 0 || j === board_y - 1) ?
+    (((i === 0 && j === 0)
+      || (i === 0 && j === board_y - 1)
+      || (j === 0 && i === board_x - 1)
+      || (i === board_x - 1 && j === board_y - 1)
+    ) ? 1 : 2)
+    : 3;
+  if (board[i][j] === null) {
+    board[i][j] = { player: player, state: 1 };
+  } else if (board[i][j].state < max && board[i][j].player === player) {
+    board[i][j].state += 1;
+  } else if (board[i][j].state < max) {
+    board[i][j].state += 1;
+    board[i][j].player = player;
+  } else {
+    return true;
+  }
+  return false;
 }
 
 const evaluate = (board) => {
   let score = 0;
-  let rows = board.length;
-  let cols = board[0].length;
+  let rows = Object.keys(board).length;
+  let cols = Object.keys(board[0]).length;
+  let didWin = true;
+  let didLose = true;
+
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
       if (board[i][j] !== null) {
         if (board[i][j].player === 1) {
+          didWin = false;
           score += board[i][j].state;
-        } else {
+        } else if (board[i][j].player === 0) {
+          didLose = false;
           score -= board[i][j].state;
         }
       }
     }
   }
-  return score;
+
+  if (didWin) {
+    return Infinity;
+  } else if (didLose) {
+    return -Infinity;
+  } else {
+    return score;
+  }
 }
 
 const minMax = (board, depth, alpha, beta, maximizingPlayer) => {
-  if (depth === 0) {
-    return evaluate(board);
+  let evaluation = evaluate(board);
+  if (depth === 0 || evaluation === Infinity || evaluation === -Infinity) {
+    return evaluation;
   }
 
-  let availableMoves = getAvailableMoves(board);
-
   if (maximizingPlayer) {
+    let availableMoves = getAvailableMoves(board, 1);
     let maxEval = -Infinity;
     for (let i = 0; i < availableMoves.length; i++) {
       let move = availableMoves[i];
-      let newBoard = makeMove(board, move);
+      let newBoard = makeMove(board, move, 1);
       let evalu = minMax(newBoard, depth - 1, alpha, beta, false);
       maxEval = Math.max(maxEval, evalu);
       alpha = Math.max(alpha, evalu);
@@ -110,10 +129,11 @@ const minMax = (board, depth, alpha, beta, maximizingPlayer) => {
     }
     return maxEval;
   } else {
+    let availableMoves = getAvailableMoves(board, 0);
     let minEval = Infinity;
     for (let i = 0; i < availableMoves.length; i++) {
       let move = availableMoves[i];
-      let newBoard = makeMove(board, move);
+      let newBoard = makeMove(board, move, 0);
       let evalu = minMax(newBoard, depth - 1, alpha, beta, true);
       minEval = Math.min(minEval, evalu);
       beta = Math.min(beta, evalu);
@@ -129,12 +149,11 @@ const getNextMove = (board) => {
   board = convertBoardToArray(board);
   let bestMove = null;
   let bestValue = -Infinity;
-  let availableMoves = getAvailableMoves(board);
+  let availableMoves = getAvailableMoves(board, 1);
 
   for (let i = 0; i < availableMoves.length; i++) {
     let move = availableMoves[i];
-    let newBoard = makeMove(board, move);
-    let moveValue = minMax(newBoard, 4, -Infinity, Infinity, false);
+    let moveValue = minMax(board, 5, -Infinity, Infinity, true);
     if (moveValue > bestValue) {
       bestValue = moveValue;
       bestMove = move;
