@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { useState } from "react";
 import "./css/index.css";
+import "./css/robot.css";
 import { ToastContainer, toast, Slide } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
@@ -13,7 +14,7 @@ import {
 import '@szhsin/react-menu/dist/index.css';
 import '@szhsin/react-menu/dist/transitions/slide.css';
 import "@szhsin/react-menu/dist/theme-dark.css";
-import { signIn, localuser, database, analytics, generateGroupIds } from './components/firebase';
+import { signIn, localuser, database, analytics } from './components/firebase';
 import { child, get, onDisconnect, onValue, ref, remove, set } from "firebase/database";
 import { logEvent } from 'firebase/analytics';
 import { v4 as uuidv4 } from 'uuid';
@@ -26,6 +27,7 @@ import party from './images/party.svg';
 import rocket from './images/rocket.svg';
 import logo from './images/logo.png';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+import { getNextMove } from './ai';
 
 
 const MyPromise = window.Promise;
@@ -70,6 +72,9 @@ const Game = () => {
     const [numberOfLikes, setNumberOfLikes] = useState(null);
     const [likeIcon, setLikeIcon] = useState(love);
     const [isSafari, setIsSafari] = useState(false);
+    const [aiPlayerIndex, setAiPlayerIndex] = useState();
+
+
     /*
         00  01  02  03  04  05
         10  11  12  13  14  15
@@ -183,7 +188,7 @@ const Game = () => {
             return true;
         }
         setSquares({ ...squares, [i]: { ...squares[i], [j]: squares[i][j] } });
-        if (isInit) checkNextPlayer();
+        if (isInit) checkAndUpdateNextPlayer();
         return false;
     }
 
@@ -236,7 +241,7 @@ const Game = () => {
                     notify("🫠 " + player_color_names[i] + " lost.")
                     loser[i] = currLoserState[i];
                     if (next_player.player === i) {
-                        checkNextPlayer();
+                        checkAndUpdateNextPlayer();
                     }
                 }
             }
@@ -352,12 +357,12 @@ const Game = () => {
         const { innerWidth: width, innerHeight: height } = window;
         if (height < 663 || width < 572) {
             setBoardOptions({
-                "0": "6 x 9"
+                "0": <p style={{paddingLeft:"5px", margin: "0", fontSize: "15px"}}>6 x 9</p>
             });
         } else {
             setBoardOptions({
-                "0": "6 x 9",
-                "1": "10 x 10",
+                "0": <p style={{paddingLeft:"5px", margin: "0", fontSize: "15px"}}>6 x 9</p>,
+                "1": <p style={{paddingLeft:"5px", margin: "0", fontSize: "15px"}}>10 x 10</p>,
             });
         }
         if (height >= 800 && width >= 1100) {
@@ -368,7 +373,7 @@ const Game = () => {
     const startInterval = async () => {
         checkPlayerState();
         if (!gameOver) {
-            checkNextPlayer();
+            checkAndUpdateNextPlayer();
             setCanClick(true);
         }
         clearInterval(interval);
@@ -394,7 +399,15 @@ const Game = () => {
         if (!gameOver) checkGameOver();
     }
 
-    const checkNextPlayer = () => {
+    const playAI = (np) => {
+        if (aiPlayerIndex && np.player === aiPlayerIndex) {
+            let [i, j] = getNextMove(squares);
+            onClickSquare(i, j, false);
+        }
+    }
+
+
+    const checkAndUpdateNextPlayer = () => {
         var nextP = curr_player.player < player_n.n - 1 ? curr_player.player + 1 : 0;
         var np = next_player;
         if (numSteps.n < player_n.n) {
@@ -410,10 +423,15 @@ const Game = () => {
             }
             nextP = nextP < player_n.n - 1 ? nextP + 1 : 0;
         }
+        // check if AI player is there and if its AI player's turn
+        let t = setTimeout(() => {
+            playAI(np);
+            clearTimeout(t);
+        }, 450);
+        console.log("next player", np);
     }
 
     const onClickSquare = async (i, j, isCloud) => {
-        console.log(numSteps.n)
         var curr = curr_player;
         curr.player = next_player.player;
         setCurrentPlayer({ ...curr });
@@ -459,6 +477,7 @@ const Game = () => {
                     ) ? 1 : 2)
                     : 3}
                 onClick={() => {
+                    if(aiPlayerIndex && aiPlayerIndex === next_player.player) return;
                     if (isLive.live && next_player.player !== main_player.player) return;
                     onClickSquare(i, j, false);
                 }}
@@ -715,6 +734,32 @@ const Game = () => {
         });
     }
 
+    const generateGroupIds = (userId) => {
+        var uniqs = new Set();
+        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        var charactersLength = characters.length;
+
+        for (var j = 0; j < 10000; j++) {
+            var result = ""
+            for (var i = 0; i < 4; i++) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+            uniqs.add(result);
+        }
+        for (const each of uniqs) {
+            set(ref(database, 'groups/' + each), { emp: "val" })
+                .then(() => {
+                    getNewRoom(userId);
+                    console.log("Data saved successfully!");
+                })
+                .catch((error) => {
+                    // The write failed...
+                });
+        }
+        console.log(uniqs);
+
+    }
+
     const getNewRoom = (userId) => {
         get(child(ref(database), `groups`)).then((snapshot) => {
             if (snapshot.exists()) {
@@ -760,8 +805,7 @@ const Game = () => {
                     })
                 }
             } else {
-                generateGroupIds();
-                getNewRoom(userId);
+                generateGroupIds(userId);
                 console.log("No data available");
             }
         }).catch((error) => {
@@ -834,6 +878,33 @@ const Game = () => {
         }
     }
 
+    const robotHtml = (showThinking) => {
+        return (
+            <div className={`cute-robot-v1 ${showThinking ? 'thinking' : ''}`} >
+            <div className="circle-bg">
+                <div className="robot-ear left"></div>
+                <div className="robot-head">
+                <div className="robot-face">
+                    <div className="eyes left"></div>
+                    <div className="eyes right"></div>
+                    <div className="mouth"></div>
+                </div>
+                </div>
+                <div className="robot-ear right"></div>
+                <div className="robot-body"></div>
+                
+                {/* Thinking Bars */}
+                <div className="thinking-stripes">
+                <div className="bar one"></div>
+                <div className="bar two"></div>
+                <div className="bar three"></div>
+                </div>
+            </div>
+            </div>
+        );
+    };
+
+
     return (
         <>
             <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
@@ -863,7 +934,24 @@ const Game = () => {
                 <div className="game" style={{ color: player_color[next_player.player] }} id="game">
                     <div className='header'>
                         <div>
-                            <Menu menuButton={<span className="material-icons mui noselect button-big"> dashboard_customize </span>} theming={"dark"}>
+                            <Menu style = {{padding: "0px"}} menuButton={<span className="material-icons mui noselect button-big"> dashboard_customize </span>} theming={"dark"}>
+                                <MenuItem
+                                    onClick={() => {
+                                        let aiPlayerIndexTemp = aiPlayerIndex;
+                                        setAiPlayerIndex(aiPlayerIndexTemp?undefined:1);
+                                        var n = player_n;
+                                        n.n = 2;
+                                        setNoPlayer({ ...n });
+                                        restartGame();
+
+                                    }}>
+                                    {
+                                        (aiPlayerIndex) ?
+                                        <span style={{ fontWeight: '600' }} >Play with Friends</span>:
+                                        <span style={{ fontWeight: '600' }} >Play with Computer</span>
+                                    }
+                                </MenuItem>
+                                <MenuDivider />
                                 {
                                     (!isLive.live) &&
                                     <>
@@ -907,28 +995,31 @@ const Game = () => {
                                 </div>
                             }
                             {
-                                <div>
+                                <div className='flex' style={{ paddingBottom: "6px", paddingTop: "4px", gap:"5px" }}>
                                     {
                                         player_color.map((item, index) => {
+
                                             return (
                                                 <>
                                                     {
                                                         (isLive.live && index < player_n.n && index === main_player.player) &&
                                                         <div className="dot-2" style={{ backgroundColor: item, border: "3px solid #fff" }}></div>
-                                                        
                                                     }
                                                     {
                                                         (isLive.live && index < player_n.n && index !== main_player.player) &&
-                                                            <div className="dot" style={{ backgroundColor: item }}></div>
-                                                        
+                                                        <div className="dot" style={{ backgroundColor: item, border : "3px solid #191919" }}></div>
                                                     }
                                                     {
-                                                        (!isLive.live && index < player_n.n && index !== next_player.player) &&
-                                                            <div className="dot" style={{ backgroundColor: item }}></div>
+                                                        (!isLive.live && index < player_n.n && index !== next_player.player && index !== aiPlayerIndex) &&
+                                                        <div className="dot" style={{ backgroundColor: item, border : "3px solid #191919" }}></div>
                                                     }
                                                     {
-                                                        (!isLive.live && index < player_n.n && index === next_player.player) &&
-                                                            <div className="dot-2" style={{ backgroundColor: item, border: "3px solid #fff" }}></div>
+                                                        (!isLive.live && index < player_n.n && index === next_player.player && index !== aiPlayerIndex) &&
+                                                        <div className="dot-2" style={{ backgroundColor: item, border: "3px solid #fff" }}></div>
+                                                    }
+                                                    {
+                                                        (!isLive.live && index < player_n.n && index === aiPlayerIndex) &&
+                                                        robotHtml(index === next_player.player)
                                                     }
                                                 </>
                                             )
@@ -985,7 +1076,7 @@ const Game = () => {
                                 <Menu menuButton={<div className='buttons button-big tooltip noselect'>
                                     {isSafari ? <span>🚀</span> : <img src={rocket} alt="online" width="20px" />}
                                 </div>} direction='top' theming={"dark"}>
-                                    <div style={{ fontWeight: "bold", marginBottom: "6px" }}>Play Online</div>
+                                    <div style={{ fontWeight: "bold", marginBottom: "6px", marginTop:"6px" }}>Play Online</div>
                                     <MenuDivider />
                                     <MenuItem onClick={() => joinRoom()} disabled={isLive.live}>Join Room</MenuItem>
                                     <MenuItem onClick={() => createRoom()} disabled={isLive.live}>Create Room</MenuItem>
