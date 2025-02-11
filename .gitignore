@@ -35,5 +35,5 @@ android/app-release-unsigned-aligned.apk
 deploy.md
 
 /build
-src/components/firebase.js
-others/.firebaserc
+firebase.js
+.firebaserc
