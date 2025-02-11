@@ -32,7 +32,7 @@ const getAvailableMoves = (board, player) => {
   for (let i = 0; i < board.length; i++) {
     for (let j = 0; j < board[i].length; j++) {
       let maxState = getMaxState(i, j, board);
-      if (board[i][j] === null || (board[i][j].player === player && board[i][j].state <= maxState)) {
+      if (board[i][j] === null ||  (board[i][j].player === player && board[i][j].state <= maxState)) {
         availableMoves.push([i, j]);
       }
     }
@@ -40,18 +40,18 @@ const getAvailableMoves = (board, player) => {
   return availableMoves;
 }
 
-const makeMove = (board, move) => {
+const makeMove = (board, move, player) => {
   let newBoard = JSON.parse(JSON.stringify(board));
   let [i, j] = move;
   let board_x = newBoard.length;
   let board_y = newBoard[0].length;
 
-  if (chainReact(i, j, board_x, board_y, newBoard)) {
+  if (chainReact(i, j, board_x, board_y, newBoard, player)) {
     newBoard[i][j] = null;
-    if (i - 1 >= 0) chainReact(i - 1, j, board_x, board_y, newBoard);
-    if (i + 1 < board_x) chainReact(i + 1, j, board_x, board_y, newBoard);
-    if (j - 1 >= 0) chainReact(i, j - 1, board_x, board_y, newBoard);
-    if (j + 1 < board_y) chainReact(i, j + 1, board_x, board_y, newBoard);
+    if (i - 1 >= 0) chainReact(i - 1, j, board_x, board_y, newBoard, player);
+    if (i + 1 < board_x) chainReact(i + 1, j, board_x, board_y, newBoard, player);
+    if (j - 1 >= 0) chainReact(i, j - 1, board_x, board_y, newBoard, player);
+    if (j + 1 < board_y) chainReact(i, j + 1, board_x, board_y, newBoard, player);
   }
 
   return newBoard;
@@ -68,6 +68,7 @@ const chainReact = (i, j, board_x, board_y, board, player) => {
   if (board[i][j] === null) {
     board[i][j] = { player: player, state: 1 };
   } else if (board[i][j].state < max && board[i][j].player === player) {
+    board[i][j].player = player;
     board[i][j].state += 1;
   } else if (board[i][j].state < max) {
     board[i][j].state += 1;
@@ -153,7 +154,8 @@ const getNextMove = (board) => {
 
   for (let i = 0; i < availableMoves.length; i++) {
     let move = availableMoves[i];
-    let moveValue = minMax(board, 5, -Infinity, Infinity, true);
+    let newBoard = makeMove(board, move, 1);
+    let moveValue = minMax(newBoard, 3, -Infinity, Infinity, false);
     if (moveValue > bestValue) {
       bestValue = moveValue;
       bestMove = move;
