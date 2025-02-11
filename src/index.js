@@ -399,7 +399,7 @@ const Game = () => {
         if (!gameOver) checkGameOver();
     }
 
-    const playAI = async(np) => {
+    const playAI = (np) => {
         if (aiPlayerIndex && np.player === aiPlayerIndex) {
             let [i, j] = getNextMove(squares);
             onClickSquare(i, j, false);
@@ -424,7 +424,10 @@ const Game = () => {
             nextP = nextP < player_n.n - 1 ? nextP + 1 : 0;
         }
         // check if AI player is there and if its AI player's turn
-        playAI(np);
+        let t = setTimeout(() => {
+            playAI(np);
+            clearTimeout(t);
+        }, 450);
         console.log("next player", np);
     }
 
