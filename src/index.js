@@ -500,6 +500,10 @@ const Game = () => {
             if (numSteps.n === 0) {
                 gameOver = false;
             }
+            if(aiPlayerIndex === 1 && curr.player !== 1) {
+                 handleClick(i, j, true,);
+                return;
+            }
             createAnimation(i, j, curr.player === 0 ? "#00A8CD" : curr.player === 1 ? "#CD00C5" : curr.player === 2 ? "#B0CD00" : "#CD0000");
             await new Promise(resolve => setTimeout(resolve, 400));
             handleClick(i, j, true,);
