@@ -29,7 +29,6 @@ import logo from './images/logo.png';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import { getNextMove } from './ai';
 
-
 const MyPromise = window.Promise;
 const confetti = require('canvas-confetti');
 confetti.Promise = MyPromise;
@@ -73,6 +72,7 @@ const Game = () => {
     const [likeIcon, setLikeIcon] = useState(love);
     const [isSafari, setIsSafari] = useState(false);
     const [aiPlayerIndex, setAiPlayerIndex] = useState();
+    const [aiLevel, setAiLevel] = useState(localStorage.getItem("ai-level") || "1");
 
 
     /*
@@ -220,7 +220,18 @@ const Game = () => {
                     src.won = false;
                     setWonStatus({ ...src });
                     setTitleMessage("restart")
-                } else {
+                } else if(aiPlayerIndex === 1 && curr_player.player === 1){
+                    setShowIwon(true);
+                    src.won = false;
+                    setWonStatus({ ...src });
+                    setTitleMessage("restart");
+                }else {
+                    if(aiPlayerIndex === 1 && curr_player.player !== 1){
+                        let level = Number(aiLevel)+1;
+                        playConfetti();
+                        setAiLevel(level.toString());
+                        localStorage.setItem("ai-level", level.toString());
+                    }
                     setShowIwon(true);
                     playConfetti();
                     src.won = true;
@@ -401,7 +412,7 @@ const Game = () => {
 
     const playAI = (np) => {
         if (aiPlayerIndex && np.player === aiPlayerIndex) {
-            let [i, j] = getNextMove(squares);
+            let [i, j] = getNextMove(squares, aiLevel);
             onClickSquare(i, j, false);
         }
     }
@@ -533,7 +544,7 @@ const Game = () => {
         setNextPlayer({ ...next });
         setLoser(Array(player_n.n).fill(false));
         setShowHowToPlay(false);
-        setTitleMessage("chain reaction");
+        setTitleMessage(aiPlayerIndex === 1?"Level "+aiLevel:"chain reaction");
         Object.keys(squares).forEach(i => {
             Object.keys(squares[i]).forEach(j => {
                 squares[i][j] = null;
@@ -734,7 +745,7 @@ const Game = () => {
         });
     }
 
-    const generateGroupIds = (userId) => {
+    const generateGroupIds = async (userId) => {
         var uniqs = new Set();
         var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         var charactersLength = characters.length;
@@ -746,36 +757,34 @@ const Game = () => {
             }
             uniqs.add(result);
         }
+
+        const promises = [];
         for (const each of uniqs) {
-            set(ref(database, 'groups/' + each), { emp: "val" })
-                .then(() => {
-                    getNewRoom(userId);
-                    console.log("Data saved successfully!");
-                })
-                .catch((error) => {
-                    // The write failed...
-                });
+            const promise = set(ref(database, 'groups/' + each), { emp: "val" });
+            promises.push(promise);
+        }
+
+        try {
+            await Promise.all(promises);
+            console.log("All group IDs saved successfully!");
+
+            getNewRoom(userId);
+        } catch (error) {
+            console.error("Error saving group IDs:", error);
         }
         console.log(uniqs);
-
     }
 
+
     const getNewRoom = (userId) => {
+        console.log(database);
         get(child(ref(database), `groups`)).then((snapshot) => {
             if (snapshot.exists()) {
                 const groups = snapshot.val();
-                if (groups.count > 1) {
+                if (Object.keys(groups).length > 1) {
                     const key = Object.keys(groups).filter(key => key !== 'count')[0];
                     var keyref = ref(database, 'groups/' + key);
                     remove(keyref);
-
-                    set(ref(database, 'groups/count'), groups.count - 1)
-                        .then(() => {
-                            console.log("count updated successfully!");
-                        })
-                        .catch((error) => {
-                            console.log("count failed!", error);
-                        });
                     var onlineGroupRef = ref(database, 'online/' + key);
                     set(onlineGroupRef, {
                         players: [
@@ -935,6 +944,8 @@ const Game = () => {
                     <div className='header'>
                         <div>
                             <Menu style = {{padding: "0px"}} menuButton={<span className="material-icons mui noselect button-big"> dashboard_customize </span>} theming={"dark"}>
+                                { !isLive.live &&
+                                    <>
                                 <MenuItem
                                     onClick={() => {
                                         let aiPlayerIndexTemp = aiPlayerIndex;
@@ -943,15 +954,52 @@ const Game = () => {
                                         n.n = 2;
                                         setNoPlayer({ ...n });
                                         restartGame();
+                                        if(!aiPlayerIndexTemp) setTitleMessage("Level "+aiLevel);
+                                        else setTitleMessage("chain reaction");
 
                                     }}>
                                     {
                                         (aiPlayerIndex) ?
-                                        <span style={{ fontWeight: '600' }} >Play with Friends</span>:
+                                        <span style={{ fontWeight: '600', display:"flex", gap:"3px" }} >
+                                            <span style={{paddingTop:"2px"}}>Exit to Play with Friends</span>
+                                            <span className="material-icons mui noselect">exit_to_app</span>
+                                        </span>
+                                        :
                                         <span style={{ fontWeight: '600' }} >Play with Computer</span>
                                     }
                                 </MenuItem>
+                                {
+                                    (aiPlayerIndex !== 1) &&
+                                    <>
+                                        <MenuDivider />
+
+                                        <MenuRadioGroup value={aiLevel} onRadioChange={e => {
+                                            setAiLevel(e.value);
+                                            localStorage.setItem("ai-level", e.value);
+                                            var n = player_n;
+                                            if (aiPlayerIndex) {
+                                                n.n = 2;
+                                                setNoPlayer({ ...n });
+                                                restartGame();
+                                            }else{
+                                                setAiPlayerIndex(1);
+                                                n.n = 2;
+                                                setNoPlayer({ ...n });
+                                                restartGame();
+                                            }
+                                            setTitleMessage("Level " + e.value);
+                                        }}>
+                                            <MenuItem type="radio" value="1"><span style={{paddingLeft:"5px"}}>Easy</span></MenuItem>
+                                            <MenuItem type="radio" value="2"><span style={{paddingLeft:"5px"}}>Medium</span></MenuItem>
+                                            <MenuItem type="radio" value="5"><span style={{paddingLeft:"5px"}}>Hard</span></MenuItem>
+                                        </MenuRadioGroup>
+                                    </>
+                                }
+
                                 <MenuDivider />
+                                </>
+                                }
+
                                 {
                                     (!isLive.live) &&
                                     <>
@@ -1033,7 +1081,7 @@ const Game = () => {
                         {showHowToPlay ?
                             <span className="material-icons mui noselect button-big" onClick={() => {
                                 setShowHowToPlay(false);
-                                setTitleMessage("chain reaction");
+                                setTitleMessage(aiPlayerIndex === 1?"Level "+aiLevel:"chain reaction");
                             } }> close </span>
                             :
                             <span className="material-icons mui noselect button-big" onClick={() => { restartGame() }}> cached </span>
@@ -1071,6 +1119,10 @@ const Game = () => {
                                 <h3 className='title-o-button cursor-pointer noselect' style={{ zIndex: '1000' }}
                                     onClick={onClickTitle}>{title_message}
                                 </h3>
+                            }
+                            {!isLoading && title_message === "Level " + aiLevel &&
+                                <h3 className='noselect'>{title_message}</h3>
+
                             }
                             <div style={{ zIndex: '101' }}>
                                 <Menu menuButton={<div className='buttons button-big tooltip noselect'>

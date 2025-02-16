@@ -1,3 +1,11 @@
+const aiLevels = {
+  "1" : [0,1,1,1,1,1],
+  "2" : [1],
+  "3" : [1,2,2,2],
+  "4" : [2],
+  "5" : [3],
+}
+
 const convertBoardToArray = (board) => {
   let boardArray = [];
   let rows = Object.keys(board).length;
@@ -60,13 +68,6 @@ const makeMove = (newBoard, move, player, isInit) => {
     }
     queue = nextQueue;
   }
-  if(isInit){
-    let val = evaluate(newBoard);
-    if(val === 999999){
-      console.log("win");
-    }
-  }
-
   return newBoard;
 }
 
@@ -87,6 +88,8 @@ const chainReact = (i, j, board_x, board_y, board, player) => {
     board[i][j].state += 1;
     board[i][j].player = player;
   } else {
+    let value = evaluate(board);
+    if(value === 999999 || value === -999999) return false
     return true;
   }
   return false;
@@ -103,10 +106,10 @@ const evaluate = (board) => {
     for (let j = 0; j < cols; j++) {
       if (board[i][j] !== null) {
         if (board[i][j].player === 1) {
-          didWin = false;
+          didLose = false;
           score += board[i][j].state;
         } else if (board[i][j].player === 0) {
-          didLose = false;
+          didWin = false;
           score -= board[i][j].state;
         }
       }
@@ -114,18 +117,17 @@ const evaluate = (board) => {
   }
 
   if (didWin) {
-    return -999999;
-  } else if (didLose) {
     return 999999;
+  } else if (didLose) {
+    return -999999;
   } else {
     return score;
   }
 }
 
 const minMax = (board, depth, alpha, beta, maximizingPlayer) => {
-  let evaluation = evaluate(board);
   if (depth === 0) {
-    return evaluation;
+    return evaluate(board);
   }
 
   if (maximizingPlayer) {
@@ -161,24 +163,34 @@ const minMax = (board, depth, alpha, beta, maximizingPlayer) => {
   }
 }
 
-const getNextMove = (board) => {
+const getNextMove = (board, aiLevel) => {
   board = convertBoardToArray(board);
   let bestMove = null;
   let bestValue = -Infinity;
   let availableMoves = getAvailableMoves(board, 1);
 
+  let bestMoves = [];
   for (let i = 0; i < availableMoves.length; i++) {
     let move = availableMoves[i];
     let newBoard = JSON.parse(JSON.stringify(board));
     newBoard = makeMove(newBoard, move, 1, true);
-    console.log("move: "+move);
-    let moveValue = minMax(newBoard, 2, -Infinity, Infinity, false);
+    let val = evaluate(newBoard);
+    if (val === 999999) {
+      return move;
+    }
+    const depths = aiLevels[aiLevel];
+    let depth = depths[Math.floor(Math.random() * depths.length)];
+    let moveValue = minMax(newBoard, depth, -Infinity, Infinity, false);
     if (moveValue > bestValue) {
       bestValue = moveValue;
-      bestMove = move;
+      bestMoves = [move];
+    } else if (moveValue === bestValue) {
+      bestMoves.push(move);
     }
   }
-
+  if (bestMoves.length > 0) {
+    bestMove = bestMoves[Math.floor(Math.random() * bestMoves.length)];
+  }
   return bestMove;
 }
 
