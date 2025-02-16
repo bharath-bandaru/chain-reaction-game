@@ -495,13 +495,13 @@ const Game = () => {
         var curr = curr_player;
         curr.player = next_player.player;
         setCurrentPlayer({ ...curr });
-        createAnimation(i, j, curr.player === 0 ? "#00A8CD" : curr.player === 1 ? "#CD00C5" : curr.player === 2 ? "#B0CD00" : "#CD0000");
-        await new Promise(resolve => setTimeout(resolve, 400));
         if (squares[i][j] !== null && squares[i][j].player !== curr.player) return;
         if (!isLive.live) {
             if (numSteps.n === 0) {
                 gameOver = false;
             }
+            createAnimation(i, j, curr.player === 0 ? "#00A8CD" : curr.player === 1 ? "#CD00C5" : curr.player === 2 ? "#B0CD00" : "#CD0000");
+            await new Promise(resolve => setTimeout(resolve, 400));
             handleClick(i, j, true,);
             return;
         }
@@ -516,11 +516,15 @@ const Game = () => {
                 nextPlayer: next_player.player,
                 uuid: UUID,
             });
+            createAnimation(i, j, curr.player === 0 ? "#00A8CD" : curr.player === 1 ? "#CD00C5" : curr.player === 2 ? "#B0CD00" : "#CD0000");
+            await new Promise(resolve => setTimeout(resolve, 400));
         }
         else {
             if (numSteps.n === 0) {
                 gameOver = false;
             }
+            createAnimation(i, j, curr.player === 0 ? "#00A8CD" : curr.player === 1 ? "#CD00C5" : curr.player === 2 ? "#B0CD00" : "#CD0000");
+            await new Promise(resolve => setTimeout(resolve, 400));
             handleClick(i, j, true,);
         }
     }
