@@ -442,10 +442,61 @@ const Game = () => {
         console.log("next player", np);
     }
 
+    const createAnimation = (i, j, color) => {
+        // Get reference positions
+        let startElement = document.querySelector(".dot-2");
+        const targetElement = document.getElementById(`${i}_${j}`);
+        if(!startElement) startElement = document.querySelector(`.cute-robot-v1`);
+
+        if (!startElement || !targetElement) return;
+
+        const startRect = startElement.getBoundingClientRect();
+        const endRect = targetElement.getBoundingClientRect();
+
+        // Create the circle dynamically
+        const circle = document.createElement("div");
+        circle.style.position = "absolute";
+        circle.style.height = "18px";
+        circle.style.width = "18px";
+        circle.style.borderRadius = "50%";
+        circle.style.margin = "5px";
+        circle.style.display = "inline-block";
+        circle.style.backgroundColor = color;
+        circle.style.left = `${startRect.left}px`;
+        circle.style.top = `${startRect.top}px`;
+        circle.style.opacity = "1"; // Initially fully visible
+
+        // Apply transition styles
+        circle.style.transition = `
+            transform 0.5s cubic-bezier(0.42, 0, 0, 0.98),
+            opacity 0.5s ease-in-out
+        `;
+
+        // Append to body
+        document.body.appendChild(circle);
+
+        // Move and start fading immediately
+        setTimeout(() => {
+            circle.style.transform = `translate(
+                ${endRect.left + endRect.width / 2 - startRect.left - 9}px,
+                ${endRect.top + endRect.height / 2 - startRect.top - 9}px
+            )`;
+            circle.style.opacity = "0"; // Gradual fade-out
+        }, 50);
+
+        // Remove the circle after animation completes
+        setTimeout(() => {
+            document.body.removeChild(circle);
+        }, 550);
+    };
+
     const onClickSquare = async (i, j, isCloud) => {
+        
         var curr = curr_player;
         curr.player = next_player.player;
         setCurrentPlayer({ ...curr });
+        createAnimation(i, j, curr.player === 0 ? "#00A8CD" : curr.player === 1 ? "#CD00C5" : curr.player === 2 ? "#B0CD00" : "#CD0000");
+        await new Promise(resolve => setTimeout(resolve, 400));
         if (squares[i][j] !== null && squares[i][j].player !== curr.player) return;
         if (!isLive.live) {
             if (numSteps.n === 0) {
