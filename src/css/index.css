@@ -14,13 +14,35 @@ code {
     monospace;
 }
 
+.szh-menu__item {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 0.5rem 1.5rem !important;
+}
+
+.szh-menu__radio-group {
+  margin: 0;
+  padding: 7px 0px 0 0px !important;
+  list-style: none;
+}
+
 .row {
   color: inherit;
   display: flex;
   text-align: center;
   justify-content: center;
 }
-
+.szh-menu{
+  margin: 0;
+  padding: 0px !important;
+  list-style: none;
+  box-sizing: border-box;
+  width: max-content;
+  z-index: 100;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
 
 .square {
   background: #191919;
@@ -51,12 +73,85 @@ code {
 }
 
 .dot {
-  height: 16px;
-  width: 16px;
+  height: 14px;
+  width: 14px;
   border-radius: 50%;
   margin: 5px;
   display: inline-block;
 }
+/* robot in css to replace dot */
+.robot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.robot-head {
+  background-color: #333;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.robot-eyes {
+  display: flex;
+  justify-content: space-between;
+  width: 60%;
+}
+
+.robot-eye {
+  background-color: #fff;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.robot-antenna {
+  background-color: #ff0000;
+  width: 10px;
+  height: 30px;
+  position: absolute;
+  top: -20px;
+  border-radius: 5px;
+}
+
+.robot-body {
+  background-color: #666;
+  width: 120px;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.robot-arm {
+  background-color: #666;
+  width: 20px;
+  height: 60px;
+  position: absolute;
+  top: 20px;
+}
+
+.robot-arm:first-child {
+  left: -30px;
+}
+
+.robot-arm:last-child {
+  right: -30px;
+}
+
+.robot-leg {
+  background-color: #666;
+  width: 20px;
+  height: 60px;
+  margin-top: 10px;
+}
+
 
 .dot-2 {
   height: 14px;
