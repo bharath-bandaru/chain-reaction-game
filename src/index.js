@@ -495,13 +495,17 @@ const Game = () => {
         var curr = curr_player;
         curr.player = next_player.player;
         setCurrentPlayer({ ...curr });
-        createAnimation(i, j, curr.player === 0 ? "#00A8CD" : curr.player === 1 ? "#CD00C5" : curr.player === 2 ? "#B0CD00" : "#CD0000");
-        await new Promise(resolve => setTimeout(resolve, 400));
         if (squares[i][j] !== null && squares[i][j].player !== curr.player) return;
         if (!isLive.live) {
             if (numSteps.n === 0) {
                 gameOver = false;
             }
+            if(aiPlayerIndex === 1 && curr.player !== 1) {
+                 handleClick(i, j, true,);
+                return;
+            }
+            createAnimation(i, j, curr.player === 0 ? "#00A8CD" : curr.player === 1 ? "#CD00C5" : curr.player === 2 ? "#B0CD00" : "#CD0000");
+            await new Promise(resolve => setTimeout(resolve, 400));
             handleClick(i, j, true,);
             return;
         }
@@ -516,11 +520,15 @@ const Game = () => {
                 nextPlayer: next_player.player,
                 uuid: UUID,
             });
+            createAnimation(i, j, curr.player === 0 ? "#00A8CD" : curr.player === 1 ? "#CD00C5" : curr.player === 2 ? "#B0CD00" : "#CD0000");
+            await new Promise(resolve => setTimeout(resolve, 400));
         }
         else {
             if (numSteps.n === 0) {
                 gameOver = false;
             }
+            createAnimation(i, j, curr.player === 0 ? "#00A8CD" : curr.player === 1 ? "#CD00C5" : curr.player === 2 ? "#B0CD00" : "#CD0000");
+            await new Promise(resolve => setTimeout(resolve, 400));
             handleClick(i, j, true,);
         }
     }
@@ -964,6 +972,17 @@ const Game = () => {
         );
     };
 
+    const logEventOnFirebase = (eventName) => {
+        const eventRef = ref(database, 'events/' + eventName);
+        get(eventRef).then((snapshot) => {
+            if (snapshot.exists()) {
+                set(eventRef, snapshot.val() + 1);
+            } else {
+                set(eventRef, 1);
+            }
+        });
+    }
+
 
     return (
         <>
@@ -1005,6 +1024,7 @@ const Game = () => {
                                         n.n = 2;
                                         setNoPlayer({ ...n });
                                         restartGame();
+                                        if(!aiPlayerIndexTemp) logEventOnFirebase("play-with-computer");
                                         if(!aiPlayerIndexTemp) setTitleMessage("Level "+aiLevel);
                                         else setTitleMessage("chain reaction");
 
@@ -1025,6 +1045,8 @@ const Game = () => {
                                         <MenuDivider />
 
                                         <MenuRadioGroup value={aiLevel} onRadioChange={e => {
+                                            logEventOnFirebase("change-ai-level "+e.value);
+                                            logEventOnFirebase("play-with-computer");
                                             setAiLevel(e.value);
                                             localStorage.setItem("ai-level", e.value);
                                             var n = player_n;
@@ -1042,7 +1064,7 @@ const Game = () => {
                                         }}>
                                             <MenuItem type="radio" value="1"><span style={{paddingLeft:"5px"}}>Easy</span></MenuItem>
                                             <MenuItem type="radio" value="2"><span style={{paddingLeft:"5px"}}>Medium</span></MenuItem>
-                                            <MenuItem type="radio" value="5"><span style={{paddingLeft:"5px"}}>Hard</span></MenuItem>
+                                            <MenuItem type="radio" value="3"><span style={{paddingLeft:"5px"}}>Hard</span></MenuItem>
                                         </MenuRadioGroup>
                                     </>
                                 }
