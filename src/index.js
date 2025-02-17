@@ -972,6 +972,17 @@ const Game = () => {
         );
     };
 
+    const logEventOnFirebase = (eventName) => {
+        const eventRef = ref(database, 'events/' + eventName);
+        get(eventRef).then((snapshot) => {
+            if (snapshot.exists()) {
+                set(eventRef, snapshot.val() + 1);
+            } else {
+                set(eventRef, 1);
+            }
+        });
+    }
+
 
     return (
         <>
@@ -1013,6 +1024,7 @@ const Game = () => {
                                         n.n = 2;
                                         setNoPlayer({ ...n });
                                         restartGame();
+                                        if(!aiPlayerIndexTemp) logEventOnFirebase("play-with-computer");
                                         if(!aiPlayerIndexTemp) setTitleMessage("Level "+aiLevel);
                                         else setTitleMessage("chain reaction");
 
@@ -1033,6 +1045,8 @@ const Game = () => {
                                         <MenuDivider />
 
                                         <MenuRadioGroup value={aiLevel} onRadioChange={e => {
+                                            logEventOnFirebase("change-ai-level "+e.value);
+                                            logEventOnFirebase("play-with-computer");
                                             setAiLevel(e.value);
                                             localStorage.setItem("ai-level", e.value);
                                             var n = player_n;
