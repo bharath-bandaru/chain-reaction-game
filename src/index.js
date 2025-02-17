@@ -1050,7 +1050,7 @@ const Game = () => {
                                         }}>
                                             <MenuItem type="radio" value="1"><span style={{paddingLeft:"5px"}}>Easy</span></MenuItem>
                                             <MenuItem type="radio" value="2"><span style={{paddingLeft:"5px"}}>Medium</span></MenuItem>
-                                            <MenuItem type="radio" value="5"><span style={{paddingLeft:"5px"}}>Hard</span></MenuItem>
+                                            <MenuItem type="radio" value="3"><span style={{paddingLeft:"5px"}}>Hard</span></MenuItem>
                                         </MenuRadioGroup>
                                     </>
                                 }
