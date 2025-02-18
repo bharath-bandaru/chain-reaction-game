@@ -72,7 +72,7 @@ const Game = () => {
     const [likeIcon, setLikeIcon] = useState(love);
     const [isSafari, setIsSafari] = useState(false);
     const [aiPlayerIndex, setAiPlayerIndex] = useState();
-    const [showAnimation, setShowAnimation] = useState(false);
+    const [showAnimation, setShowAnimation] = useState(localStorage.getItem("showAnimation") === "true");
     const [aiLevel, setAiLevel] = useState(localStorage.getItem("ai-level") || "1");
 
 
@@ -506,8 +506,10 @@ const Game = () => {
                 return;
             }
             if(aiPlayerIndex === 1 || showAnimation) {
+                setCanClick(false);
                 createAnimation(i, j, curr.player === 0 ? "#00A8CD" : curr.player === 1 ? "#CD00C5" : curr.player === 2 ? "#B0CD00" : "#CD0000");
                 await new Promise(resolve => setTimeout(resolve, 400));
+                setCanClick(true);
             }
             handleClick(i, j, true,);
             return;
@@ -531,8 +533,10 @@ const Game = () => {
                 gameOver = false;
             }
             if(aiPlayerIndex === 1 || showAnimation) {
+                setCanClick(false);
                 createAnimation(i, j, curr.player === 0 ? "#00A8CD" : curr.player === 1 ? "#CD00C5" : curr.player === 2 ? "#B0CD00" : "#CD0000");
                 await new Promise(resolve => setTimeout(resolve, 400));
+                setCanClick(true);
             }
             handleClick(i, j, true,);
         }
@@ -1100,6 +1104,8 @@ const Game = () => {
                                     <MenuItem
                                     onClick={() => {
                                         setShowAnimation(!showAnimation);
+                                        localStorage.setItem("showAnimation", !showAnimation);
+                                        logEventOnFirebase("toggle-animations "+ !showAnimation);
                                     }}
                                     >
                                         {
