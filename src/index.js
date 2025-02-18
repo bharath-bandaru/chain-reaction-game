@@ -1041,7 +1041,7 @@ const Game = () => {
                                             <span className="material-icons mui noselect">exit_to_app</span>
                                         </span>
                                         :
-                                        <span style={{ fontWeight: '600' }} >Play with Computer</span>
+                                        <span style={{ fontWeight: '600' }} >Play with Computer </span>
                                     }
                                 </MenuItem>
                                 {
@@ -1067,6 +1067,7 @@ const Game = () => {
                                             }
                                             setTitleMessage("Level " + e.value);
                                         }}>
+                                            <span style={{ fontWeight: "bold", paddingBottom: "20px" }}>Computer Level</span>
                                             <MenuItem type="radio" value="1"><span style={{paddingLeft:"5px"}}>Easy</span></MenuItem>
                                             <MenuItem type="radio" value="2"><span style={{paddingLeft:"5px"}}>Medium</span></MenuItem>
                                             <MenuItem type="radio" value="3"><span style={{paddingLeft:"5px"}}>Hard</span></MenuItem>
