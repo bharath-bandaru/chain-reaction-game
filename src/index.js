@@ -72,6 +72,7 @@ const Game = () => {
     const [likeIcon, setLikeIcon] = useState(love);
     const [isSafari, setIsSafari] = useState(false);
     const [aiPlayerIndex, setAiPlayerIndex] = useState();
+    const [showAnimation, setShowAnimation] = useState(false);
     const [aiLevel, setAiLevel] = useState(localStorage.getItem("ai-level") || "1");
 
 
@@ -504,8 +505,10 @@ const Game = () => {
                  handleClick(i, j, true,);
                 return;
             }
-            createAnimation(i, j, curr.player === 0 ? "#00A8CD" : curr.player === 1 ? "#CD00C5" : curr.player === 2 ? "#B0CD00" : "#CD0000");
-            await new Promise(resolve => setTimeout(resolve, 400));
+            if(aiPlayerIndex === 1 || showAnimation) {
+                createAnimation(i, j, curr.player === 0 ? "#00A8CD" : curr.player === 1 ? "#CD00C5" : curr.player === 2 ? "#B0CD00" : "#CD0000");
+                await new Promise(resolve => setTimeout(resolve, 400));
+            }
             handleClick(i, j, true,);
             return;
         }
@@ -527,8 +530,10 @@ const Game = () => {
             if (numSteps.n === 0) {
                 gameOver = false;
             }
-            createAnimation(i, j, curr.player === 0 ? "#00A8CD" : curr.player === 1 ? "#CD00C5" : curr.player === 2 ? "#B0CD00" : "#CD0000");
-            await new Promise(resolve => setTimeout(resolve, 400));
+            if(aiPlayerIndex === 1 || showAnimation) {
+                createAnimation(i, j, curr.player === 0 ? "#00A8CD" : curr.player === 1 ? "#CD00C5" : curr.player === 2 ? "#B0CD00" : "#CD0000");
+                await new Promise(resolve => setTimeout(resolve, 400));
+            }
             handleClick(i, j, true,);
         }
     }
@@ -1040,7 +1045,7 @@ const Game = () => {
                                     }
                                 </MenuItem>
                                 {
-                                    (aiPlayerIndex !== 1) &&
+                                    
                                     <>
                                         <MenuDivider />
 
@@ -1090,6 +1095,20 @@ const Game = () => {
                                         <MenuDivider />
                                     </>
                                 }
+                                {
+                                    <MenuItem
+                                    onClick={() => {
+                                        setShowAnimation(!showAnimation);
+                                    }}
+                                    >
+                                        {
+                                        (showAnimation) ?
+                                        <span style={{ fontWeight: '600' }} >Hide Player Move Animation</span>:
+                                        <span style={{ fontWeight: '600' }} >Show Player Move Animation</span>
+                                        }   
+                                    </MenuItem>
+                                }
+                                <MenuDivider />
                                 <MenuItem
                                     onClick={() => {
                                         setShowHowToPlay(true);
