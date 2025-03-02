@@ -380,6 +380,7 @@ const Game = () => {
         if (height >= 800 && width >= 1100) {
             setShowAboutMe(true);
         }
+        setAiPlayerIndex(1);
     }, [])
 
     const startInterval = async () => {
