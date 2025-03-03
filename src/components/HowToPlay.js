@@ -13,7 +13,9 @@ export const HowToPlay = ({ state }) => {
                             <h2 style={{
                                 backgroundColor: 'rgb(255 255 9)',
                                 color: '#000',
-                                padding: '0px 20px'
+                                padding: '0px 20px',
+                                zIndex: "1000",
+                                marginBottom: "50px"
                             }}>
                                 HOW TO PLAY?</h2>
                         </div>
@@ -44,7 +46,8 @@ export const HowToPlay = ({ state }) => {
                             <h2 style={{
                                 backgroundColor: 'rgb(255 255 9)',
                                 color: '#000',
-                                padding: '0px 20px'
+                                padding: '0px 20px',
+                                marginBottom: "60px"
                             }}>
                                 critical mass?</h2>
                         </div>
@@ -69,7 +72,8 @@ export const HowToPlay = ({ state }) => {
                             <h2 style={{
                                 backgroundColor: 'rgb(255 255 9)',
                                 color: '#000',
-                                padding: '0px 20px'
+                                padding: '0px 20px',
+                                marginBottom: "70px"
                             }}>
                                 critical mass?</h2>
                         </div>
@@ -94,7 +98,8 @@ export const HowToPlay = ({ state }) => {
                             <h2 style={{
                                 backgroundColor: 'rgb(255 255 9)',
                                 color: '#000',
-                                padding: '0px 20px'
+                                padding: '0px 20px',
+                                marginBottom: "50px"
                             }}>
                                 critical mass?</h2>
                         </div>
@@ -119,7 +124,8 @@ export const HowToPlay = ({ state }) => {
                             <h2 style={{
                                 backgroundColor: 'rgb(255 255 9)',
                                 color: '#000',
-                                padding: '0px 20px'
+                                padding: '0px 20px',
+                                marginBottom: "100px"
                             }}>
                                 chain reaction!</h2>
                         </div>
