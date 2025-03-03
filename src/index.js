@@ -380,7 +380,6 @@ const Game = () => {
         if (height >= 800 && width >= 1100) {
             setShowAboutMe(true);
         }
-        setAiPlayerIndex(1);
     }, [])
 
     const startInterval = async () => {
@@ -1003,6 +1002,7 @@ const Game = () => {
                     (showIwon) &&
                     <IWon
                         wonStatus={wonStatus.won}
+                        logEvent={logEventOnFirebase}
                         showAboutMe={!showAboutMe}
                     />
                 }
@@ -1126,7 +1126,8 @@ const Game = () => {
                                 </MenuItem>
                             </Menu>
                         </div>
-                        <div style={{ zIndex: 100 }}>
+                        {!showHowToPlay &&
+                            <div style={{ zIndex: 100 }}>
                             {
                                 !isLive.live &&
                                 <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
@@ -1177,7 +1178,8 @@ const Game = () => {
 
                                 </div>
                             }
-                        </div>
+                            </div>
+                        }
                         {showHowToPlay ?
                             <span className="material-icons mui noselect button-big" onClick={() => {
                                 setShowHowToPlay(false);
@@ -1251,9 +1253,9 @@ const Game = () => {
             {
                 (showIwon && showAboutMe) && <div className={"abme"}>
                     <span style={{ color: '#6a6a6a', marginBottom: '3px' }}> Designed and Developed by &nbsp;</span>
-                    <a href='http://www.bharathbandaru.com/' target={'_blank'}
+                    <a href='https://bharath-bandaru.github.io/' target={'_blank'}
                         rel="noopener noreferrer"><img style={{ opacity: '1', borderRadius: "50%" }} src={logo} alt="logo" width={"20px"} /></a>
-                    <a style={{ color: 'rgb(115 115 115)', marginLeft: '5px', marginBottom: '3px' }} href='http://www.bharathbandaru.com/' target={'_blank'} rel="noopener noreferrer">Bharath Bandaru</a>
+                    <a style={{ color: 'rgb(115 115 115)', marginLeft: '5px', marginBottom: '3px' }} href='https://bharath-bandaru.github.io/' target={'_blank'} rel="noopener noreferrer">Bharath Bandaru</a>
                 </div>
             }
             {
