@@ -36,7 +36,7 @@ export const IWon = ({ wonStatus, showAboutMe, logEvent }) => {
                         </div>
                         <div>
                         <div style={{ textAlign: 'center' }}>
-                            <p style={{ marginBottom: "10px", fontSize: "14px", color: "#cecece95"  }}>Check out my new game <b style={{color:"#a1954e"}}>ESCAPE</b> <br/>on Play Store now! 😶‍🌫️ 🚀</p>
+                            <p style={{ marginBottom: "10px", fontSize: "14px", color: "#cecece95"  }}>Check out our new game <b style={{color:"#a1954e"}}>ESCAPE</b> <br/>on Play Store now! 😶‍🌫️ 🚀</p>
                             <a href="https://play.google.com/store/apps/details?id=com.bhvp.escapeGame&pcampaignid=chain_reaction" target="_blank" rel="noopener noreferrer">
                                 <img onClick={()=>logEvent("escape")} src={require('../images/gplay.png')} alt="Play Game" style={{ width: "100px", cursor: "pointer", opacity:"0.9", borderRadius:"5px", boxShadow: "rgb(255 196 58) 0px 3px 25px" }} />
                             </a>
