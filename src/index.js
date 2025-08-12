@@ -1096,7 +1096,7 @@ const Game = () => {
                                             <span style={{ fontWeight: "bold", display: 'block', paddingBottom: "10px" }}>Play with Computer</span>
                                             <div className="difficulty-grid">
                                                 <MenuItem
-                                                    className={`difficulty-card ${aiLevel === "1" ? "selected" : ""}`}
+                                                    className={`difficulty-card ${aiPlayerIndex && aiLevel === "1" ? "selected" : ""}`}
                                                     onClick={() => {
                                                         logEventOnFirebase("change-ai-level 1");
                                                         logEventOnFirebase("play-with-computer");
@@ -1120,7 +1120,7 @@ const Game = () => {
                                                     <span className="difficulty-label">Easy</span>
                                                 </MenuItem>
                                                 <MenuItem
-                                                    className={`difficulty-card ${aiLevel === "2" ? "selected" : ""}`}
+                                                    className={`difficulty-card ${aiPlayerIndex && aiLevel === "2" ? "selected" : ""}`}
                                                     onClick={() => {
                                                         logEventOnFirebase("change-ai-level 2");
                                                         logEventOnFirebase("play-with-computer");
@@ -1144,7 +1144,7 @@ const Game = () => {
                                                     <span className="difficulty-label">Medium</span>
                                                 </MenuItem>
                                                 <MenuItem
-                                                    className={`difficulty-card ${aiLevel === "3" ? "selected" : ""}`}
+                                                    className={`difficulty-card ${aiPlayerIndex && aiLevel === "3" ? "selected" : ""}`}
                                                     onClick={() => {
                                                         logEventOnFirebase("change-ai-level 3");
                                                         logEventOnFirebase("play-with-computer");
