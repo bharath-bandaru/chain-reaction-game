@@ -1062,7 +1062,9 @@ const Game = () => {
                             <Menu style = {{padding: "0px"}} menuButton={<span className="material-icons mui noselect button-big top-button"> dashboard_customize </span>} theming={"dark"}>
                                 { !isLive.live &&
                                     <>
-                               {(aiPlayerIndex)  && <MenuItem
+                               {(aiPlayerIndex)  && 
+                               <>
+                               <MenuItem
                                     onClick={() => {
                                         let aiPlayerIndexTemp = aiPlayerIndex;
                                         setAiPlayerIndex(aiPlayerIndexTemp?undefined:1);
@@ -1085,11 +1087,12 @@ const Game = () => {
                                         <span style={{ fontWeight: '600' }} >Play with Computer </span>
                                     }
                                 </MenuItem>
+                                <MenuDivider />
+                                </>
                                 }
                                 {
                                     
                                     <>
-                                        <MenuDivider />
 
                                         {/* Difficulty selector: horizontal with icons */}
                                         <div className="difficulty-section">
@@ -1216,6 +1219,7 @@ const Game = () => {
                                     }}>
                                     <span style={{ fontWeight: '600' }} >How to Play?</span>
                                 </MenuItem>
+                                <MenuDivider />
                                 <MenuItem disabled={true}>
                                     <span style={{ fontWeight: '300', fontSize: '10px', textAlign: 'right', width: '-webkit-fill-available' }} >version 1.8.1</span>
                                 </MenuItem>
