@@ -27,6 +27,51 @@ code {
   list-style: none;
 }
 
+/* Difficulty grid styles */
+.difficulty-section {
+  padding: 10px 14px 8px 14px;
+}
+
+.difficulty-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.difficulty-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 29px;
+  justify-content: center;
+  background: #202428;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 10px 8px;
+  cursor: pointer;
+  transition: transform .15s ease, border-color .15s ease, background .15s ease;
+}
+
+.difficulty-card:hover {
+  transform: translateY(-2px);
+  border-color: #555;
+}
+
+.difficulty-card.selected {
+  border-color: #05a8cd;
+  background: #202428;
+  width: 30px;
+}
+
+.difficulty-icon {
+  font-size: 26px !important;
+  margin-bottom: 6px;
+}
+
+.difficulty-label {
+  font-size: 13px;
+}
+
 .row {
   color: inherit;
   display: flex;

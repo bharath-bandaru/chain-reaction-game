@@ -1062,7 +1062,7 @@ const Game = () => {
                             <Menu style = {{padding: "0px"}} menuButton={<span className="material-icons mui noselect button-big top-button"> dashboard_customize </span>} theming={"dark"}>
                                 { !isLive.live &&
                                     <>
-                                <MenuItem
+                               {(aiPlayerIndex)  && <MenuItem
                                     onClick={() => {
                                         let aiPlayerIndexTemp = aiPlayerIndex;
                                         setAiPlayerIndex(aiPlayerIndexTemp?undefined:1);
@@ -1085,34 +1085,90 @@ const Game = () => {
                                         <span style={{ fontWeight: '600' }} >Play with Computer </span>
                                     }
                                 </MenuItem>
+                                }
                                 {
                                     
                                     <>
                                         <MenuDivider />
 
-                                        <MenuRadioGroup value={aiLevel} onRadioChange={e => {
-                                            logEventOnFirebase("change-ai-level "+e.value);
-                                            logEventOnFirebase("play-with-computer");
-                                            setAiLevel(e.value);
-                                            localStorage.setItem("ai-level", e.value);
-                                            var n = player_n;
-                                            if (aiPlayerIndex) {
-                                                n.n = 2;
-                                                setNoPlayer({ ...n });
-                                                restartGame();
-                                            }else{
-                                                setAiPlayerIndex(1);
-                                                n.n = 2;
-                                                setNoPlayer({ ...n });
-                                                restartGame();
-                                            }
-                                            setTitleMessage("Level " + e.value);
-                                        }}>
-                                            <span style={{ fontWeight: "bold", paddingBottom: "20px" }}>Computer Level</span>
-                                            <MenuItem type="radio" value="1"><span style={{paddingLeft:"5px"}}>Easy</span></MenuItem>
-                                            <MenuItem type="radio" value="2"><span style={{paddingLeft:"5px"}}>Medium</span></MenuItem>
-                                            <MenuItem type="radio" value="3"><span style={{paddingLeft:"5px"}}>Hard</span></MenuItem>
-                                        </MenuRadioGroup>
+                                        {/* Difficulty selector: horizontal with icons */}
+                                        <div className="difficulty-section">
+                                            <span style={{ fontWeight: "bold", display: 'block', paddingBottom: "10px" }}>Play with Computer</span>
+                                            <div className="difficulty-grid">
+                                                <MenuItem
+                                                    className={`difficulty-card ${aiLevel === "1" ? "selected" : ""}`}
+                                                    onClick={() => {
+                                                        logEventOnFirebase("change-ai-level 1");
+                                                        logEventOnFirebase("play-with-computer");
+                                                        setAiLevel("1");
+                                                        localStorage.setItem("ai-level", "1");
+                                                        var n = player_n;
+                                                        if (aiPlayerIndex) {
+                                                            n.n = 2;
+                                                            setNoPlayer({ ...n });
+                                                            restartGame();
+                                                        } else {
+                                                            setAiPlayerIndex(1);
+                                                            n.n = 2;
+                                                            setNoPlayer({ ...n });
+                                                            restartGame();
+                                                        }
+                                                        setTitleMessage("Level 1");
+                                                    }}
+                                                >
+                                                    <span className="material-icons difficulty-icon" style={{ color: '#cad1d8' }}>mood</span>
+                                                    <span className="difficulty-label">Easy</span>
+                                                </MenuItem>
+                                                <MenuItem
+                                                    className={`difficulty-card ${aiLevel === "2" ? "selected" : ""}`}
+                                                    onClick={() => {
+                                                        logEventOnFirebase("change-ai-level 2");
+                                                        logEventOnFirebase("play-with-computer");
+                                                        setAiLevel("2");
+                                                        localStorage.setItem("ai-level", "2");
+                                                        var n = player_n;
+                                                        if (aiPlayerIndex) {
+                                                            n.n = 2;
+                                                            setNoPlayer({ ...n });
+                                                            restartGame();
+                                                        } else {
+                                                            setAiPlayerIndex(1);
+                                                            n.n = 2;
+                                                            setNoPlayer({ ...n });
+                                                            restartGame();
+                                                        }
+                                                        setTitleMessage("Level 2");
+                                                    }}
+                                                >
+                                                    <span className="material-icons difficulty-icon" style={{ color: '#cad1d8' }}>tune</span>
+                                                    <span className="difficulty-label">Medium</span>
+                                                </MenuItem>
+                                                <MenuItem
+                                                    className={`difficulty-card ${aiLevel === "3" ? "selected" : ""}`}
+                                                    onClick={() => {
+                                                        logEventOnFirebase("change-ai-level 3");
+                                                        logEventOnFirebase("play-with-computer");
+                                                        setAiLevel("3");
+                                                        localStorage.setItem("ai-level", "3");
+                                                        var n = player_n;
+                                                        if (aiPlayerIndex) {
+                                                            n.n = 2;
+                                                            setNoPlayer({ ...n });
+                                                            restartGame();
+                                                        } else {
+                                                            setAiPlayerIndex(1);
+                                                            n.n = 2;
+                                                            setNoPlayer({ ...n });
+                                                            restartGame();
+                                                        }
+                                                        setTitleMessage("Level 3");
+                                                    }}
+                                                >
+                                                    <span className="material-icons difficulty-icon" style={{ color: '#cad1d8' }}>whatshot</span>
+                                                    <span className="difficulty-label">Hard</span>
+                                                </MenuItem>
+                                            </div>
+                                        </div>
                                     </>
                                 }
 
@@ -1159,6 +1215,9 @@ const Game = () => {
                                         setTitleMessage("next");
                                     }}>
                                     <span style={{ fontWeight: '600' }} >How to Play?</span>
+                                </MenuItem>
+                                <MenuItem disabled={true}>
+                                    <span style={{ fontWeight: '300', fontSize: '10px', textAlign: 'right', width: '-webkit-fill-available' }} >version 1.8.1</span>
                                 </MenuItem>
                             </Menu>
                         </div>
