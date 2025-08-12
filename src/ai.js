@@ -48,6 +48,22 @@ const getAvailableMoves = (board, player) => {
   return availableMoves;
 }
 
+// New helper to bias moves closer to opponent orbs (adjacent up/down/left/right)
+const getOpponentAdjacencyScore = (board, i, j, player) => {
+  const opponent = player === 1 ? 0 : 1;
+  const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+  let score = 0;
+  for (const [dx, dy] of dirs) {
+    const x = i + dx;
+    const y = j + dy;
+    if (x >= 0 && x < board.length && y >= 0 && y < board[0].length) {
+      const cell = board[x][y];
+      if (cell !== null && cell.player === opponent) score++;
+    }
+  }
+  return score;
+}
+
 const makeMove = (newBoard, move, player, isInit) => {
   let [i, j] = move;
   let board_x = newBoard.length;
@@ -72,6 +88,8 @@ const makeMove = (newBoard, move, player, isInit) => {
 }
 const WON = 999999;
 const LOST = -999999;
+// Bias weight for preferring moves near opponent orbs (higher => stronger preference)
+const PROXIMITY_BIAS = 0.5;
 
 const chainReact = (i, j, board_x, board_y, board, player) => {
   let max = (i === 0 || i === board_x - 1 || j === 0 || j === board_y - 1) ?
@@ -168,10 +186,10 @@ const minMax = (board, depth, alpha, beta, maximizingPlayer) => {
 const getNextMove = (board, aiLevel) => {
   board = convertBoardToArray(board);
   let bestMove = null;
-  let bestValue = -Infinity;
   let availableMoves = getAvailableMoves(board, 1);
 
   let bestMoves = [];
+  let bestComposite = -Infinity;
   for (let i = 0; i < availableMoves.length; i++) {
     let move = availableMoves[i];
     let newBoard = JSON.parse(JSON.stringify(board));
@@ -184,10 +202,15 @@ const getNextMove = (board, aiLevel) => {
     let depth = depths[Math.floor(Math.random() * depths.length)];
 
     let moveValue = minMax(newBoard, depth, -Infinity, Infinity, false);
-    if (moveValue > bestValue) {
-      bestValue = moveValue;
+
+    // Prefer moves closer to opponent orbs
+    const proximity = getOpponentAdjacencyScore(board, move[0], move[1], 1);
+    const composite = moveValue + PROXIMITY_BIAS * proximity;
+
+    if (composite > bestComposite) {
+      bestComposite = composite;
       bestMoves = [move];
-    } else if (moveValue === bestValue) {
+    } else if (composite === bestComposite) {
       bestMoves.push(move);
     }
   }
