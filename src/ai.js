@@ -70,6 +70,8 @@ const makeMove = (newBoard, move, player, isInit) => {
   }
   return newBoard;
 }
+const WON = 999999;
+const LOST = -999999;
 
 const chainReact = (i, j, board_x, board_y, board, player) => {
   let max = (i === 0 || i === board_x - 1 || j === 0 || j === board_y - 1) ?
@@ -89,7 +91,7 @@ const chainReact = (i, j, board_x, board_y, board, player) => {
     board[i][j].player = player;
   } else {
     let value = evaluate(board);
-    if(value === 999999 || value === -999999) return false
+    if(value === WON || value === LOST) return false
     return true;
   }
   return false;
@@ -117,9 +119,9 @@ const evaluate = (board) => {
   }
 
   if (didWin) {
-    return 999999;
+    return WON;
   } else if (didLose) {
-    return -999999;
+    return LOST;
   } else {
     return score;
   }
@@ -175,11 +177,12 @@ const getNextMove = (board, aiLevel) => {
     let newBoard = JSON.parse(JSON.stringify(board));
     newBoard = makeMove(newBoard, move, 1, true);
     let val = evaluate(newBoard);
-    if (val === 999999) {
+    if (val === WON) {
       return move;
     }
     const depths = aiLevels[aiLevel];
     let depth = depths[Math.floor(Math.random() * depths.length)];
+
     let moveValue = minMax(newBoard, depth, -Infinity, Infinity, false);
     if (moveValue > bestValue) {
       bestValue = moveValue;

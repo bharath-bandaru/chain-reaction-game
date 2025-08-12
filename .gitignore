@@ -25,6 +25,7 @@ yarn-error.log*
 .gradle
 .idea
 /android
+/andr
 
 private_key.pepk
 .gitignore

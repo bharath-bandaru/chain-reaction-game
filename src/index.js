@@ -46,6 +46,8 @@ const Game = () => {
     const [next_player, setNextPlayer] = useState({ player: 0 });
     const [loser, setLoser] = useState(Array(player_n.n).fill(false));
     const [main_player, setMainPlayer] = useState({ player: 0 });
+    const [gameHistory, setGameHistory] = useState([]);
+    const [canUndo, setCanUndo] = useState(false);
     var gameOver = false;
     const player_color = [
         '#00A8CD',
@@ -501,6 +503,10 @@ const Game = () => {
             if (numSteps.n === 0) {
                 gameOver = false;
             }
+            
+            if (!isCloud && curr.player !== aiPlayerIndex) {
+                saveGameState();
+            }
             if(aiPlayerIndex === 1 && curr.player !== 1) {
                  handleClick(i, j, true,);
                 return;
@@ -613,6 +619,8 @@ const Game = () => {
         setLoser(Array(player_n.n).fill(false));
         setShowHowToPlay(false);
         setTitleMessage(aiPlayerIndex === 1?"Level "+aiLevel:"chain reaction");
+        setGameHistory([]);
+        setCanUndo(false);
         Object.keys(squares).forEach(i => {
             Object.keys(squares[i]).forEach(j => {
                 squares[i][j] = null;
@@ -621,6 +629,34 @@ const Game = () => {
             )
         });
         console.log(squares);
+    }
+
+    const saveGameState = () => {
+        const currentState = {
+            squares: JSON.parse(JSON.stringify(squares)),
+            curr_player: { ...curr_player },
+            next_player: { ...next_player },
+            loser: [...loser],
+            numSteps: { ...numSteps }
+        };
+        setGameHistory(prev => [...prev, currentState]);
+        setCanUndo(true);
+    }
+
+    const undoMove = () => {
+        if (gameHistory.length === 0 || isLive.live) return;
+        
+        const previousState = gameHistory[gameHistory.length - 1];
+        setSquares(previousState.squares);
+        setCurrentPlayer(previousState.curr_player);
+        setNextPlayer(previousState.next_player);
+        setLoser(previousState.loser);
+        setNumSteps(previousState.numSteps);
+        setShowIwon(false);
+        setCanClick(true);
+        
+        setGameHistory(prev => prev.slice(0, -1));
+        setCanUndo(gameHistory.length > 1);
     }
 
     const shareGame = () => {
@@ -1022,8 +1058,8 @@ const Game = () => {
                 }
                 <div className="game" style={{ color: player_color[next_player.player] }} id="game">
                     <div className='header'>
-                        <div>
-                            <Menu style = {{padding: "0px"}} menuButton={<span className="material-icons mui noselect button-big"> dashboard_customize </span>} theming={"dark"}>
+                        <div style={{flex: 1, display: 'flex', justifyContent: 'flex-start'}}>
+                            <Menu style = {{padding: "0px"}} menuButton={<span className="material-icons mui noselect button-big top-button"> dashboard_customize </span>} theming={"dark"}>
                                 { !isLive.live &&
                                     <>
                                 <MenuItem
@@ -1127,7 +1163,7 @@ const Game = () => {
                             </Menu>
                         </div>
                         {!showHowToPlay &&
-                            <div style={{ zIndex: 100 }}>
+                            <div style={{ zIndex: 100, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                             {
                                 !isLive.live &&
                                 <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
@@ -1180,14 +1216,22 @@ const Game = () => {
                             }
                             </div>
                         }
+                        <div style={{flex: 1, display: 'flex', justifyContent: 'flex-end'}}>
                         {showHowToPlay ?
-                            <span className="material-icons mui noselect button-big" onClick={() => {
+                            <span className="material-icons mui noselect button-big top-button" onClick={() => {
                                 setShowHowToPlay(false);
                                 setTitleMessage(aiPlayerIndex === 1?"Level "+aiLevel:"chain reaction");
                             } }> close </span>
                             :
-                            <span className="material-icons mui noselect button-big" onClick={() => { restartGame() }}> cached </span>
+                            <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px'}}>
+                                {!isLive.live && canUndo && 
+                                    <span className="material-icons mui noselect button-big top-button" style={{opacity: canUndo ? 1 : 0.3}} 
+                                          onClick={() => { if(canUndo) undoMove() }}> undo </span>
+                                }
+                                <span className="material-icons mui noselect button-big top-button" onClick={() => { restartGame() }}> cached </span>
+                            </div>
                         }
+                        </div>
                     </div>
                     {
                         Object.entries(squares).map(([i, row]) => {
@@ -1207,7 +1251,7 @@ const Game = () => {
                     }
                     <div>
                         <div className='footer'>
-                            <div id='like-button' onClick={likeButton} className='buttons button-big like noselect'>
+                            <div id='like-button' onClick={likeButton} style={{borderRadius:"50px"}} className='buttons button-big like noselect'>
                                 {isSafari ? <span>❤️</span> : <img src={likeIcon} alt="like" width="20px" />}
                             </div>
                             {(!isLoading && (title_message === 'start' || title_message === 'chain reaction')) &&
@@ -1227,7 +1271,7 @@ const Game = () => {
 
                             }
                             <div style={{ zIndex: '101' }}>
-                                <Menu menuButton={<div className='buttons button-big tooltip noselect'>
+                                <Menu menuButton={<div style={{borderRadius:"50px"}} className='buttons button-big tooltip noselect'>
                                     {isSafari ? <span>🚀</span> : <img src={rocket} alt="online" width="20px" />}
                                 </div>} direction='top' theming={"dark"}>
                                     <div style={{ fontWeight: "bold", marginBottom: "6px", marginTop:"6px" }}>Play Online</div>

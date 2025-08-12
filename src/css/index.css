@@ -1086,6 +1086,11 @@ code {
   top: 1px;
 }
 
+.top-button {
+  padding: 5px;
+  border-radius: 50px;
+}
+
 .button-big {
   position: relative;
   background-color: #191919;
