@@ -825,6 +825,32 @@ code {
   margin-block-end: 15px;
 }
 
+.undo-button {
+  border: solid 1px;
+  padding: 0px 50px 5px 50px;
+  font-weight: 500;
+  font-size: 17px;
+  border-radius: 5px;
+  padding-top: 2px;
+  margin-block-start: 5px;
+  margin-block-end: 5px;
+  z-index: 100;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.undo-button:hover,
+.undo-button:active {
+  background: var(--player-color);
+  color: #000;
+  border: solid 1px var(--player-color);
+  padding: 1px 51px 4px 51px;
+  font-weight: 500;
+  font-size: 17px;
+  border-radius: 5px;
+  margin-block-start: 6px;
+  margin-block-end: 4px;
+}
+
 .title-y-button {
   border: solid 1px;
   padding: 0px 50px 5px 50px;

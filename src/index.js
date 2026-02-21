@@ -75,6 +75,7 @@ const Game = () => {
     const [isSafari, setIsSafari] = useState(false);
     const [aiPlayerIndex, setAiPlayerIndex] = useState();
     const [showAnimation, setShowAnimation] = useState(localStorage.getItem("showAnimation") === "true");
+    const [showUndo, setShowUndo] = useState(localStorage.getItem("showUndo") !== "false");
     const [aiLevel, setAiLevel] = useState(localStorage.getItem("ai-level") || "1");
 
 
@@ -1208,7 +1209,22 @@ const Game = () => {
                                         (showAnimation) ?
                                         <span style={{ fontWeight: '600' }} >Hide Player Move Animation</span>:
                                         <span style={{ fontWeight: '600' }} >Show Player Move Animation</span>
-                                        }   
+                                        }
+                                    </MenuItem>
+                                }
+                                <MenuDivider />
+                                {
+                                    <MenuItem
+                                    onClick={() => {
+                                        setShowUndo(!showUndo);
+                                        localStorage.setItem("showUndo", !showUndo);
+                                    }}
+                                    >
+                                        {
+                                        (showUndo) ?
+                                        <span style={{ fontWeight: '600' }} >Hide Undo Button</span>:
+                                        <span style={{ fontWeight: '600' }} >Show Undo Button</span>
+                                        }
                                     </MenuItem>
                                 }
                                 <MenuDivider />
@@ -1286,13 +1302,7 @@ const Game = () => {
                                 setTitleMessage(aiPlayerIndex === 1?"Level "+aiLevel:"chain reaction");
                             } }> close </span>
                             :
-                            <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px'}}>
-                                {!isLive.live && canUndo && 
-                                    <span className="material-icons mui noselect button-big top-button" style={{opacity: canUndo ? 1 : 0.3}} 
-                                          onClick={() => { if(canUndo) undoMove() }}> undo </span>
-                                }
-                                <span className="material-icons mui noselect button-big top-button" onClick={() => { restartGame() }}> cached </span>
-                            </div>
+                            <span className="material-icons mui noselect button-big top-button" onClick={() => { restartGame() }}> cached </span>
                         }
                         </div>
                     </div>
@@ -1345,6 +1355,11 @@ const Game = () => {
                                 </Menu>
                             </div>
                         </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '2px', visibility: (showUndo && canUndo) ? 'visible' : 'hidden' }}>
+                        <h3 className='undo-button cursor-pointer noselect'
+                            style={{ '--player-color': player_color[next_player.player] }}
+                            onClick={() => { if(canUndo) undoMove() }}>undo</h3>
                     </div>
                     <ToastContainer
                         transition={Slide}
