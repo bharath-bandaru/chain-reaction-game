@@ -1,5 +1,6 @@
 body {
   margin: 0;
+  overflow: hidden;
   background-color: #191919;
   color: #fff;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -832,8 +833,7 @@ code {
   font-size: 17px;
   border-radius: 5px;
   padding-top: 2px;
-  margin-block-start: 5px;
-  margin-block-end: 5px;
+  margin: 0;
   z-index: 100;
   transition: background-color 0.15s, color 0.15s;
 }
@@ -843,12 +843,12 @@ code {
   background: var(--player-color);
   color: #000;
   border: solid 1px var(--player-color);
-  padding: 1px 51px 4px 51px;
+  padding: 0px 50px 5px 50px;
+  padding-top: 2px;
   font-weight: 500;
   font-size: 17px;
   border-radius: 5px;
-  margin-block-start: 6px;
-  margin-block-end: 4px;
+  margin: 0;
 }
 
 .title-y-button {
@@ -963,8 +963,10 @@ code {
 }
 
 .loader-center-div {
-  position: absolute;
-  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
   width: 100%;
   background: #000000bd;
   overflow-x: hidden;

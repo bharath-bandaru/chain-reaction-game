@@ -1245,7 +1245,7 @@ const Game = () => {
                             <div style={{ zIndex: 100, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                             {
                                 !isLive.live &&
-                                <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "0px" }}>
                                     <span className="material-icons mui noselect butt" onClick={addPlayer}> add </span>
                                     <span className="material-icons mui-people noselect"> groups </span>
                                     <span className="material-icons mui noselect butt" onClick={removePlayer}> remove </span>
@@ -1328,7 +1328,13 @@ const Game = () => {
                                 {isSafari ? <span>❤️</span> : <img src={likeIcon} alt="like" width="20px" />}
                             </div>
                             {(!isLoading && (title_message === 'start' || title_message === 'chain reaction')) &&
-                                <h3 id='title' className={(title_message === "start") ? 'title-button cursor-pointer noselect' : 'cursor-pointer noselect'} onClick={() => onClickTitle()}>{title_message}</h3>}
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '52px', marginTop: '5px', marginBottom: "5px" }}>
+                                {(showUndo && canUndo) ?
+                                <h3 className='undo-button cursor-pointer noselect'
+                                    style={{ '--player-color': player_color[next_player.player] }}
+                                    onClick={() => { if(canUndo) undoMove() }}>undo</h3> :
+                                <h3 id='title' style={{ margin: 0 }} className={(title_message === "start") ? 'title-button cursor-pointer noselect' : 'cursor-pointer noselect'} onClick={() => onClickTitle()}>{title_message}</h3>}
+                                </div>}
                             {!isMainLoading && (title_message === 'waiting' || isLoading) && <div style={{ margin: "26px" }} className="loading"></div>}
                             {!isMainLoading && (title_message === 'next') &&
                                 <h3 className='title-y-button cursor-pointer noselect'
@@ -1355,11 +1361,6 @@ const Game = () => {
                                 </Menu>
                             </div>
                         </div>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '2px', visibility: (showUndo && canUndo) ? 'visible' : 'hidden' }}>
-                        <h3 className='undo-button cursor-pointer noselect'
-                            style={{ '--player-color': player_color[next_player.player] }}
-                            onClick={() => { if(canUndo) undoMove() }}>undo</h3>
                     </div>
                     <ToastContainer
                         transition={Slide}

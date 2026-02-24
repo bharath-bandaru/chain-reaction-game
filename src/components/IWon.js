@@ -34,14 +34,12 @@ export const IWon = ({ wonStatus, showAboutMe, logEvent }) => {
                             </div>}
                             <img style={{marginTop:"5px"}} src={wonStatus ? won : lose} alt="won" width={'300px'}></img>
                         </div>
-                        <div>
-                        <div style={{ textAlign: 'center' }}>
-                            <p style={{ marginBottom: "10px", fontSize: "14px", color: "#cecece95"  }}>Check out our new game <b style={{color:"#a1954e"}}>ESCAPE</b> <br/>on Play Store now! 😶‍🌫️ 🚀</p>
-                            <a href="https://play.google.com/store/apps/details?id=com.bhvp.escapeGame&pcampaignid=chain_reaction" target="_blank" rel="noopener noreferrer">
-                                <img onClick={()=>logEvent("escape")} src={require('../images/gplay.png')} alt="Play Game" style={{ width: "100px", cursor: "pointer", opacity:"0.9", borderRadius:"5px", boxShadow: "rgb(255 196 58) 0px 3px 25px" }} />
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginTop: '50px', width: '100%' }}>
+                            <p style={{ marginBottom: "20px", fontSize: "14px", color: "#cecece95"  }}>Check out our new app <b style={{color:"#a1954e"}}>"roamates"</b> <br/>on Play Store now! 😶‍🌫️ 🚀</p>
+                            <a href="https://play.google.com/store/apps/details?id=us.ephileo.roamates" target="_blank" rel="noopener noreferrer">
+                                <img onClick={()=>logEvent("escape")} src={require('../images/logo-roamates.png')} alt="Play Game" style={{ width: "75px", cursor: "pointer", opacity:"0.9", borderRadius:"20px", boxShadow: "rgb(255 196 58) 0px 3px 25px" }} />
                             </a>
                         </div>
-                    </div>
                     </div>
                 </div>
 

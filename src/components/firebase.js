@@ -5,9 +5,25 @@ import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 import { get, getDatabase, onDisconnect, ref, set } from "firebase/database";
 
 
-
+// const firebaseConfig = {
+//     apiKey: "AIzaSyCwTUxZUqK89uapKCbMMbMHXk2eU-NsKq0",
+//     authDomain: "chain-reaction-18013.firebaseapp.com",
+//     databaseURL: "https://chain-reaction-18013-default-rtdb.firebaseio.com",
+//     projectId: "chain-reaction-18013",
+//     storageBucket: "chain-reaction-18013.appspot.com",
+//     messagingSenderId: "626865732219",
+//     appId: "1:626865732219:web:287a045ff6b6711b3100de",
+//     measurementId: "G-YW168Y2371"
+// };
 const firebaseConfig = {
-
+  apiKey: "AIzaSyCLSy9k_zMh-c64zjmJMALAlEsn1gj3owg",
+  authDomain: "chain-reaction-game-fa325.firebaseapp.com",
+  databaseURL: "https://chain-reaction-game-fa325-default-rtdb.firebaseio.com",
+  projectId: "chain-reaction-game-fa325",
+  storageBucket: "chain-reaction-game-fa325.firebasestorage.app",
+  messagingSenderId: "1010185730820",
+  appId: "1:1010185730820:web:8cd1299c655152e7e36e51",
+  measurementId: "G-KMV3P1BBTK"
 };
 
 // Initialize Firebase
