@@ -2,7 +2,7 @@
     <!-- Firebase (Auth + Realtime Database) needs network access. -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="chain reaction"
+        android:label="Chain Reaction"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

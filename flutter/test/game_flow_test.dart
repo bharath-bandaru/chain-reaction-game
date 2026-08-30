@@ -47,7 +47,7 @@ void main() {
 
     expect(find.byKey(const ValueKey('cell_0_0')), findsOneWidget);
     expect(find.byKey(const ValueKey('cell_8_5')), findsOneWidget);
-    expect(find.text('chain reaction'), findsOneWidget);
+    expect(find.text('Chain Reaction'), findsOneWidget);
     expect(find.text('❤️'), findsOneWidget);
     expect(find.text('🚀'), findsOneWidget);
   });

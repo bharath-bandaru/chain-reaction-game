@@ -1,6 +1,6 @@
 /// Game-wide constants shared across logic and UI.
 abstract final class AppConstants {
-  static const String appTitle = 'chain reaction';
+  static const String appTitle = 'Chain Reaction';
   static const String version = '1.8.1';
 
   /// Default board (portrait): 9 rows x 6 columns.
