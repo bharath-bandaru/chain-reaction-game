@@ -122,7 +122,7 @@ class _TopStatusBarState extends State<TopStatusBar>
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                   const SizedBox(width: 5),

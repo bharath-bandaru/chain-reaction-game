@@ -127,14 +127,16 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                   child: LayoutBuilder(
                     builder: (context, constraints) {
+                      // The board never grows past a fixed height, so large
+                      // screens (tablets, desktop windows) keep sane cells.
+                      final maxBoardHeight =
+                          game.boardSizeKey == '0' ? 500.0 : 550.0;
+                      final availableHeight = (constraints.maxHeight -
+                              _headerReserve -
+                              _footerReserve)
+                          .clamp(0.0, maxBoardHeight);
                       final cellSize = (constraints.maxWidth / game.cols)
-                          .clamp(
-                            0.0,
-                            (constraints.maxHeight -
-                                    _headerReserve -
-                                    _footerReserve) /
-                                game.rows,
-                          )
+                          .clamp(0.0, availableHeight / game.rows)
                           .floorToDouble();
                       final boardWidth = cellSize * game.cols;
 

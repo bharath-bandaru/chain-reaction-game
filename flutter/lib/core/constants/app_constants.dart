@@ -30,6 +30,7 @@ abstract final class AppConstants {
   static const String gameLink =
       'https://bharath-bandaru.github.io/chain-reaction-game/';
 
+  static const String ephileoUrl = 'https://ephileo.us';
   static const String supportUrl =
       'https://www.paypal.com/donate/?business=QTCZHFFF6J6HE&no_recurring=0&currency_code=USD';
 }

@@ -14,6 +14,12 @@ class WinOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Rendered at 300 wide; the GIFs carry ~20px of baked-in margin on every
+    // side, so the visible frame is inset by 20 and the image overflows it
+    // (centered), cropping all four edges equally.
+    // won.gif is 480x288, lose.gif is 498x305.
+    final renderedHeight = won ? 300 * 288 / 480 : 300 * 305 / 498;
+
     return Container(
       color: const Color(0xE3000000),
       child: Center(
@@ -23,14 +29,45 @@ class WinOverlay extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'Designed and Developed by © Bharath Bandaru',
-                style: TextStyle(color: AppColors.mutedText, fontSize: 9),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Designed and Developed by © ',
+                    style: TextStyle(color: AppColors.mutedText, fontSize: 9),
+                  ),
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => launchUrl(
+                      Uri.parse(AppConstants.ephileoUrl),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                    child: const Text(
+                      'ephileo',
+                      style: TextStyle(
+                        color: AppColors.mutedText,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 5),
-              Image.asset(
-                won ? 'assets/images/won.gif' : 'assets/images/lose.gif',
-                width: 300,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  width: 300 - 3,
+                  height: renderedHeight - 3,
+                  child: OverflowBox(
+                    maxWidth: 300,
+                    maxHeight: renderedHeight,
+                    child: Image.asset(
+                      won ? 'assets/images/won.gif' : 'assets/images/lose.gif',
+                      width: 300,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -40,9 +77,10 @@ class WinOverlay extends StatelessWidget {
   }
 }
 
-/// The web app's layered support button: the solid `#FFC43A` `.support-btn`
-/// stacked 8px above a white-outlined ghost copy (`.support-btn-2`), and on
-/// press the solid button drops down into the shadow.
+/// Layered support button: the solid `#FFC43A` pill sits up-left of a
+/// slightly larger white-outlined backdrop box; on press the button expands
+/// to fill the backdrop exactly, then launches the support link and springs
+/// back.
 class SupportShadowButton extends StatefulWidget {
   const SupportShadowButton({super.key});
 
@@ -51,32 +89,36 @@ class SupportShadowButton extends StatefulWidget {
 }
 
 class _SupportShadowButtonState extends State<SupportShadowButton> {
-  static const double _drop = 8;
   static const Color _gold = Color(0xFFFFC43A);
 
-  bool _pressed = false;
+  /// Idle button size; the backdrop box is [_inflate] wider on each side
+  /// and sits [_dropY] lower.
+  static const double _width = 120;
+  static const double _height = 36;
+  static const double _inflate = 6;
+  static const double _dropY = 10;
+
+  bool _expanded = false;
 
   Future<void> _handleTap() async {
-    // Pressed was already set by onTapDown; hold it briefly so the drop
-    // into the shadow is visible, then launch and release.
+    // Expanded was already set by onTapDown; hold it so the grow into the
+    // backdrop is visible, then launch and spring back.
     HapticFeedback.lightImpact();
-    await Future.delayed(const Duration(milliseconds: 140));
+    await Future.delayed(const Duration(milliseconds: 220));
     await launchUrl(
       Uri.parse(AppConstants.supportUrl),
       mode: LaunchMode.externalApplication,
     );
-    if (mounted) setState(() => _pressed = false);
+    if (mounted) setState(() => _expanded = false);
   }
 
-  /// One pill layer. Both layers carry a 1px border (the solid one in its
-  /// own fill color) so their metrics are pixel-identical and the drop
-  /// lands exactly on the outline.
-  Widget _pill({required bool ghost}) {
-    final content = Row(
+  @override
+  Widget build(BuildContext context) {
+    const content = Row(
       mainAxisSize: MainAxisSize.min,
-      children: const [
+      children: [
         Icon(Icons.favorite, size: 19, color: AppColors.background),
-        SizedBox(width: 4),
+        SizedBox(width: 6),
         Text(
           'Support',
           style: TextStyle(
@@ -89,38 +131,53 @@ class _SupportShadowButtonState extends State<SupportShadowButton> {
         ),
       ],
     );
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 7, 14, 8),
-      decoration: BoxDecoration(
-        color: ghost ? Colors.transparent : _gold,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: ghost ? Colors.white : _gold),
-      ),
-      child: ghost ? Opacity(opacity: 0, child: content) : content,
-    );
-  }
 
-  @override
-  Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapCancel: () => setState(() => _pressed = false),
+      onTapDown: (_) => setState(() => _expanded = true),
+      onTapCancel: () => setState(() => _expanded = false),
       onTap: _handleTap,
-      child: Stack(
-        children: [
-          // White-outlined ghost sitting below the solid button.
-          Padding(
-            padding: const EdgeInsets.only(top: _drop),
-            child: _pill(ghost: true),
-          ),
-          // Solid button drops into the ghost while pressed.
-          AnimatedPadding(
-            duration: const Duration(milliseconds: 100),
-            curve: Curves.easeOut,
-            padding: EdgeInsets.only(top: _pressed ? _drop : 0),
-            child: _pill(ghost: false),
-          ),
-        ],
+      child: SizedBox(
+        width: _width + _inflate * 2,
+        height: _height + _dropY,
+        child: Stack(
+          children: [
+            // White-outlined backdrop box, offset down behind the button.
+            Positioned(
+              left: 0,
+              right: 0,
+              top: _dropY,
+              bottom: 0,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white, width: 1.6),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            // The gold button; on press it grows to fill the backdrop.
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOutCubic,
+              left: _expanded ? 0 : _inflate,
+              right: _expanded ? 0 : _inflate,
+              top: _expanded ? _dropY : 0,
+              bottom: _expanded ? 0 : _dropY,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                curve: Curves.easeOutCubic,
+                decoration: BoxDecoration(
+                  color: _gold,
+                  borderRadius: BorderRadius.circular(_expanded ? 10 : 8),
+                ),
+                // scaleDown keeps wide font metrics from overflowing the
+                // fixed-size button (identical rendering when content fits).
+                child: const Center(
+                  child: FittedBox(fit: BoxFit.scaleDown, child: content),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
