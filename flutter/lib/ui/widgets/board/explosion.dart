@@ -24,7 +24,7 @@ class Explosion extends StatelessWidget {
   Widget build(BuildContext context) {
     // Matches the single-orb painter size so the hand-off into the arriving
     // orb is seamless.
-    final dotSize = cellSize * 0.35;
+    final dotSize = cellSize * 0.33;
 
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),

@@ -123,12 +123,12 @@ class _OrbPainter extends CustomPainter {
 
   // Circle centers + viewbox sizes lifted from the web app's SVGs.
   // Each tuple: (viewBoxW, viewBoxH, targetWidthFraction, centers).
-  static const _one = (60.0, 60.0, 0.40, [Offset(30, 30)]);
-  static const _two = (82.0, 90.0, 0.55, [Offset(30, 30), Offset(52, 60)]);
+  static const _one = (60.0, 60.0, 0.37, [Offset(30, 30)]);
+  static const _two = (82.0, 90.0, 0.51, [Offset(30, 30), Offset(52, 60)]);
   static const _three = (
     104.0,
     90.0,
-    0.70,
+    0.65,
     [Offset(52, 30), Offset(30, 60), Offset(74, 60)],
   );
 
