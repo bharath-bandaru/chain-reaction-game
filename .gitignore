@@ -38,3 +38,4 @@ deploy.md
 /build
 src/components/firebase.js
 others/.firebaserc
+flutter/lib/firebase_options.dart

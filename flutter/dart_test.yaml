@@ -1,0 +1,6 @@
+# Heavy end-to-end AI simulations are opt-in:
+#   flutter test --tags=slow --run-skipped   # run only the simulations
+#   flutter test                             # fast suite (simulations excluded)
+tags:
+  slow:
+    skip: "Slow AI simulation — run explicitly with --tags=slow --run-skipped"
