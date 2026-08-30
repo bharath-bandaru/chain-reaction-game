@@ -19,8 +19,8 @@ Board emptyBoard(int rows, int cols) =>
 
 /// Deep copy of a board (used for undo history and AI simulations).
 Board copyBoard(Board board) => [
-      for (final row in board) [for (final cell in row) cell?.copy()],
-    ];
+  for (final row in board) [for (final cell in row) cell?.copy()],
+];
 
 /// Critical mass of cell (i, j): 1 for corners, 2 for edges, 3 for inner
 /// cells. A cell explodes when an orb is added while it is already at its

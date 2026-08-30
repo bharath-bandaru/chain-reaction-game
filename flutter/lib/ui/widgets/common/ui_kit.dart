@@ -1,8 +1,8 @@
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/haptics.dart';
 
 /// Accent icon tile, iOS-Settings style: a squircle filled with a soft
 /// top-lit accent gradient, a crisp white glyph, and a gentle ambient glow
@@ -73,12 +73,9 @@ class SheetHandle extends StatelessWidget {
   }
 }
 
-
-/// Liquid-glass panel shared by the bottom sheets: an even translucent fill
-/// over a blurred backdrop, so the board's colour bleeds through. The
-/// surface is deliberately flat — no rim light, no gradient wash. On phones
-/// only the top corners are rounded (the sheet is flush with the bottom);
-/// on tablets the sheet floats, so all corners round.
+/// Solid panel shared by the bottom sheets, in the app background color.
+/// On phones only the top corners are rounded (the sheet is flush with the
+/// bottom); on tablets the sheet floats, so all corners round.
 class SheetSurface extends StatelessWidget {
   const SheetSurface({super.key, required this.child});
 
@@ -93,30 +90,9 @@ class SheetSurface extends StatelessWidget {
         : const BorderRadius.vertical(top: Radius.circular(_radius));
     return ClipRRect(
       borderRadius: shape,
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 28, sigmaY: 28),
-        child: CustomPaint(
-          painter: _GlassBody(),
-          child: child,
-        ),
-      ),
+      child: ColoredBox(color: AppColors.background, child: child),
     );
   }
-}
-
-/// Even translucent tint, flat by design.
-class _GlassBody extends CustomPainter {
-  /// Kept well short of opaque — this is what lets the blurred board show
-  /// through and makes the panel read as glass rather than as paint.
-  static const Color _tint = Color(0xC7191919);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.drawRect(Offset.zero & size, Paint()..color = _tint);
-  }
-
-  @override
-  bool shouldRepaint(_GlassBody oldDelegate) => false;
 }
 
 /// Dark circular button used across the header and footer.
@@ -139,7 +115,10 @@ class RoundIconButton extends StatelessWidget {
       shape: const CircleBorder(),
       child: InkWell(
         customBorder: const CircleBorder(),
-        onTap: onTap,
+        onTap: () {
+          Haptics.tap();
+          onTap();
+        },
         child: SizedBox(
           width: size,
           height: size,
@@ -179,7 +158,12 @@ class SheetOptionRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         child: InkWell(
           borderRadius: BorderRadius.circular(18),
-          onTap: enabled ? onTap : null,
+          onTap: enabled
+              ? () {
+                  Haptics.tap();
+                  onTap();
+                }
+              : null,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
@@ -249,7 +233,10 @@ class SheetToggleRow extends StatelessWidget {
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
-        onTap: () => onChanged(!value),
+        onTap: () {
+          Haptics.tap();
+          onChanged(!value);
+        },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Row(
@@ -281,7 +268,10 @@ class SheetToggleRow extends StatelessWidget {
               ),
               Switch(
                 value: value,
-                onChanged: onChanged,
+                onChanged: (v) {
+                  Haptics.tap();
+                  onChanged(v);
+                },
                 activeThumbColor: Colors.white,
                 activeTrackColor: AppColors.chipGreen,
                 inactiveThumbColor: Colors.white70,
@@ -324,6 +314,7 @@ class _PillButtonState extends State<PillButton> {
   /// Fills the button with the accent color and keeps it filled briefly
   /// after the tap, so the click visibly registers.
   Future<void> _handleTap() async {
+    Haptics.tap();
     setState(() => _pressed = true);
     widget.onTap();
     await Future.delayed(const Duration(milliseconds: 250));
@@ -348,7 +339,7 @@ class _PillButtonState extends State<PillButton> {
           widget.text,
           style: TextStyle(
             color: _pressed ? Colors.black : Colors.white,
-            fontSize: 17,
+            fontSize: 20,
             fontWeight: FontWeight.w500,
           ),
         ),

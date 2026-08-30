@@ -8,6 +8,7 @@ import '../../../logic/game_controller.dart';
 import '../menus/settings_menu.dart';
 import '../sheets/confirm_sheet.dart';
 import 'player_dots.dart';
+import '../../../core/haptics.dart';
 
 /// Board header, sized to the board's width so its icons sit right on the
 /// board's top corners (per the mockup):
@@ -36,8 +37,8 @@ class GameHeader extends StatelessWidget {
                 onTap: () => _changePlayerCount(context, game, add: true),
               ),
               const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: Icon(Icons.groups, color: Colors.white, size: 30),
+                padding: EdgeInsets.fromLTRB(4, 0, 4, 4),
+                child: Icon(Icons.groups, color: Colors.white, size: 32),
               ),
               _FlatIconButton(
                 icon: Icons.remove,
@@ -49,21 +50,21 @@ class GameHeader extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 2,
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white54),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  game.roomCode,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 3,
+              CustomPaint(
+                painter: _DottedBorderPainter(),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 2,
+                  ),
+                  child: Text(
+                    game.roomCode,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 18,
+                      letterSpacing: 3,
+                    ),
                   ),
                 ),
               ),
@@ -152,11 +153,45 @@ class _FlatIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       customBorder: const CircleBorder(),
-      onTap: onTap,
+      onTap: () {
+        Haptics.tap();
+        onTap();
+      },
       child: Padding(
         padding: const EdgeInsets.all(6),
         child: Icon(icon, color: Colors.white, size: size),
       ),
     );
   }
+}
+/// Web `.live-code` border: evenly spaced round white dots tracing a
+/// rounded rectangle around the room code.
+class _DottedBorderPainter extends CustomPainter {
+  static const double _dotRadius = 1.6;
+  static const double _spacing = 7;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final dot = Paint()..color = Colors.white;
+    final corners = [
+      Offset.zero,
+      Offset(size.width, 0),
+      Offset(size.width, size.height),
+      Offset(0, size.height),
+    ];
+    // Dots are laid out per edge, with the per-edge spacing rounded so a
+    // dot lands exactly on every corner (each corner is drawn once, as the
+    // first dot of its outgoing edge).
+    for (var e = 0; e < 4; e++) {
+      final a = corners[e];
+      final b = corners[(e + 1) % 4];
+      final count = ((b - a).distance / _spacing).round().clamp(1, 1 << 16);
+      for (var i = 0; i < count; i++) {
+        canvas.drawCircle(Offset.lerp(a, b, i / count)!, _dotRadius, dot);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DottedBorderPainter oldDelegate) => false;
 }

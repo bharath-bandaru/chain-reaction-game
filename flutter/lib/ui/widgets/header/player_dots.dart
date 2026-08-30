@@ -39,15 +39,16 @@ class PlayerDots extends StatelessWidget {
   Widget _indicatorFor(GameController game, int index) {
     // Online games highlight *your* seat; local games highlight whoever
     // moves next (matching the React render logic).
-    final highlighted =
-        game.isLive ? index == game.mainPlayer : index == game.nextPlayer;
+    final highlighted = game.isLive
+        ? index == game.mainPlayer
+        : index == game.nextPlayer;
 
     if (!game.isLive && index == game.aiPlayerIndex) {
       return KeyedSubtree(
         key: index == game.nextPlayer ? activeDotKey : null,
         child: RobotAvatar(
-          thinking: game.aiThinking ||
-              (index == game.nextPlayer && !game.gameOver),
+          thinking:
+              game.aiThinking || (index == game.nextPlayer && !game.gameOver),
           color: AppColors.players[AppConstants.aiPlayerIndex],
         ),
       );

@@ -38,10 +38,20 @@ class ChainReactionApp extends StatelessWidget {
             color: AppColors.surface,
             textStyle: const TextStyle(color: Colors.white, fontSize: 14),
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20)),
+              borderRadius: BorderRadius.circular(20),
+            ),
           ),
           dividerTheme: const DividerThemeData(color: Colors.white10),
           useMaterial3: true,
+        ),
+        // Fixed layout: text sizes are tuned to the board, so the system
+        // font-size (Dynamic Type) setting is ignored and everything is
+        // rendered slightly smaller than the specified point sizes.
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: const TextScaler.linear(0.85)),
+          child: child!,
         ),
         home: const GameScreen(),
       ),

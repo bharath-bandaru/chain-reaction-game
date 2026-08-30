@@ -8,6 +8,7 @@ class PreferencesService {
   static const _kShowAnimation = 'showAnimation';
   static const _kShowUndo = 'showUndo';
   static const _kAiLevel = 'ai-level';
+  static const _kHaptics = 'hapticsEnabled';
 
   final SharedPreferences _prefs;
 
@@ -22,4 +23,7 @@ class PreferencesService {
 
   String get aiLevel => _prefs.getString(_kAiLevel) ?? '2';
   set aiLevel(String value) => _prefs.setString(_kAiLevel, value);
+
+  bool get hapticsEnabled => _prefs.getBool(_kHaptics) ?? true;
+  set hapticsEnabled(bool value) => _prefs.setBool(_kHaptics, value);
 }

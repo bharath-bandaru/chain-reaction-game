@@ -3,29 +3,16 @@ import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../logic/game_controller.dart';
+import '../common/dot_loader.dart';
 import '../common/ui_kit.dart';
 import '../menus/online_menu.dart';
+import '../../../core/haptics.dart';
 
 /// Board footer, sized to the board's width so the like emoji and the online
 /// menu sit right on the board's bottom corners (per the mockup), with the
 /// title / undo / spinner centered between them.
-class GameFooter extends StatefulWidget {
+class GameFooter extends StatelessWidget {
   const GameFooter({super.key});
-
-  @override
-  State<GameFooter> createState() => _GameFooterState();
-}
-
-class _GameFooterState extends State<GameFooter> {
-  bool _justLiked = false;
-
-  Future<void> _like(GameController game) async {
-    await game.like();
-    if (!mounted) return;
-    setState(() => _justLiked = true);
-    await Future.delayed(const Duration(seconds: 3));
-    if (mounted) setState(() => _justLiked = false);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,13 +27,13 @@ class _GameFooterState extends State<GameFooter> {
         children: [
           InkWell(
             customBorder: const CircleBorder(),
-            onTap: () => _like(game),
-            child: Padding(
-              padding: const EdgeInsets.all(6),
-              child: Text(
-                _justLiked ? '🥳' : '❤️',
-                style: const TextStyle(fontSize: 24),
-              ),
+            onTap: () {
+              Haptics.tap();
+              game.like();
+            },
+            child: const Padding(
+              padding: EdgeInsets.all(6),
+              child: Text('❤️', style: TextStyle(fontSize: 24)),
             ),
           ),
           Expanded(child: Center(child: _centerContent(game))),
@@ -59,11 +46,7 @@ class _GameFooterState extends State<GameFooter> {
   Widget _centerContent(GameController game) {
     // Spinner while waiting for players to join a room.
     if (game.isLoading) {
-      return const SizedBox(
-        width: 24,
-        height: 24,
-        child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white54),
-      );
+      return const DotFlashingLoader();
     }
 
     final title = game.titleMessage;
@@ -87,7 +70,7 @@ class _GameFooterState extends State<GameFooter> {
         TitleMessages.chainReaction,
         style: TextStyle(
           color: Colors.white,
-          fontSize: 20,
+          fontSize: 23,
           fontWeight: FontWeight.w700,
         ),
       );
@@ -114,7 +97,7 @@ class _GameFooterState extends State<GameFooter> {
       title,
       style: const TextStyle(
         color: Colors.white,
-        fontSize: 20,
+        fontSize: 22,
         fontWeight: FontWeight.w700,
       ),
     );

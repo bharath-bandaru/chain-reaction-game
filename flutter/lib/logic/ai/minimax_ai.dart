@@ -66,8 +66,14 @@ List<int>? findBestMove(Map<String, dynamic> args) {
     final depth = stopwatch.elapsedMilliseconds >= _searchBudgetMs
         ? 0
         : depths[random.nextInt(depths.length)];
-    final moveValue = _minimax(newBoard, depth, double.negativeInfinity,
-        double.infinity, false, stopwatch);
+    final moveValue = _minimax(
+      newBoard,
+      depth,
+      double.negativeInfinity,
+      double.infinity,
+      false,
+      stopwatch,
+    );
 
     // Prefer moves adjacent to opponent orbs.
     final proximity = _opponentAdjacency(board, move[0], move[1], 1);
@@ -90,14 +96,18 @@ List<int>? findBestMove(Map<String, dynamic> args) {
 /// orb conservation over the search's internal move model.
 @visibleForTesting
 List<List<int>> simulateMoveForTest(
-    List<List<int>> board, List<int> move, int player) {
+  List<List<int>> board,
+  List<int> move,
+  int player,
+) {
   final copy = _copy(board);
   _makeMove(copy, move, player);
   return copy;
 }
 
-List<List<int>> _copy(List<List<int>> board) =>
-    [for (final row in board) List<int>.of(row)];
+List<List<int>> _copy(List<List<int>> board) => [
+  for (final row in board) List<int>.of(row),
+];
 
 int _maxState(int i, int j, int rows, int cols) {
   final onRowEdge = i == 0 || i == rows - 1;
@@ -220,8 +230,14 @@ int _evaluate(List<List<int>> board) {
   return score;
 }
 
-double _minimax(List<List<int>> board, int depth, double alpha, double beta,
-    bool maximizing, Stopwatch stopwatch) {
+double _minimax(
+  List<List<int>> board,
+  int depth,
+  double alpha,
+  double beta,
+  bool maximizing,
+  Stopwatch stopwatch,
+) {
   // Depth exhausted — or the time budget is: degrade to a static evaluation
   // so one deep subtree can never blow past the response-time cap.
   if (depth == 0 || stopwatch.elapsedMilliseconds >= _searchBudgetMs) {

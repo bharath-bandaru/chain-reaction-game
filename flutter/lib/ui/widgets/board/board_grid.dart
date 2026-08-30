@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/haptics.dart';
 import '../../../logic/game_controller.dart';
 import '../../../models/cell.dart';
 import 'explosion.dart';
@@ -15,11 +16,7 @@ import 'orb.dart';
 /// with the board edges); [boardKey] exposes the grid's geometry to the
 /// flying-dot animation.
 class BoardGrid extends StatelessWidget {
-  const BoardGrid({
-    super.key,
-    required this.boardKey,
-    required this.cellSize,
-  });
+  const BoardGrid({super.key, required this.boardKey, required this.cellSize});
 
   final GlobalKey boardKey;
   final double cellSize;
@@ -38,7 +35,9 @@ class BoardGrid extends StatelessWidget {
       // outer edge matches the inner lines (two adjacent 0.6px borders).
       foregroundDecoration: BoxDecoration(
         border: Border.all(
-            color: game.activeColor.withValues(alpha: 0.85), width: 1.2),
+          color: game.activeColor.withValues(alpha: 0.85),
+          width: 1.2,
+        ),
       ),
       child: Stack(
         children: [
@@ -114,7 +113,10 @@ class _BoardSquare extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        Haptics.tap();
+        onTap();
+      },
       behavior: HitTestBehavior.opaque,
       child: Container(
         width: cellSize,
@@ -122,7 +124,9 @@ class _BoardSquare extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.cellFill,
           border: Border.all(
-              color: borderColor.withValues(alpha: 0.85), width: 0.6),
+            color: borderColor.withValues(alpha: 0.85),
+            width: 0.6,
+          ),
         ),
         child: cell == null
             ? null

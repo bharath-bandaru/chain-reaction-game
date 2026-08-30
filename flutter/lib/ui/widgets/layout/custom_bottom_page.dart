@@ -15,12 +15,12 @@ class CustomBottomPage<T> extends PageRouteBuilder<T> {
     this.barrierColorOverride,
     this.isDismissible = true,
   }) : super(
-          opaque: false,
-          barrierColor: Colors.black54,
-          pageBuilder: (context, animation, secondaryAnimation) => child,
-          transitionDuration: const Duration(milliseconds: 450),
-          reverseTransitionDuration: const Duration(milliseconds: 350),
-        );
+         opaque: false,
+         barrierColor: Colors.black54,
+         pageBuilder: (context, animation, secondaryAnimation) => child,
+         transitionDuration: const Duration(milliseconds: 450),
+         reverseTransitionDuration: const Duration(milliseconds: 350),
+       );
 
   @override
   Widget buildTransitions(
@@ -127,8 +127,10 @@ class _CustomBottomSheetScaffoldState extends State<CustomBottomSheetScaffold>
     final delta = details.primaryDelta;
     if (delta == null) return;
     setState(() {
-      _dragOffset =
-          (_dragOffset + delta).clamp(-_maxElasticOffset, double.infinity);
+      _dragOffset = (_dragOffset + delta).clamp(
+        -_maxElasticOffset,
+        double.infinity,
+      );
     });
   }
 
@@ -149,10 +151,12 @@ class _CustomBottomSheetScaffoldState extends State<CustomBottomSheetScaffold>
         duration: const Duration(milliseconds: 250),
       );
       final offsetAnimation = Tween<double>(begin: _dragOffset, end: 0.0)
-          .animate(CurvedAnimation(
-        parent: _springBackController!,
-        curve: Curves.easeOutCubic,
-      ));
+          .animate(
+            CurvedAnimation(
+              parent: _springBackController!,
+              curve: Curves.easeOutCubic,
+            ),
+          );
       offsetAnimation.addListener(() {
         if (mounted) setState(() => _dragOffset = offsetAnimation.value);
       });
@@ -179,8 +183,9 @@ class _CustomBottomSheetScaffoldState extends State<CustomBottomSheetScaffold>
               final screenHeight = MediaQuery.sizeOf(context).height;
               final animatedOffset = screenHeight * _controller.value;
               // Upward over-drag is dampened for the elastic feel.
-              final effectiveOffset =
-                  _dragOffset < 0 ? _dragOffset * 0.5 : _dragOffset;
+              final effectiveOffset = _dragOffset < 0
+                  ? _dragOffset * 0.5
+                  : _dragOffset;
               final isTablet = isTabletLayout(context);
 
               return Stack(
@@ -194,15 +199,14 @@ class _CustomBottomSheetScaffoldState extends State<CustomBottomSheetScaffold>
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      top: screenHeight -
-                          (0 - effectiveOffset - animatedOffset),
+                      top:
+                          screenHeight - (0 - effectiveOffset - animatedOffset),
                       child: Container(color: AppColors.background),
                     ),
                   Positioned(
                     // Float above the bottom edge on tablets.
-                    bottom: (isTablet ? 40 : 0) -
-                        effectiveOffset -
-                        animatedOffset,
+                    bottom:
+                        (isTablet ? 40 : 0) - effectiveOffset - animatedOffset,
                     left: 0,
                     right: 0,
                     child: Material(
@@ -257,10 +261,14 @@ class _CustomBottomSheetScaffoldState extends State<CustomBottomSheetScaffold>
         : widget.maxHeightFactor;
 
     final maxAllowed = (size.height - topPadding - 24).clamp(0.0, size.height);
-    final maxHeight =
-        (size.height * effectiveMaxHeightFactor).clamp(0.0, maxAllowed);
-    final minHeight =
-        (size.height * widget.minHeightFactor).clamp(0.0, maxHeight);
+    final maxHeight = (size.height * effectiveMaxHeightFactor).clamp(
+      0.0,
+      maxAllowed,
+    );
+    final minHeight = (size.height * widget.minHeightFactor).clamp(
+      0.0,
+      maxHeight,
+    );
 
     // Surface visuals (glass tint, clip, rounding) belong to the child's
     // `SheetSurface`; this scaffold only provides the roamates route/drag

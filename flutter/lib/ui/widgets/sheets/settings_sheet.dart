@@ -7,6 +7,7 @@ import '../../../logic/game_controller.dart';
 import '../common/ui_kit.dart';
 import '../layout/custom_bottom_page.dart';
 import 'confirm_sheet.dart';
+import '../../../core/haptics.dart';
 
 /// Opens the game menu bottom sheet on the roamates-style custom bottom
 /// page: slide-up route, drag-to-dismiss, elastic over-drag. The glass
@@ -82,8 +83,7 @@ class SettingsSheet extends StatelessWidget {
                       return;
                     }
                     // Same segment tapped again: nothing to change.
-                    if (index ==
-                        (int.parse(game.aiLevel) - 1).clamp(0, 2)) {
+                    if (index == (int.parse(game.aiLevel) - 1).clamp(0, 2)) {
                       return;
                     }
                     final navigator = Navigator.of(context);
@@ -91,12 +91,12 @@ class SettingsSheet extends StatelessWidget {
                       // Re-leveling restarts the AI game: dismiss the menu
                       // first, then confirm.
                       navigator.pop();
-                      await Future.delayed(
-                          const Duration(milliseconds: 320));
+                      await Future.delayed(const Duration(milliseconds: 320));
                       final confirmed = await showConfirmSheetOn(
                         navigator,
                         title: 'Change difficulty?',
-                        message: 'A game is in progress — changing the '
+                        message:
+                            'A game is in progress — changing the '
                             'difficulty restarts it.',
                         confirmLabel: 'Change',
                         confirmColor: AppColors.players[0],
@@ -134,12 +134,12 @@ class SettingsSheet extends StatelessWidget {
                       // Mid-game: dismiss the menu first, then confirm on a
                       // fresh sheet of its own.
                       navigator.pop();
-                      await Future.delayed(
-                          const Duration(milliseconds: 320));
+                      await Future.delayed(const Duration(milliseconds: 320));
                       final confirmed = await showConfirmSheetOn(
                         navigator,
                         title: 'Play with Computer?',
-                        message: 'A game is in progress — switching to the '
+                        message:
+                            'A game is in progress — switching to the '
                             'AI restarts it.',
                         confirmLabel: 'Start',
                         confirmColor: AppColors.players[1],
@@ -162,12 +162,12 @@ class SettingsSheet extends StatelessWidget {
                       }
                       // Dismiss the menu first, then confirm.
                       navigator.pop();
-                      await Future.delayed(
-                          const Duration(milliseconds: 320));
+                      await Future.delayed(const Duration(milliseconds: 320));
                       final confirmed = await showConfirmSheetOn(
                         navigator,
                         title: 'Exit to friends mode?',
-                        message: 'A game is in progress — leaving AI mode '
+                        message:
+                            'A game is in progress — leaving AI mode '
                             'restarts it.',
                         confirmLabel: 'Exit',
                         confirmColor: AppColors.players[3],
@@ -217,6 +217,15 @@ class SettingsSheet extends StatelessWidget {
                 subtitle: 'Show undo under the board',
                 value: game.showUndo,
                 onChanged: (_) => game.toggleUndoButton(),
+              ),
+              const SizedBox(height: 12),
+              SheetToggleRow(
+                icon: Icons.vibration,
+                chipColor: AppColors.players[1],
+                title: 'Haptics',
+                subtitle: 'Vibrate lightly on every tap',
+                value: game.hapticsEnabled,
+                onChanged: (_) => game.toggleHaptics(),
               ),
               const SizedBox(height: 12),
               SheetOptionRow(
@@ -349,7 +358,10 @@ class _DifficultySwitch extends StatelessWidget {
                     Expanded(
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
-                        onTap: () => onChanged(i),
+                        onTap: () {
+                          Haptics.tap();
+                          onChanged(i);
+                        },
                         child: Center(
                           child: Text(
                             _labels[i],
@@ -392,7 +404,10 @@ class _BoardCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         child: InkWell(
           borderRadius: BorderRadius.circular(18),
-          onTap: onTap,
+          onTap: () {
+            Haptics.tap();
+            onTap();
+          },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 14),
             alignment: Alignment.center,

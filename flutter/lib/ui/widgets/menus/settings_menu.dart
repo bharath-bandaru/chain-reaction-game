@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../logic/game_controller.dart';
 import '../sheets/settings_sheet.dart';
+import '../../../core/haptics.dart';
 
 /// The top-left menu button: opens the game menu bottom sheet. While playing
 /// against the AI it shows an exit icon (flipped to point left, out of the
@@ -18,7 +19,10 @@ class SettingsMenuButton extends StatelessWidget {
 
     return InkWell(
       customBorder: const CircleBorder(),
-      onTap: () => showSettingsSheet(context),
+      onTap: () {
+        Haptics.tap();
+        showSettingsSheet(context);
+      },
       child: Padding(
         padding: const EdgeInsets.all(6),
         child: playingAi
@@ -27,13 +31,13 @@ class SettingsMenuButton extends StatelessWidget {
                 child: const Icon(
                   Icons.exit_to_app,
                   color: Colors.white,
-                  size: 26,
+                  size: 24,
                 ),
               )
             : const Icon(
                 Icons.dashboard_customize,
                 color: Colors.white,
-                size: 26,
+                size: 24,
               ),
       ),
     );

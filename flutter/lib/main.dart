@@ -12,11 +12,13 @@ Future<void> main() async {
   // notifications) visible over the dark canvas, locked to portrait.
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.light, // Android: light icons
-    statusBarBrightness: Brightness.dark, // iOS: dark bg -> light icons
-  ));
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light, // Android: light icons
+      statusBarBrightness: Brightness.dark, // iOS: dark bg -> light icons
+    ),
+  );
 
   final firebase = FirebaseService();
   await firebase.init();

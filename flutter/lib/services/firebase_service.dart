@@ -40,7 +40,8 @@ class FirebaseService {
   Future<void> init() async {
     try {
       await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform);
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
       _database = FirebaseDatabase.instance;
       final credential = await FirebaseAuth.instance.signInAnonymously();
       _user = credential.user;
@@ -137,11 +138,16 @@ class FirebaseService {
     final random = Random();
     final codes = <String>{};
     while (codes.length < 10000) {
-      codes.add(List.generate(
-              4, (_) => characters[random.nextInt(characters.length)])
-          .join());
+      codes.add(
+        List.generate(
+          4,
+          (_) => characters[random.nextInt(characters.length)],
+        ).join(),
+      );
     }
-    final updates = {for (final code in codes) code: {'emp': 'val'}};
+    final updates = {
+      for (final code in codes) code: {'emp': 'val'},
+    };
     await _ref('groups')!.update(updates);
   }
 
@@ -154,12 +160,13 @@ class FirebaseService {
   }
 
   Future<void> joinRoom(
-      String code, Map<String, dynamic> room, List<String> players) async {
-    await _ref('online/$code')!.set({
-      ...room,
-      'n': (room['n'] as num).toInt() + 1,
-      'players': players,
-    });
+    String code,
+    Map<String, dynamic> room,
+    List<String> players,
+  ) async {
+    await _ref(
+      'online/$code',
+    )!.set({...room, 'n': (room['n'] as num).toInt() + 1, 'players': players});
   }
 
   /// Whether [uid]'s presence node says they are currently connected
@@ -179,12 +186,13 @@ class FirebaseService {
   /// Rewrites the room's seat list (used to prune players who left while
   /// the room was still in the lobby).
   Future<void> setRoomPlayers(
-      String code, Map<String, dynamic> room, List<String> players) async {
-    await _ref('online/$code')!.set({
-      ...room,
-      'players': players,
-      'n': players.length,
-    });
+    String code,
+    Map<String, dynamic> room,
+    List<String> players,
+  ) async {
+    await _ref(
+      'online/$code',
+    )!.set({...room, 'players': players, 'n': players.length});
   }
 
   /// Removes [uid]'s seat from a lobby room; deletes the room when it was
@@ -219,8 +227,13 @@ class FirebaseService {
 
   // ---------------------------------------------------------------- moves
 
-  Future<void> sendMove(String code, int i, int j, int nextPlayer,
-      String senderId) async {
+  Future<void> sendMove(
+    String code,
+    int i,
+    int j,
+    int nextPlayer,
+    String senderId,
+  ) async {
     await _ref('hooks/$code')?.set({
       'move': {'i': i, 'j': j},
       'nextPlayer': nextPlayer,

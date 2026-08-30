@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../logic/game_controller.dart';
 import '../sheets/online_sheet.dart';
+import '../../../core/haptics.dart';
 
 /// The bottom-right 🚀 button: opens the "Play Online" bottom sheet.
 class OnlineMenuButton extends StatelessWidget {
@@ -14,7 +15,10 @@ class OnlineMenuButton extends StatelessWidget {
 
     return InkWell(
       customBorder: const CircleBorder(),
-      onTap: () => showOnlineSheet(context, game),
+      onTap: () {
+        Haptics.tap();
+        showOnlineSheet(context, game);
+      },
       child: const Padding(
         padding: EdgeInsets.all(6),
         child: Text('🚀', style: TextStyle(fontSize: 24)),

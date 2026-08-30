@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/haptics.dart';
 
 /// Win / lose overlay (`IWon.js`): result GIF and credits. The support and
 /// restart buttons float above it near the footer (placed by the screen).
@@ -38,10 +39,13 @@ class WinOverlay extends StatelessWidget {
                   ),
                   GestureDetector(
                     behavior: HitTestBehavior.opaque,
-                    onTap: () => launchUrl(
-                      Uri.parse(AppConstants.ephileoUrl),
-                      mode: LaunchMode.externalApplication,
-                    ),
+                    onTap: () {
+                      Haptics.tap();
+                      launchUrl(
+                        Uri.parse(AppConstants.ephileoUrl),
+                        mode: LaunchMode.externalApplication,
+                      );
+                    },
                     child: const Text(
                       'ephileo',
                       style: TextStyle(
@@ -101,6 +105,7 @@ class _SupportShadowButtonState extends State<SupportShadowButton> {
   bool _expanded = false;
 
   Future<void> _handleTap() async {
+    Haptics.tap();
     // Expanded was already set by onTapDown; hold it so the grow into the
     // backdrop is visible, then launch and spring back.
     HapticFeedback.lightImpact();

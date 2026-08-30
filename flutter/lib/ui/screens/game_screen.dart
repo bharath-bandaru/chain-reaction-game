@@ -6,6 +6,7 @@ import '../../core/constants/app_colors.dart';
 import '../../logic/game_controller.dart';
 import '../widgets/board/board_grid.dart';
 import '../widgets/board/flying_dot_layer.dart';
+import '../widgets/common/dot_loader.dart';
 import '../widgets/common/ui_kit.dart';
 import '../widgets/feedback/snackbar/content_type.dart';
 import '../widgets/feedback/snackbar/custom_snackbar.dart';
@@ -16,6 +17,7 @@ import '../widgets/overlays/how_to_play_overlay.dart';
 import '../widgets/overlays/win_overlay.dart';
 import '../widgets/sheets/online_sheet.dart';
 import '../widgets/sheets/settings_sheet.dart';
+import '../../core/haptics.dart';
 
 /// The single full-screen game page.
 ///
@@ -121,20 +123,22 @@ class _GameScreenState extends State<GameScreen> {
                   // Wide gutters for the board block; the likes pill above
                   // keeps its own tighter padding.
                   padding: const EdgeInsets.only(
-                    left: 30,
-                    right: 40,
+                    left: 35,
+                    right: 35,
                     bottom: 40,
                   ),
                   child: LayoutBuilder(
                     builder: (context, constraints) {
                       // The board never grows past a fixed height, so large
                       // screens (tablets, desktop windows) keep sane cells.
-                      final maxBoardHeight =
-                          game.boardSizeKey == '0' ? 500.0 : 550.0;
-                      final availableHeight = (constraints.maxHeight -
-                              _headerReserve -
-                              _footerReserve)
-                          .clamp(0.0, maxBoardHeight);
+                      final maxBoardHeight = game.boardSizeKey == '0'
+                          ? 500.0
+                          : 550.0;
+                      final availableHeight =
+                          (constraints.maxHeight -
+                                  _headerReserve -
+                                  _footerReserve)
+                              .clamp(0.0, maxBoardHeight);
                       final cellSize = (constraints.maxWidth / game.cols)
                           .clamp(0.0, availableHeight / game.rows)
                           .floorToDouble();
@@ -153,12 +157,11 @@ class _GameScreenState extends State<GameScreen> {
                                 width: boardWidth,
                                 child: GameHeader(activeDotKey: _activeDotKey),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 4),
                               BoardGrid(
                                 boardKey: _boardKey,
                                 cellSize: cellSize,
                               ),
-                              const SizedBox(height: 8),
                               SizedBox(
                                 key: _footerKey,
                                 width: boardWidth,
@@ -229,14 +232,7 @@ class _GameScreenState extends State<GameScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(
-                      width: 44,
-                      height: 44,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 3,
-                        color: Colors.white70,
-                      ),
-                    ),
+                    const DotFlashingLoader(),
                     // Waiting-room message for mid-game joiners.
                     if (game.mainLoadingMessage != null) ...[
                       const SizedBox(height: 24),
@@ -280,7 +276,10 @@ class _GameScreenState extends State<GameScreen> {
                     alignment: Alignment.bottomLeft,
                     child: InkWell(
                       customBorder: const CircleBorder(),
-                      onTap: game.leaveRoom,
+                      onTap: () {
+                        Haptics.tap();
+                        game.leaveRoom();
+                      },
                       child: Padding(
                         padding: const EdgeInsets.all(6),
                         child: Transform.flip(

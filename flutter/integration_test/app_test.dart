@@ -25,7 +25,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
     }
 
-    expect(find.text('Chain Reaction'), findsOneWidget);
+    expect(find.text('chain reaction'), findsOneWidget);
     final game =
         tester.element(find.byType(Scaffold).first).read<GameController>();
 

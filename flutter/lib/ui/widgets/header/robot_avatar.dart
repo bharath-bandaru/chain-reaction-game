@@ -30,8 +30,7 @@ class RobotAvatar extends StatelessWidget {
             ),
             child: Icon(Icons.smart_toy, size: 15, color: color),
           ),
-          if (thinking)
-            const Positioned(bottom: -1, child: _ThinkingBars()),
+          if (thinking) const Positioned(bottom: -1, child: _ThinkingBars()),
         ],
       ),
     );
@@ -71,11 +70,7 @@ class _ThinkingBarsState extends State<_ThinkingBars>
             for (var i = 0; i < 3; i++) ...[
               Container(
                 width: 3,
-                height: 3 +
-                    4 *
-                        (0.5 +
-                            0.5 *
-                                _phase(_controller.value, i / 3)),
+                height: 3 + 4 * (0.5 + 0.5 * _phase(_controller.value, i / 3)),
                 margin: const EdgeInsets.symmetric(horizontal: 1),
                 decoration: BoxDecoration(
                   color: Colors.white70,

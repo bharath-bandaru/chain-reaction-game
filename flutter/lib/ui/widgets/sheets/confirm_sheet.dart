@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/haptics.dart';
 import '../common/ui_kit.dart';
 import '../layout/custom_bottom_page.dart';
 
@@ -14,14 +15,13 @@ Future<bool> showConfirmSheet(
   required String message,
   String confirmLabel = 'Restart',
   Color confirmColor = const Color(0xFFCD0000), // player red
-}) =>
-    showConfirmSheetOn(
-      Navigator.of(context),
-      title: title,
-      message: message,
-      confirmLabel: confirmLabel,
-      confirmColor: confirmColor,
-    );
+}) => showConfirmSheetOn(
+  Navigator.of(context),
+  title: title,
+  message: message,
+  confirmLabel: confirmLabel,
+  confirmColor: confirmColor,
+);
 
 /// Same as [showConfirmSheet] but addressed to a [NavigatorState] directly —
 /// for callers whose own context is gone (e.g. a menu sheet that dismisses
@@ -70,7 +70,7 @@ class _ConfirmSheetContent extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.fromLTRB(
           24,
-          22,
+          10,
           24,
           20 + MediaQuery.viewPaddingOf(context).bottom,
         ),
@@ -141,7 +141,10 @@ class _SheetActionButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
-        onTap: onTap,
+        onTap: () {
+          Haptics.tap();
+          onTap();
+        },
         child: SizedBox(
           height: 50,
           child: Center(

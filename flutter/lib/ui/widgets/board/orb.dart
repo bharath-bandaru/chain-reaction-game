@@ -43,8 +43,10 @@ class _OrbState extends State<Orb> with SingleTickerProviderStateMixin {
   /// Discrete "frames" within one burst — glitches jump, they don't glide.
   static const _burstFrames = 7;
 
-  late final AnimationController _glitchController =
-      AnimationController(vsync: this, duration: _cycle);
+  late final AnimationController _glitchController = AnimationController(
+    vsync: this,
+    duration: _cycle,
+  );
 
   @override
   void initState() {
@@ -121,12 +123,12 @@ class _OrbPainter extends CustomPainter {
 
   // Circle centers + viewbox sizes lifted from the web app's SVGs.
   // Each tuple: (viewBoxW, viewBoxH, targetWidthFraction, centers).
-  static const _one = (60.0, 60.0, 0.34, [Offset(30, 30)]);
-  static const _two = (82.0, 90.0, 0.47, [Offset(30, 30), Offset(52, 60)]);
+  static const _one = (60.0, 60.0, 0.40, [Offset(30, 30)]);
+  static const _two = (82.0, 90.0, 0.55, [Offset(30, 30), Offset(52, 60)]);
   static const _three = (
     104.0,
     90.0,
-    0.60,
+    0.70,
     [Offset(52, 30), Offset(30, 60), Offset(74, 60)],
   );
 
@@ -172,8 +174,9 @@ class _OrbPainter extends CustomPainter {
       final split = rand.nextDouble() * size.width * 0.06;
 
       canvas.save();
-      canvas.clipRect(Rect.fromLTWH(0, b * bandHeight, size.width,
-          bandHeight + 0.5)); // +0.5 avoids hairline seams
+      canvas.clipRect(
+        Rect.fromLTWH(0, b * bandHeight, size.width, bandHeight + 0.5),
+      ); // +0.5 avoids hairline seams
       canvas.translate(shift, 0);
 
       for (final c in scaledCenters) {
@@ -187,7 +190,11 @@ class _OrbPainter extends CustomPainter {
   }
 
   void _drawOrbs(
-      Canvas canvas, List<Offset> centers, double radius, Offset shift) {
+    Canvas canvas,
+    List<Offset> centers,
+    double radius,
+    Offset shift,
+  ) {
     final fill = Paint()..color = color;
     final outline = Paint()
       ..color = AppColors.cellFill

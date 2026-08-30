@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_constants.dart';
+import '../core/haptics.dart';
 import '../models/cell.dart';
 import '../models/game_events.dart';
 import '../services/firebase_service.dart';
@@ -38,6 +39,7 @@ class GameController extends ChangeNotifier {
     aiLevel = prefs.aiLevel;
     showAnimation = prefs.showAnimation;
     showUndo = prefs.showUndo;
+    Haptics.enabled = prefs.hapticsEnabled;
     _resetBoard();
     _likesSubscription = firebase.likesStream().listen((value) {
       numberOfLikes = value;
@@ -144,13 +146,8 @@ class GameController extends ChangeNotifier {
   /// state from just before the freeze is kept so it can be restored exactly
   /// when they return.
   bool waitingForRejoin = false;
-  ({
-    String title,
-    bool loading,
-    bool mainLoading,
-    bool click,
-    String? message
-  })? _stateBeforeDisconnect;
+  ({String title, bool loading, bool mainLoading, bool click, String? message})?
+  _stateBeforeDisconnect;
 
   /// Serializes cloud events (moves, restarts). A move can arrive while the
   /// previous move's cascade is still animating locally — applying it
@@ -159,13 +156,15 @@ class GameController extends ChangeNotifier {
   Future<void> _cloudEventQueue = Future.value();
 
   void _enqueueCloudEvent(String code, Future<void> Function() action) {
-    _cloudEventQueue = _cloudEventQueue.then((_) async {
-      // The room may have been left (or switched) while this was queued.
-      if (!isLive || roomCode != code) return;
-      await action();
-    }).catchError((Object error) {
-      debugPrint('cloud event failed: $error');
-    });
+    _cloudEventQueue = _cloudEventQueue
+        .then((_) async {
+          // The room may have been left (or switched) while this was queued.
+          if (!isLive || roomCode != code) return;
+          await action();
+        })
+        .catchError((Object error) {
+          debugPrint('cloud event failed: $error');
+        });
   }
 
   /// UI hooks, wired up by the game screen.
@@ -268,7 +267,8 @@ class GameController extends ChangeNotifier {
       // The human's move in AI mode plays instantly; the AI's own move (and
       // any move when the setting is on) gets the flying-dot animation —
       // matching the web app's `onClickSquare`.
-      final humanVsAi = aiPlayerIndex == AppConstants.aiPlayerIndex &&
+      final humanVsAi =
+          aiPlayerIndex == AppConstants.aiPlayerIndex &&
           currentPlayer != AppConstants.aiPlayerIndex;
       if (!humanVsAi && (aiPlayerIndex != null || showAnimation)) {
         await _playFlyingDot(i, j);
@@ -284,8 +284,7 @@ class GameController extends ChangeNotifier {
         await firebase.sendMove(roomCode, i, j, nextPlayer, sessionId);
       } catch (error) {
         debugPrint('sendMove failed: $error');
-        onToast?.call(
-            'Move not sent — check your connection', ToastTone.error);
+        onToast?.call('Move not sent — check your connection', ToastTone.error);
       }
       return;
     }
@@ -467,7 +466,8 @@ class GameController extends ChangeNotifier {
     firebase.countGameOver(online: isLive);
 
     final lostOnline = isLive && currentPlayer != mainPlayer;
-    final lostToAi = aiPlayerIndex == AppConstants.aiPlayerIndex &&
+    final lostToAi =
+        aiPlayerIndex == AppConstants.aiPlayerIndex &&
         currentPlayer == AppConstants.aiPlayerIndex;
 
     if (lostOnline || lostToAi) {
@@ -476,9 +476,17 @@ class GameController extends ChangeNotifier {
       if (aiPlayerIndex == AppConstants.aiPlayerIndex) _increaseAiLevel();
       wonStatus = true;
       onConfetti?.call();
-      // Online, tell the winner directly (this replaces the "<color> lost."
-      // elimination toast that fires just before the game ends).
-      if (isLive) onToast?.call('You won! 🎉', ToastTone.success);
+      // Tell the winner directly (this replaces the "<color> lost."
+      // elimination toast that fires just before the game ends): online the
+      // local player won; in a friends game, announce the winning color.
+      if (isLive) {
+        onToast?.call('You won! 🎉', ToastTone.success);
+      } else if (aiPlayerIndex == null) {
+        onToast?.call(
+          '${AppColors.playerNames[currentPlayer]} won! 🎉',
+          ToastTone.success,
+        );
+      }
     }
     showIWon = true;
     titleMessage = TitleMessages.restart;
@@ -495,9 +503,7 @@ class GameController extends ChangeNotifier {
     if (moveCount >= playerCount) {
       // Bounded scan: the mover always retains orbs so a non-loser exists,
       // but if that invariant ever broke this must not hang the UI thread.
-      for (var hops = 0;
-          hops < playerCount && losers[candidate];
-          hops++) {
+      for (var hops = 0; hops < playerCount && losers[candidate]; hops++) {
         candidate = candidate < playerCount - 1 ? candidate + 1 : 0;
       }
     }
@@ -558,8 +564,10 @@ class GameController extends ChangeNotifier {
                 cell == null ? 0 : encodeCell(cell.player, cell.state),
             ],
         ];
-        final move = await compute(
-            findBestMove, {'board': encoded, 'level': aiLevel});
+        final move = await compute(findBestMove, {
+          'board': encoded,
+          'level': aiLevel,
+        });
         if (generation != _aiGeneration) return; // reset mid-compute
         aiThinking = false;
         _aiMovePending = false;
@@ -585,13 +593,15 @@ class GameController extends ChangeNotifier {
   // =================================================================== undo
 
   void _saveSnapshot() {
-    _history.add(GameSnapshot(
-      board: copyBoard(board),
-      currentPlayer: currentPlayer,
-      nextPlayer: nextPlayer,
-      losers: List.of(losers),
-      moveCount: moveCount,
-    ));
+    _history.add(
+      GameSnapshot(
+        board: copyBoard(board),
+        currentPlayer: currentPlayer,
+        nextPlayer: nextPlayer,
+        losers: List.of(losers),
+        moveCount: moveCount,
+      ),
+    );
   }
 
   void undoMove() {
@@ -630,6 +640,16 @@ class GameController extends ChangeNotifier {
   void toggleUndoButton() {
     showUndo = !showUndo;
     prefs.showUndo = showUndo;
+    notifyListeners();
+  }
+
+  bool get hapticsEnabled => Haptics.enabled;
+
+  void toggleHaptics() {
+    Haptics.enabled = !Haptics.enabled;
+    prefs.hapticsEnabled = Haptics.enabled;
+    // Confirm the new state with a tick (only fires when turning ON).
+    Haptics.tap();
     notifyListeners();
   }
 
@@ -676,13 +696,7 @@ class GameController extends ChangeNotifier {
 
   // ================================================================= likes
 
-  /// Bumped on every local like tap so the likes indicator can reveal
-  /// itself immediately (before the server round-trip updates the count).
-  int likePulse = 0;
-
   Future<void> like() async {
-    likePulse++;
-    notifyListeners();
     await firebase.addLike();
     onConfetti?.call();
   }
@@ -695,8 +709,9 @@ class GameController extends ChangeNotifier {
   bool _blockUnlessDefaultBoard() {
     if (boardSizeKey == '0') return false;
     onToast?.call(
-        'Online rooms play on the 6 x 9 board — switch your board size first',
-        ToastTone.error);
+      'Online rooms play on the 6 x 9 board — switch your board size first',
+      ToastTone.error,
+    );
     return true;
   }
 
@@ -759,7 +774,9 @@ class GameController extends ChangeNotifier {
     // web app); anything but 6x9 is unsupported.
     if ((room['board'] ?? '0') != '0') {
       onToast?.call(
-          'This room uses an unsupported board size', ToastTone.error);
+        'This room uses an unsupported board size',
+        ToastTone.error,
+      );
       return;
     }
     final players = [
@@ -811,8 +828,7 @@ class GameController extends ChangeNotifier {
       playerCount = _pendingPlayerCount!.clamp(1, AppConstants.maxPlayers);
       isLoading = false;
       isMainLoading = true;
-      mainLoadingMessage =
-          'Game in progress —\nyou will join the next round';
+      mainLoadingMessage = 'Game in progress —\nyou will join the next round';
       titleMessage = TitleMessages.chainReaction;
     } else {
       // Lobby: wait for the host to start.
@@ -836,170 +852,190 @@ class GameController extends ChangeNotifier {
   Future<void> _listenToRoom(String code) async {
     await _cancelRoomSubscriptions();
 
-    _roomSubscriptions.add(firebase.roomStream(code).listen((room) {
-      if (room == null) return;
-      const colors = ['🔵', '🟣', '🟡', '🔴'];
-      final n = ((room['n'] as num?)?.toInt() ?? playerCount)
-          .clamp(1, AppConstants.maxPlayers);
-      final started = room['status'] == 'started';
-      _roomStarted = started;
+    _roomSubscriptions.add(
+      firebase.roomStream(code).listen((room) {
+        if (room == null) return;
+        const colors = ['🔵', '🟣', '🟡', '🔴'];
+        final n = ((room['n'] as num?)?.toInt() ?? playerCount).clamp(
+          1,
+          AppConstants.maxPlayers,
+        );
+        final started = room['status'] == 'started';
+        _roomStarted = started;
 
-      // In the lobby, seats follow the room's player list — if the host
-      // leaves, everyone shifts up and the new first seat gets the start
-      // button.
-      final seats = [
-        for (final id in (room['players'] as List? ?? const [])) id.toString(),
-      ];
-      final uid = firebase.uid;
-      if (!started && uid != null && seats.contains(uid)) {
-        mainPlayer = seats.indexOf(uid);
-        if (!waitingForNextGame && !waitingForRejoin) {
-          titleMessage = mainPlayer == 0
-              ? TitleMessages.start
-              : TitleMessages.chainReaction;
+        // In the lobby, seats follow the room's player list — if the host
+        // leaves, everyone shifts up and the new first seat gets the start
+        // button.
+        final seats = [
+          for (final id in (room['players'] as List? ?? const []))
+            id.toString(),
+        ];
+        final uid = firebase.uid;
+        if (!started && uid != null && seats.contains(uid)) {
+          mainPlayer = seats.indexOf(uid);
+          if (!waitingForNextGame && !waitingForRejoin) {
+            titleMessage = mainPlayer == 0
+                ? TitleMessages.start
+                : TitleMessages.chainReaction;
+          }
         }
-      }
 
-      // A game is "in progress" once moves are on the board (and until it
-      // ends). Player-count changes then apply at the next restart so the
-      // running game's turn order and losers are never disturbed.
-      final previousCount = _lastRoomCount;
-      _lastRoomCount = n;
-      final gameInProgress =
-          started && !gameOver && (moveCount > 0 || waitingForNextGame);
-      if (gameInProgress) {
-        _pendingPlayerCount = n;
-        if (previousCount != null &&
-            n > previousCount &&
-            !waitingForNextGame) {
-          onToast?.call(
-              'A player joined — they play next game', ToastTone.info);
+        // A game is "in progress" once moves are on the board (and until it
+        // ends). Player-count changes then apply at the next restart so the
+        // running game's turn order and losers are never disturbed.
+        final previousCount = _lastRoomCount;
+        _lastRoomCount = n;
+        final gameInProgress =
+            started && !gameOver && (moveCount > 0 || waitingForNextGame);
+        if (gameInProgress) {
+          _pendingPlayerCount = n;
+          if (previousCount != null &&
+              n > previousCount &&
+              !waitingForNextGame) {
+            onToast?.call(
+              'A player joined — they play next game',
+              ToastTone.info,
+            );
+          }
+        } else {
+          playerCount = n;
         }
-      } else {
-        playerCount = n;
-      }
 
-      if (started) {
-        // Lobby -> game-start transition. Only when we were actually
-        // waiting for the start; never clobber a running game's state, a
-        // game-over "restart" title, or the mid-game waiting room.
-        if (!waitingForNextGame && (isLoading || isMainLoading)) {
-          isMainLoading = false;
-          mainLoadingMessage = null;
-          titleMessage = TitleMessages.chainReaction;
-          canClick = true;
-          showHowToPlay = false;
+        if (started) {
+          // Lobby -> game-start transition. Only when we were actually
+          // waiting for the start; never clobber a running game's state, a
+          // game-over "restart" title, or the mid-game waiting room.
+          if (!waitingForNextGame && (isLoading || isMainLoading)) {
+            isMainLoading = false;
+            mainLoadingMessage = null;
+            titleMessage = TitleMessages.chainReaction;
+            canClick = true;
+            showHowToPlay = false;
+            isLoading = false;
+          }
+        } else if (previousCount != null && n < previousCount) {
+          // Lobby seat freed (explicit leave, or the caretaker pruned an
+          // offline player) — the remaining seats have already shifted up.
+          onToast?.call('A player left the room', ToastTone.info);
+          if (n <= 1) {
+            // Alone again: back to the waiting-for-players state.
+            isMainLoading = false;
+            mainLoadingMessage = null;
+            isLoading = true;
+          }
+        } else if (n > 1) {
           isLoading = false;
+          isMainLoading = true;
+          onToast?.call(
+            '${colors[(n - 1).clamp(0, 3)]} player added',
+            ToastTone.success,
+          );
         }
-      } else if (previousCount != null && n < previousCount) {
-        // Lobby seat freed (explicit leave, or the caretaker pruned an
-        // offline player) — the remaining seats have already shifted up.
-        onToast?.call('A player left the room', ToastTone.info);
-        if (n <= 1) {
-          // Alone again: back to the waiting-for-players state.
-          isMainLoading = false;
-          mainLoadingMessage = null;
-          isLoading = true;
-        }
-      } else if (n > 1) {
-        isLoading = false;
-        isMainLoading = true;
-        onToast?.call(
-            '${colors[(n - 1).clamp(0, 3)]} player added', ToastTone.success);
-      }
-      notifyListeners();
-    }));
+        notifyListeners();
+      }),
+    );
 
     // Skip the snapshot that fires immediately on subscribe so a stale last
     // move is not replayed when (re)joining mid-game.
     _skipNextHookEvent = true;
-    _roomSubscriptions.add(firebase.moveStream(code).listen((data) {
-      if (_skipNextHookEvent) {
-        _skipNextHookEvent = false;
-        return;
-      }
-      final move = data?['move'];
-      if (move == null) return;
-      final map = Map<String, dynamic>.from(move as Map);
-      final i = (map['i'] as num).toInt();
-      final j = (map['j'] as num).toInt();
-      if (i < 0 || j < 0) {
-        _enqueueCloudEvent(code, () async => _startNextGameFromCloud());
-      } else if (!waitingForNextGame) {
-        // Waiting-room players ignore in-progress moves: they have no board
-        // history to apply them to. They sync up at the next restart.
-        final ownEcho = data?['uuid'] == sessionId;
-        _enqueueCloudEvent(
-            code, () => _playMove(i, j, fromCloud: true, ownEcho: ownEcho));
-      }
-    }));
+    _roomSubscriptions.add(
+      firebase.moveStream(code).listen((data) {
+        if (_skipNextHookEvent) {
+          _skipNextHookEvent = false;
+          return;
+        }
+        final move = data?['move'];
+        if (move == null) return;
+        final map = Map<String, dynamic>.from(move as Map);
+        final i = (map['i'] as num).toInt();
+        final j = (map['j'] as num).toInt();
+        if (i < 0 || j < 0) {
+          _enqueueCloudEvent(code, () async => _startNextGameFromCloud());
+        } else if (!waitingForNextGame) {
+          // Waiting-room players ignore in-progress moves: they have no board
+          // history to apply them to. They sync up at the next restart.
+          final ownEcho = data?['uuid'] == sessionId;
+          _enqueueCloudEvent(
+            code,
+            () => _playMove(i, j, fromCloud: true, ownEcho: ownEcho),
+          );
+        }
+      }),
+    );
 
-    _roomSubscriptions.add(firebase.restartStream(code).listen((restart) {
-      if (restart) {
-        _enqueueCloudEvent(code, () async => _startNextGameFromCloud());
-      }
-    }));
+    _roomSubscriptions.add(
+      firebase.restartStream(code).listen((restart) {
+        if (restart) {
+          _enqueueCloudEvent(code, () async => _startNextGameFromCloud());
+        }
+      }),
+    );
 
     final disconnects = await firebase.watchDisconnects(code);
-    _roomSubscriptions.add(disconnects.listen((left) {
-      if (left && !_roomStarted) {
-        // Lobby: nobody's board state is at stake. Prune whoever actually
-        // went offline (presence check) so seats shift up — if the host
-        // left, the next player inherits the start button.
-        _handleLobbyDeparture(code);
-        return;
-      }
-      if (left && !waitingForRejoin) {
-        // Freeze the room and remember the exact UI state to restore.
-        _stateBeforeDisconnect = (
-          title: titleMessage,
-          loading: isLoading,
-          mainLoading: isMainLoading,
-          click: canClick,
-          message: mainLoadingMessage,
-        );
-        waitingForRejoin = true;
-        canClick = false;
-        isLoading = false;
-        isMainLoading = true;
-        mainLoadingMessage =
-            'A player disconnected —\nwaiting for them to return';
-        onToast?.call('player left', ToastTone.error);
-        notifyListeners();
-      } else if (!left && waitingForRejoin) {
-        // They're back (their client cleared the flag): resume exactly
-        // where the room was frozen.
-        waitingForRejoin = false;
-        final previous = _stateBeforeDisconnect;
-        _stateBeforeDisconnect = null;
-        if (previous != null) {
-          titleMessage = previous.title;
-          isLoading = previous.loading;
-          isMainLoading = previous.mainLoading;
-          canClick = previous.click;
-          mainLoadingMessage = previous.message;
-        } else {
-          isMainLoading = false;
-          mainLoadingMessage = null;
-          canClick = true;
+    _roomSubscriptions.add(
+      disconnects.listen((left) {
+        if (left && !_roomStarted) {
+          // Lobby: nobody's board state is at stake. Prune whoever actually
+          // went offline (presence check) so seats shift up — if the host
+          // left, the next player inherits the start button.
+          _handleLobbyDeparture(code);
+          return;
         }
-        onToast?.call('player is back!', ToastTone.success);
-        notifyListeners();
-      }
-    }));
+        if (left && !waitingForRejoin) {
+          // Freeze the room and remember the exact UI state to restore.
+          _stateBeforeDisconnect = (
+            title: titleMessage,
+            loading: isLoading,
+            mainLoading: isMainLoading,
+            click: canClick,
+            message: mainLoadingMessage,
+          );
+          waitingForRejoin = true;
+          canClick = false;
+          isLoading = false;
+          isMainLoading = true;
+          mainLoadingMessage =
+              'A player disconnected —\nwaiting for them to return';
+          onToast?.call('player left', ToastTone.error);
+          notifyListeners();
+        } else if (!left && waitingForRejoin) {
+          // They're back (their client cleared the flag): resume exactly
+          // where the room was frozen.
+          waitingForRejoin = false;
+          final previous = _stateBeforeDisconnect;
+          _stateBeforeDisconnect = null;
+          if (previous != null) {
+            titleMessage = previous.title;
+            isLoading = previous.loading;
+            isMainLoading = previous.mainLoading;
+            canClick = previous.click;
+            mainLoadingMessage = previous.message;
+          } else {
+            isMainLoading = false;
+            mainLoadingMessage = null;
+            canClick = true;
+          }
+          onToast?.call('player is back!', ToastTone.success);
+          notifyListeners();
+        }
+      }),
+    );
 
     // Self-heal after our OWN connection blip: the server flipped the shared
     // disconnect flag on our behalf, freezing everyone (including us once we
     // reconnect and receive it). On regaining the connection, clear and
     // re-arm the flag so the whole room resumes automatically.
     var wasConnected = true;
-    _roomSubscriptions.add(firebase.connectionStream().listen((connected) {
-      if (connected && !wasConnected && isLive && roomCode == code) {
-        firebase.rearmDisconnect(code).catchError(
-            (Object error) => debugPrint('rearm failed: $error'));
-      }
-      wasConnected = connected;
-    }));
+    _roomSubscriptions.add(
+      firebase.connectionStream().listen((connected) {
+        if (connected && !wasConnected && isLive && roomCode == code) {
+          firebase
+              .rearmDisconnect(code)
+              .catchError((Object error) => debugPrint('rearm failed: $error'));
+        }
+        wasConnected = connected;
+      }),
+    );
   }
 
   /// A player left while the room was still in the lobby. The first ONLINE
@@ -1081,14 +1117,17 @@ class GameController extends ChangeNotifier {
     // lobby, free our seat so the next player inherits it (and the start
     // button); then fire the left-signal either way. Skipped entirely when
     // no room was ever claimed (e.g. create-room failure).
-    _cancelRoomSubscriptions().then((_) async {
-      if (code == '••••') return;
-      if (!roomWasStarted) {
-        await firebase.removeFromRoom(code, firebase.uid ?? '');
-      }
-      await firebase.signalLeft(code);
-    }).catchError(
-        (Object error) => debugPrint('leave signal failed: $error'));
+    _cancelRoomSubscriptions()
+        .then((_) async {
+          if (code == '••••') return;
+          if (!roomWasStarted) {
+            await firebase.removeFromRoom(code, firebase.uid ?? '');
+          }
+          await firebase.signalLeft(code);
+        })
+        .catchError(
+          (Object error) => debugPrint('leave signal failed: $error'),
+        );
     restartGame();
   }
 

@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 
 import 'content_type.dart';
 import 'default_colors.dart';
+import '../../../../core/haptics.dart';
 
 /// Public Snackbar facade — `Snackbar.show(...)` / `Snackbar.dismiss()`.
 /// Visual is a Duolingo-style pill (up to two lines, fully rounded ends,
@@ -42,26 +43,25 @@ class Snackbar {
 
     late OverlayEntry entry;
     entry = OverlayEntry(
-      builder:
-          (context) => _SnackbarWidget(
-            message: message,
-            contentType: contentType,
-            duration: duration,
-            bottom: bottom,
-            emojiOverride: emoji,
-            emojiGlyphOverride: emojiGlyph,
-            onDismiss: () {
-              entry.remove();
-              if (_currentEntry == entry) {
-                _currentEntry = null;
-                _currentState = null;
-              }
-              onDismissed?.call();
-            },
-            onStateCreated: (state) {
-              _currentState = state;
-            },
-          ),
+      builder: (context) => _SnackbarWidget(
+        message: message,
+        contentType: contentType,
+        duration: duration,
+        bottom: bottom,
+        emojiOverride: emoji,
+        emojiGlyphOverride: emojiGlyph,
+        onDismiss: () {
+          entry.remove();
+          if (_currentEntry == entry) {
+            _currentEntry = null;
+            _currentState = null;
+          }
+          onDismissed?.call();
+        },
+        onStateCreated: (state) {
+          _currentState = state;
+        },
+      ),
     );
 
     _currentEntry = entry;
@@ -121,10 +121,9 @@ class _SnackbarWidgetState extends State<_SnackbarWidget>
   // Fixed for the pill's lifetime (rebuilds from drags/keyboard must not
   // reshuffle it). An explicit override wins; otherwise a random emoji is
   // chosen once for the tone.
-  late final _PillEmoji _emoji =
-      widget.emojiOverride != null
-          ? (widget.emojiOverride!, widget.emojiGlyphOverride)
-          : _pickEmojiForContentType(widget.contentType);
+  late final _PillEmoji _emoji = widget.emojiOverride != null
+      ? (widget.emojiOverride!, widget.emojiGlyphOverride)
+      : _pickEmojiForContentType(widget.contentType);
 
   static const Duration _entryDur = Duration(milliseconds: 700);
   static const Duration _exitDur = Duration(milliseconds: 340);
@@ -173,6 +172,7 @@ class _SnackbarWidgetState extends State<_SnackbarWidget>
   void _startEntry() => _entry.forward();
 
   void _handleTap() {
+    Haptics.tap();
     if (_isDismissing) return;
     HapticFeedback.selectionClick();
     // Quick scale-down press feedback, then dismiss.
@@ -301,10 +301,9 @@ class _SnackbarWidgetState extends State<_SnackbarWidget>
       // ~8px from the anchored edge — snug against the status bar (top) or
       // the home indicator / keyboard (bottom).
       top: widget.bottom ? null : topPadding + 8,
-      bottom:
-          widget.bottom
-              ? (keyboardHeight > 0 ? keyboardHeight + 8 : bottomPadding + 8)
-              : null,
+      bottom: widget.bottom
+          ? (keyboardHeight > 0 ? keyboardHeight + 8 : bottomPadding + 8)
+          : null,
       left: 16,
       right: 16,
       child: Center(
@@ -319,10 +318,9 @@ class _SnackbarWidgetState extends State<_SnackbarWidget>
               // Exit uses a smooth slide+fade (no squash) so dismissing —
               // especially after a slide-up — glides off cleanly instead
               // of replaying the bouncy entry keyframes in reverse.
-              final state =
-                  _isDismissing
-                      ? _interpolateExit(_entry.value)
-                      : _interpolateEntry(_entry.value);
+              final state = _isDismissing
+                  ? _interpolateExit(_entry.value)
+                  : _interpolateEntry(_entry.value);
               // Tap-down briefly shrinks the whole scene to 0.96
               // before the dismiss reverse animation kicks in.
               final pressScale = 1.0 - 0.04 * _tapScale.value;
@@ -331,10 +329,9 @@ class _SnackbarWidgetState extends State<_SnackbarWidget>
                 child: Transform.translate(
                   offset: _dragOffset,
                   child: Transform(
-                    alignment:
-                        widget.bottom
-                            ? Alignment.bottomCenter
-                            : Alignment.topCenter,
+                    alignment: widget.bottom
+                        ? Alignment.bottomCenter
+                        : Alignment.topCenter,
                     transform: Matrix4.diagonal3Values(
                       state.sx * pressScale,
                       state.sy * pressScale,
@@ -434,12 +431,11 @@ final math.Random _emojiRng = math.Random();
 /// Picks a random emoji for the tone. Info → [_infoEmojis], success →
 /// [_successEmojis], failure/warning → [_failureEmojis].
 _PillEmoji _pickEmojiForContentType(ContentType type) {
-  final list =
-      type == ContentType.help
-          ? _infoEmojis
-          : type == ContentType.success
-          ? _successEmojis
-          : _failureEmojis;
+  final list = type == ContentType.help
+      ? _infoEmojis
+      : type == ContentType.success
+      ? _successEmojis
+      : _failureEmojis;
   return list[_emojiRng.nextInt(list.length)];
 }
 

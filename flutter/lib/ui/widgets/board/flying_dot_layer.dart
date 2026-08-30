@@ -30,7 +30,8 @@ class FlyingDotLayer extends StatelessWidget {
 
     final boardOrigin = boardBox.localToGlobal(Offset.zero);
     final cellSize = boardBox.size.width / game.cols;
-    final target = boardOrigin +
+    final target =
+        boardOrigin +
         Offset((event.col + 0.5) * cellSize, (event.row + 0.5) * cellSize);
 
     final dotBox =

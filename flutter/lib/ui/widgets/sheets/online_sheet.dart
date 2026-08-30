@@ -4,6 +4,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../logic/game_controller.dart';
 import '../common/ui_kit.dart';
 import '../layout/custom_bottom_page.dart';
+import '../../../core/haptics.dart';
 
 /// Actions the sheet can resolve to.
 enum OnlineAction { create, join, leave }
@@ -54,7 +55,7 @@ class OnlineSheet extends StatelessWidget {
             const SheetHandle(),
             Row(
               children: [
-                const Text('🚀', style: TextStyle(fontSize: 22)),
+                const Text('🚀', style: TextStyle(fontSize: 24)),
                 const SizedBox(width: 10),
                 const Text(
                   'Play Online',
@@ -166,14 +167,20 @@ Future<void> promptJoinRoom(BuildContext context, GameController game) async {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            Haptics.tap();
+            Navigator.of(context).pop();
+          },
           child: const Text(
             'Cancel',
             style: TextStyle(color: AppColors.mutedText),
           ),
         ),
         TextButton(
-          onPressed: () => Navigator.of(context).pop(controller.text),
+          onPressed: () {
+            Haptics.tap();
+            Navigator.of(context).pop(controller.text);
+          },
           child: const Text(
             'Join',
             style: TextStyle(
